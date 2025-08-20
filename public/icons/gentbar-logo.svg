@@ -1,0 +1,16 @@
+<svg viewBox="0 0 768 1152" xmlns="http://www.w3.org/2000/svg">
+  <rect width="768" height="1152" fill="#0f1a2f"/>
+  <!-- Couronne -->
+  <polyline points="384,50 150,210 242,80 384,150 526,80 618,210 384,50"
+    fill="none" stroke="#dc2962" stroke-width="15"/>
+  <!-- Blason -->
+  <path d="M120,210 Q60,430 120,970 Q384,1150 648,970 Q708,430 648,210"
+        fill="none" stroke="#dc2962" stroke-width="15"/>
+  <!-- Texte Gent Bar -->
+  <text x="384" y="340" text-anchor="middle" font-size="100" font-family="Arial Black,sans-serif" fill="#dc2962" font-weight="bold">GENT BAR</text>
+  <!-- Verre de bière stylisé -->
+  <rect x="284" y="420" width="200" height="310" rx="70" fill="#f7bf20" stroke="#23272f" stroke-width="25"/>
+  <rect x="284" y="420" width="200" height="60" rx="20" fill="#23272f"/>
+  <!-- Détail anse du verre -->
+  <rect x="415" y="510" width="40" height="100" rx="15" fill="#23272f"/>
+</svg>

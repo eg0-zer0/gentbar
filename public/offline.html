@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GentBar – Serveur temporairement hors ligne</title>
+  <style>
+    body {
+      font-family: Roboto, Arial, sans-serif;
+      background: #fafafa;
+      text-align: center;
+      padding: 60px 30px;
+      color: #222;
+    }
+    h1 {
+      color: #d7263d;
+    }
+    .btn-reload {
+      padding: 8px 20px;
+      background: #355c7d;
+      color: #fff;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      margin-top: 24px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Serveur temporairement hors ligne</h1>
+  <p>
+    La connexion au serveur est momentanément indisponible.<br />
+    Vérifie ta connexion internet ou réessaie plus tard.
+  </p>
+  <button class="btn-reload" onclick="window.location.reload();">Réessayer</button>
+</body>
+</html>
