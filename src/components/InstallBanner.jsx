@@ -21,7 +21,7 @@ const InstallBanner = () => {
       <div className="flex items-center gap-2">
         <Button 
           onClick={installApp}
-          variant="secondary"
+          className="btn-outline"
           size="sm"
         >
           Installer

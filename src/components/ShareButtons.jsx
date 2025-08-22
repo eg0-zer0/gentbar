@@ -1,25 +1,41 @@
 import React, { useState } from 'react';
+
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { Share2, Mail, MessageSquare, Phone, Copy, Check } from 'lucide-react';
+
+import { Share2, Mail, MessageSquare, Phone, Check } from 'lucide-react';
+
 import { useToast } from '../hooks/use-toast';
 
 const ShareButtons = ({ order, isCurrentOrder = false }) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
-  // Formate le résumé de la commande en texte clair avec retours à la ligne
   const formatOrderSummary = (orderData) => {
+    if (!orderData) return "Aucune commande à partager.";
+
     const isArray = Array.isArray(orderData);
-    const items = isArray ? orderData : orderData.items;
+    const items = isArray
+      ? orderData
+      : Array.isArray(orderData.items)
+      ? orderData.items
+      : [];
+
     const total = isArray
       ? orderData.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-      : orderData.total;
+      : orderData.total ?? 0;
 
-    const date = isArray ? new Date().toLocaleDateString('fr-FR') : new Date(orderData.date).toLocaleDateString('fr-FR');
+    const date = isArray
+      ? new Date().toLocaleDateString('fr-FR')
+      : orderData.date
+      ? new Date(orderData.date).toLocaleDateString('fr-FR')
+      : new Date().toLocaleDateString('fr-FR');
+
     const time = isArray
       ? new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      : new Date(orderData.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      : orderData.date
+      ? new Date(orderData.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+      : new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
     let summary = `🍹 Commande de Boissons\n`;
     summary += `📅 ${date} à ${time}\n\n`;
@@ -51,7 +67,7 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
         title: "Copié dans le presse-papiers",
         description: "Le résumé de la commande a été copié.",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur de copie",
         description: "Impossible de copier le texte.",
@@ -75,7 +91,6 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
         window.open(`sms:?body=${encodedText}`, '_blank');
         break;
       case 'messenger':
-        // Pas d'API officielle, on copie le texte
         handleCopyToClipboard();
         toast({
           title: "Texte copié",
@@ -93,25 +108,29 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" aria-label="Partager la commande">
-          <Share2 className="mr-2" /> Partager
-        </Button>
+        <Button
+    className="btn-outline flex items-center gap-2 text-foreground border-border-color"
+    aria-label="Partager la commande"
+  >
+    <Share2 className="w-5 h-5" />
+    Partager
+  </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={6} className="w-52">
-        <DropdownMenuItem onClick={() => handleShare('email')}>
-          <Mail className="mr-2" /> Email
+      <DropdownMenuContent align="end" className="w-52 bg-card border border-border-color shadow-md">
+        <DropdownMenuItem onClick={() => handleShare('email')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+          Email <Mail className="w-4 h-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('whatsapp')}>
-          <MessageSquare className="mr-2" /> WhatsApp
+        <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+          WhatsApp <Phone className="w-4 h-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('sms')}>
-          <Phone className="mr-2" /> SMS
+        <DropdownMenuItem onClick={() => handleShare('sms')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+          SMS <MessageSquare className="w-4 h-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('messenger')}>
-          <MessageSquare className="mr-2" /> Messenger
+        <DropdownMenuItem onClick={() => handleShare('messenger')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+          Messenger <MessageSquare className="w-4 h-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('copy')} className="flex items-center justify-between">
-          Copier le texte {copied ? <Check /> : null}
+        <DropdownMenuItem onClick={() => handleShare('copy')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+          Copier le texte {copied && <Check className="w-4 h-4 text-green-500" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

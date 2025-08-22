@@ -4,9 +4,15 @@ import { usePWA } from '../hooks/usePWA';
 import { Button } from './ui/button';
 import { register } from '../serviceWorkerRegistration';
 
+import { useTheme } from '../contexts/ThemeContext';
+import { useViewMode } from '../contexts/ViewModeContext';
+
 export default function LandingPage() {
   const { isInstallable, installApp } = usePWA();
   const navigate = useNavigate();
+
+  const { theme } = useTheme();
+  const { viewMode } = useViewMode();
 
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [upToDate, setUpToDate] = useState(false);
@@ -38,75 +44,73 @@ export default function LandingPage() {
     }
   };
 
+  // Classes globales via variables CSS pour thème
+  const commonBase = "transition-colors duration-300";
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 text-center px-6">
+    <main className={`flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6 py-12 ${commonBase}`}>
       <div className="mb-6">
         <img
           src={`${process.env.PUBLIC_URL}/icons/icon-192x192.png`}
           alt="Logo Drink Order"
           className="w-24 h-24 mx-auto mb-4"
         />
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-          🍹 Drink Order
+        <h1 className="text-4xl font-bold text-foreground">
+          🍹 Gent Bar Order App
         </h1>
       </div>
-
-      <p className="text-lg text-gray-600 dark:text-gray-300 max-w-md mb-10">
+      <p className="text-muted-text text-lg max-w-md mb-10">
         Gérez facilement vos commandes de boissons, consultez votre historique
-        et profitez d'une expérience fluide, même hors connexion.
+        et profitez d&apos;une expérience fluide, même hors connexion.
       </p>
-
       <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
         {isInstallable && (
           <Button
             onClick={installApp}
             aria-label="Installer l'application Drink Order"
-            className="bg-purple-600 hover:bg-purple-700 text-white text-lg px-6 py-3"
+            className="bg-primary hover:bg-primary-dark text-button-text text-lg px-6 py-3"
           >
-            Installer l’App
+            Installer l&apos;App
           </Button>
         )}
-
         <Button
-          variant="outline"
+          className="btn-outline"
           onClick={() => navigate('/app')}
-          className="text-lg px-6 py-3"
-        >
-          Accéder à l’application
+                  >
+          Accéder à l&apos;application
         </Button>
-
         <Button
-          variant="secondary"
+          className="btn-outline"
           onClick={() => navigate('/app')}
-          className="text-lg px-6 py-3"
-        >
+          >
           Vérifier les mises à jour
         </Button>
       </div>
-
       <div className="mt-6 min-h-[2rem]">
         {updateAvailable && (
-          <div className="inline-flex items-center gap-3 bg-yellow-200 text-yellow-900 dark:bg-yellow-800 dark:text-yellow-100 rounded px-3 py-1">
+          <div className="inline-flex items-center gap-3 rounded px-3 py-1 bg-warning text-warning-text">
             <span>Nouvelle version disponible</span>
-            <Button size="sm" className="bg-yellow-500 text-white px-3 py-1" onClick={reloadApp}>
+            <Button size="sm" className="bg-warning-accent text-button-text px-3 py-1" onClick={reloadApp}>
               Mettre à jour
             </Button>
           </div>
         )}
         {!updateAvailable && upToDate && (
-          <div className="inline-block bg-green-200 text-green-900 dark:bg-green-800 dark:text-green-100 rounded px-3 py-1">
+          <div className="inline-block rounded px-3 py-1 bg-success text-success-text">
             ✅ Application à jour — dernière version
           </div>
         )}
       </div>
-
       {!isInstallable && (
-        <p className="text-sm text-gray-500 mt-6 max-w-sm">
+        <p className="text-muted-text text-sm mt-6 max-w-sm">
           💡 Astuce : Vous pouvez aussi installer cette application depuis le
           menu de votre navigateur.
-          Utilisez « Vérifier les mises à jour » pour vous assurer d'avoir la dernière version.
+          Utilisez « Vérifier les mises à jour » pour vous assurer d&apos;avoir la dernière version.
         </p>
       )}
-    </div>
+      <footer className="mt-8 text-xs text-muted-text">
+        Mode d&apos;affichage actuel : <strong>{viewMode}</strong>
+      </footer>
+    </main>
   );
 }

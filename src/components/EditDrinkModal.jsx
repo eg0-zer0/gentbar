@@ -3,8 +3,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { useTheme } from '../contexts/ThemeContext';
 
-const EditDrinkModal = ({ drink, isOpen, onClose, onSave, mode = 'edit' }) => {
+const EditDrinkModal = ({
+  drink,
+  isOpen,
+  onClose,
+  onSave,
+  onDelete,
+  mode = 'edit'
+}) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     price: '',
@@ -14,14 +23,16 @@ const EditDrinkModal = ({ drink, isOpen, onClose, onSave, mode = 'edit' }) => {
     if (drink) {
       setFormData({
         name: drink.name || '',
-        price: drink.price?.toString() || '',
+        price: typeof drink.price === 'number' ? drink.price.toString() : (drink.price || ''),
       });
+    } else {
+      setFormData({ name: '', price: '' });
     }
   }, [drink]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.name && formData.price) {
+    if (formData.name && formData.price !== '') {
       onSave({
         ...drink,
         name: formData.name,
@@ -31,52 +42,70 @@ const EditDrinkModal = ({ drink, isOpen, onClose, onSave, mode = 'edit' }) => {
     }
   };
 
-  const isAddMode = mode === 'add' || (drink && drink.id && drink.id.startsWith('custom-'));
-  const title = isAddMode ? 'Ajouter une boisson' : 'Modifier la boisson';
-  const buttonText = isAddMode ? 'Ajouter' : 'Modifier';
+  const isEditMode = mode === 'edit';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className={`max-w-md mx-auto rounded-md p-6`}>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
+          <DialogTitle>
+            {isEditMode ? 'Modifier la boisson' : 'Ajouter une boisson'}
+          </DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Nom de la boisson */}
-          <div className="space-y-2">
-            <Label htmlFor="name">Nom de la boisson</Label>
+          <div>
+            <Label htmlFor="drink-name">Nom de la boisson</Label>
             <Input
-              id="name"
+              id="drink-name"
+              type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ex: Red Bull"
               required
+              className="w-full"
             />
           </div>
-
-          {/* Prix */}
-          <div className="space-y-2">
-            <Label htmlFor="price">Prix (€)</Label>
+          <div>
+            <Label htmlFor="drink-price">Prix (€)</Label>
             <Input
-              id="price"
+              id="drink-price"
               type="number"
               step="0.01"
               min="0"
               value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+              onChange={e => setFormData({ ...formData, price: e.target.value })}
               placeholder="Ex: 3.50"
               required
+              className="w-full"
             />
           </div>
-
-          {/* Boutons */}
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="btn-outline"
+              onClick={onClose}
+            >
               Annuler
             </Button>
-            <Button type="submit">{buttonText}</Button>
+            <Button
+              type="submit"
+              variant="primary"
+              className="btn-primary"
+            >
+              {isEditMode ? 'Modifier' : 'Ajouter'}
+            </Button>
           </div>
+          {isEditMode && onDelete && (
+            <Button
+              type="button"
+              variant="destructive"
+              className="btn-destructive w-full mt-4"
+              onClick={() => { onDelete(drink); onClose(); }}
+            >
+              Supprimer cette boisson
+            </Button>
+          )}
         </form>
       </DialogContent>
     </Dialog>

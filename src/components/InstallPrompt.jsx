@@ -53,7 +53,7 @@ React.useEffect(() => {
                 </Button>
                 <Button 
                   onClick={() => setShowPrompt(false)}
-                  variant="outline" 
+                  className="btn-outline" 
                   size="sm" 
                   className="text-xs"
                 >

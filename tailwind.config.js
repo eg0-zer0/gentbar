@@ -1,10 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"], // tu peux aussi utiliser ['class', '[data-theme="dark"]'] si tu veux
+  // Activation du mode sombre via classes et attribut data-theme
+  darkMode: ['class', '[data-theme="dark"]'],
+
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "./public/index.html"
   ],
+
   theme: {
     extend: {
       borderRadius: {
@@ -71,11 +74,17 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
       },
       screens: {
-        xs: '375px',  // ajout de xs (extra small) pour mobiles très petits
+        xs: '375px', // ajout xs pour mobiles très petits
       },
     },
   },
+
   plugins: [
     require("tailwindcss-animate"),
+
+    // Plugin personnalisé pour ajouter un variant "gentbar" lié à data-theme
+    function({ addVariant }) {
+      addVariant('gentbar', '&[data-theme="gentbar"]');
+    },
   ],
 };

@@ -2,12 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles globaux */
+/* Styles globaux de base */
 html, body {
   overflow-x: hidden;
-}
-
-body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
     "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
@@ -17,15 +14,20 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Police monospace pour code */
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-/* Touch improvements for mobile */
+/* Touch optimizations for mobile */
 @media (max-width: 1024px) {
   * {
     -webkit-tap-highlight-color: transparent;
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
   }
+
   button, a, [role="button"] {
     touch-action: manipulation;
     min-height: 44px;
@@ -33,42 +35,33 @@ code {
   }
 }
 
-/* Smooth transitions for all elements */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
-}
-
+/* === Variables CSS globales par thème format HSL pour Tailwind === */
 @layer base {
   :root {
+    /* Thème Clair */
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
+    /*--primary: 252 80% 67%; */
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 252 80% 67%;
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    --ring: 252 80% 67%;
     --radius: 0.5rem;
   }
 
+  /* Thème Sombre */
   [data-theme="dark"] {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -76,7 +69,7 @@ code {
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
+    /*--primary: 252 80% 67%;*/
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -88,89 +81,29 @@ code {
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --ring: 252 80% 67%;
   }
 
+  /* Thème Gentbar personnalisé */
   [data-theme="gentbar"] {
-    --background: 218 80% 15%; /* #071D49 en HSL */
-    --foreground: 0 0% 100%; /* blanc */
+    --background: 218 80% 15%;
+    --foreground: 0 0% 100%;
     --card: 218 64% 18%;
     --card-foreground: 0 0% 100%;
     --popover: 218 80% 15%;
-    --popover-foreground: 328 100% 45%; /* #E6007E fuchsia */
-    --primary: 328 100% 45%; /* #E6007E */
+    --popover-foreground: 328 100% 45%;
+    /*--primary: 328 100% 45%;*/
     --primary-foreground: 0 0% 100%;
-    --secondary: 218 80% 15%; /* #071D49 */
+    --secondary: 218 80% 15%;
     --secondary-foreground: 0 0% 100%;
     --muted: 218 50% 25%;
     --muted-foreground: 0 0% 85%;
-    --accent: 328 80% 60%; /* rose clair accent */
+    --accent: 328 80% 60%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 9 100% 47%; /* rouge/signal */
+    --destructive: 9 100% 47%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 100%; /* blanc ou fuchsia */
+    --border: 0 0% 100%;
     --input: 218 80% 15%;
     --ring: 328 100% 45%;
-    --chart-1: 328 100% 45%;
-    --chart-2: 218 80% 15%;
-    --chart-3: 43 74% 66%;
-    --chart-4: 27 87% 67%;
-    --chart-5: 220 70% 50%;
-    --radius: 0.5rem;
   }
-
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Affichage centrage/coupe sur 2 lignes pour vue minimale des boissons */
-.drink-name-minimal {
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden !important;
-  text-overflow: ellipsis;
-  max-height: 2.8em;
-  min-height: 2.8em;
-  font-size: 0.95em;
-  line-height: 1.25;
-  width: 100%;
-  hyphens: auto !important;
-  word-break: break-word !important;  /* <-- inversé, break-word (naturel) */
-  white-space: normal !important; 
-  text-align: center;
-  margin: 0 auto;
-}
-
-
-/* Affichage compact : coupe propre et centrage */
-.drink-name-compact {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-height: 2.6em;
-  min-height: 2.6em;
-  font-size: 1em;
-  width: 100%;
-  word-break: break-word;
-  hyphens: auto;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.25;
-  margin: 0 auto;
-  display: flex;
 }

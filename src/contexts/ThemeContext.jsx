@@ -1,4 +1,3 @@
-// src/contexts/ThemeContext.jsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
@@ -12,7 +11,6 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  // Charge le thème depuis localStorage ou par défaut light
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('theme-preference');
     return saved || 'light'; // valeurs: "light" | "dark" | "gentbar"
@@ -20,10 +18,11 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('theme-preference', theme);
-    document.documentElement.setAttribute('data-theme', theme);
+
+    document.documentElement.classList.remove('light', 'dark', 'gentbar');
+    document.documentElement.classList.add(theme);
   }, [theme]);
 
-  // Cycle automatique entre les 3 thèmes
   const cycleTheme = () => {
     setTheme((prev) => {
       if (prev === 'light') return 'dark';

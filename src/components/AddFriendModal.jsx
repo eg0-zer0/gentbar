@@ -21,7 +21,7 @@ const AddFriendModal = ({ onAddFriend }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="border-dashed">
+        <Button className="btn-outline" className="border-dashed">
           <UserPlus className="w-4 h-4 mr-2" />
           Ajouter un ami
         </Button>
@@ -43,7 +43,7 @@ const AddFriendModal = ({ onAddFriend }) => {
           </div>
           
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <Button type="button" className="btn-outline" onClick={() => setIsOpen(false)}>
               Annuler
             </Button>
             <Button type="submit">Ajouter</Button>

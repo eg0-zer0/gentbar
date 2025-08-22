@@ -27,7 +27,7 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose }) => {
   // 📌 Version MODALE
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className={`max-w-md mx-auto rounded-md p-6`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <History className="w-5 h-5" />
