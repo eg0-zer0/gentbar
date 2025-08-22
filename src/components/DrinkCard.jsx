@@ -20,14 +20,16 @@ const DrinkCard = ({
     if (soundEnabled) playBeep();
     if (onAdd) onAdd(drink);
   };
+
   // Niveau de popularité
   const getPopularityLevel = (score) => {
-    if (score >= 10) return { label: 'TOP', className: 'badge-top' };
-    if (score >= 5) return { label: 'HOT', className: 'badge-hot' };
-    if (score >= 2) return { label: 'POP', className: 'badge-pop' };
+    if (score >= 20) return { label: 'TOP', className: 'badge-top' };
+    if (score >= 10) return { label: 'HOT', className: 'badge-hot' };
+    if (score >= 5) return { label: 'POP', className: 'badge-pop' };
     return null;
   };
   const popularity = getPopularityLevel(popularityScore);
+
 
   // Effet vert lors de l’ajout et badge quantité
   useEffect(() => {
