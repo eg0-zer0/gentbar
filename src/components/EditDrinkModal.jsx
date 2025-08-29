@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+
 import { useTheme } from '../contexts/ThemeContext';
 
-const EditDrinkModal = ({
-  drink,
-  isOpen,
-  onClose,
-  onSave,
-  onDelete,
-  mode = 'edit'
-}) => {
+const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) => {
   const { theme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
@@ -44,17 +39,22 @@ const EditDrinkModal = ({
 
   const isEditMode = mode === 'edit';
 
+  const bgClass = "bg-card";
+  const textClass = "text-foreground";
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`max-w-md mx-auto rounded-md p-6`}>
+    <Dialog open={isOpen} onClose={onClose}>
+      <DialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className={`${textClass} font-semibold mb-4`}>
             {isEditMode ? 'Modifier la boisson' : 'Ajouter une boisson'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="drink-name">Nom de la boisson</Label>
+            <Label htmlFor="drink-name" className={`${textClass} block mb-1`}>
+              Nom de la boisson
+            </Label>
             <Input
               id="drink-name"
               type="text"
@@ -62,11 +62,14 @@ const EditDrinkModal = ({
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ex: Red Bull"
               required
-              className="w-full"
+              className={`${bgClass} ${textClass} w-full`}
+              style={{ backgroundColor: 'rgb(var(--card-background))', color: 'rgb(var(--foreground))' }}
             />
           </div>
           <div>
-            <Label htmlFor="drink-price">Prix (€)</Label>
+            <Label htmlFor="drink-price" className={`${textClass} block mb-1`}>
+              Prix (€)
+            </Label>
             <Input
               id="drink-price"
               type="number"
@@ -76,34 +79,29 @@ const EditDrinkModal = ({
               onChange={e => setFormData({ ...formData, price: e.target.value })}
               placeholder="Ex: 3.50"
               required
-              className="w-full"
+              className={`${bgClass} ${textClass} w-full`}
+              style={{ backgroundColor: 'rgb(var(--card-background))', color: 'rgb(var(--foreground))' }}
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="btn-outline"
-              onClick={onClose}
-            >
+          <div className="flex justify-end gap-4">
+            <Button variant="outline" className="btn-outline" onClick={onClose}>
               Annuler
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              className="btn-primary"
-            >
+            <Button variant="primary" type="submit">
               {isEditMode ? 'Modifier' : 'Ajouter'}
             </Button>
           </div>
           {isEditMode && onDelete && (
             <Button
-              type="button"
               variant="destructive"
               className="btn-destructive w-full mt-4"
-              onClick={() => { onDelete(drink); onClose(); }}
+              type="button"
+              onClick={() => {
+                onDelete(drink);
+                onClose();
+              }}
             >
-              Supprimer cette boisson
+              Supprimer la boisson
             </Button>
           )}
         </form>
@@ -112,4 +110,4 @@ const EditDrinkModal = ({
   );
 };
 
-export default EditDrinkModal;
+export default EditDrink;

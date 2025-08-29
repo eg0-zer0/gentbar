@@ -17,37 +17,40 @@ const DeleteConfirmDialog = ({
   isOpen,
   onClose,
   onConfirm,
-  title,
-  description,
+  title = "Supprimer la catégorie",
   confirmText = "Supprimer",
-  cancelText = "Annuler"
+  cancelText = "Annuler",
+  description
 }) => {
-  const { theme } = useTheme();
-
-  const bgClass = theme === 'dark' ? 'bg-gray-800' : 'bg-white';
-  const textPrimaryClass = theme === 'dark' ? 'text-gray-100' : 'text-gray-900';
-  const textSecondaryClass = theme === 'dark' ? 'text-gray-400' : 'text-gray-700';
+  // Classes dynamiques pour les thèmes
+  const bgClass = "bg-card";
+  const textPrimaryClass = "text-foreground";
+  
+  // Texte explicatif par défaut si non fourni
+  const defaultDescription =
+    "Attention : cette action va supprimer la catégorie ainsi que l’ensemble des boissons qu’elle contient. Cette opération est irréversible.";
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6`}>
+      <AlertDialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
         <AlertDialogHeader>
           <AlertDialogTitle className={`${textPrimaryClass} text-lg font-semibold`}>
             {title}
           </AlertDialogTitle>
-          <AlertDialogDescription className={`${textSecondaryClass} mt-2`}>
-            {description}
+          <AlertDialogDescription className="text-muted-text mt-2">
+            {description || defaultDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-6 flex justify-end gap-4">
           <AlertDialogCancel asChild>
-            <button className="btn btn-outline">
+            <button className="btn btn-outline" type="button">
               {cancelText}
             </button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <button
               className="btn btn-destructive"
+              type="button"
               onClick={() => {
                 onConfirm();
                 onClose();

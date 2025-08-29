@@ -193,6 +193,10 @@ const DrinkOrderApp = () => {
   const handleDeleteCategory = (cat) => {
     setDeleteDialog({ isOpen: true, type: 'category', item: cat });
   };
+  
+  const handleRemoveOrder = (orderId) => {
+  setOrderHistory(prev => prev.filter(order => order.id !== orderId));
+};
 
   const confirmDeleteCategory = () => {
     const cat = deleteDialog.item;
@@ -274,6 +278,7 @@ const DrinkOrderApp = () => {
           onClose={() => setShowHistory(false)}
           isOpen={showHistory}
           categories={categories}
+          onRemoveOrder={handleRemoveOrder} 
         />
 
         <ConfirmOrderModal

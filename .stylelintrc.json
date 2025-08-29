@@ -1,0 +1,22 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-tailwindcss"
+  ],
+  "rules": {
+    "color-hex-case": "lower",
+    "color-no-invalid-hex": true,
+    "declaration-colon-space-after": "always",
+    "indentation": 2,
+    "max-empty-lines": 2,
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "no-descending-specificity": null,
+    "no-duplicate-selectors": null
+  },
+  "ignoreFiles": [
+    "node_modules/**/*",
+    "build/**/*",
+    "dist/**/*"
+  ]
+}

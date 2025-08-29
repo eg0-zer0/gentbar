@@ -1,10 +1,11 @@
 *, *::before, *::after {
   box-sizing: border-box;
 }
-/*-----------------------------------------------------------------------
+
+/* -----------------------------------------------------------------------
   Variables globales RGB utilisées pour thèmes clairs, sombres et gentbar
   Compatibles JS et CSS, modifiables par thème sur la balise html
-------------------------------------------------------------------------*/
+------------------------------------------------------------------------ */
 :root {
   /* Couleurs de base clair */
   --background-rgb: 255, 255, 255;              /* Fond clair */
@@ -21,13 +22,16 @@
   --warning-text-rgb: 120, 53, 15;                /* Texte alertes */
   --success-bg-rgb: 187, 247, 208;                /* Fond succès vert */
   --success-text-rgb: 21, 128, 61;                 /* Texte succès */
+
   /* Définition complémentaire */
   --foreground: rgb(var(--foreground-rgb));
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Thème sombre - réglages couleurs sombres                              */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 html.dark {
   --background-rgb: 18, 18, 18;
   --foreground-rgb: 224, 224, 224;
@@ -45,9 +49,11 @@ html.dark {
   --success-text-rgb: 209, 255, 218;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Thème Gentbar - variante bleu-vert douce                             */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 html.gentbar {
   --background-rgb: 25, 38, 56;                   /* Bleu nuit plus lumineux */
   --foreground-rgb: 230, 230, 235;                /* Texte clair doux */
@@ -65,9 +71,11 @@ html.gentbar {
   --success-text-rgb: 215, 245, 220;                /* Vert clair doux */
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Styles globaux                                                        */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 body, #root {
   background-color: rgb(var(--background-rgb));
   color: rgb(var(--foreground-rgb));
@@ -77,27 +85,31 @@ body, #root {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Badges (exemple)                                                     */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .badge-top {
   background-color: rgb(var(--destructive));
   color: rgb(var(--destructive-foreground));
 }
 
 .badge-hot {
-  background-color: rgb(249, 115, 22); /* orange 500 */
+  background-color: rgb(249 115 22); /* orange 500 */
   color: white;
 }
 
 .badge-pop {
-  background-color: rgb(59, 130, 246); /* blue 500 */
+  background-color: rgb(59 130 246); /* blue 500 */
   color: white;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Dropdown menu items (exemple)                                        */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .dropdown-menu-item {
   cursor: pointer;
   padding: 0.5rem 1rem;
@@ -110,9 +122,11 @@ body, #root {
   color: rgb(var(--button-text));
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Couleurs textes spécifiques                                          */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .text-destructive {
   color: rgb(var(--destructive-foreground));
 }
@@ -121,9 +135,11 @@ body, #root {
   background-color: rgb(var(--destructive));
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Classes utilitaires pour fond et texte dynamiques                     */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .bg-background {
   background-color: rgb(var(--background-rgb));
 }
@@ -136,27 +152,33 @@ body, #root {
   color: rgb(var(--muted-text-rgb));
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Cartes (conteneurs)                                                  */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .bg-card {
   background-color: rgb(var(--card-background-rgb));
-  box-shadow: 0 1px 3px rgba(var(--shadow-color-rgb), 0.1);
+  box-shadow: 0 1px 3px rgb(var(--shadow-color-rgb) 0.1);
   border: 1px solid rgb(var(--border-color-rgb));
   border-radius: 0.5rem;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Bordures génériques                                                  */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .border {
   border-color: rgb(var(--border-color-rgb));
   border-style: solid;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Boutons principaux                                                    */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .btn-primary, button.btn-primary {
   background-color: rgb(var(--button-background-rgb));
   color: rgb(var(--button-text-rgb));
@@ -165,7 +187,7 @@ body, #root {
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
-    width: auto;
+  width: auto;
   height: auto;
 }
 
@@ -177,6 +199,7 @@ body, #root {
   outline: 2px solid rgb(var(--primary-rgb));
   outline-offset: 2px;
 }
+
 .btn-primary, .btn-destructive {
   padding: 0;             /* réduire padding */
   width: auto;            /* largeur bouton */
@@ -192,9 +215,11 @@ body, #root {
   height: 16px;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Boutons outlines (secondaires)                                       */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .btn-outline, button.btn-outline {
   background-color: transparent;
   border: 1px solid rgb(var(--button-background-rgb));
@@ -215,9 +240,11 @@ body, #root {
   outline-offset: 2px;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Boutons destructifs                                                  */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .btn-destructive, button.btn-destructive {
   background-color: #dc2626;
   color: white;
@@ -226,7 +253,7 @@ body, #root {
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
-    min-width: 0;
+  min-width: 0;
   height: auto;
 }
 
@@ -239,15 +266,17 @@ body, #root {
   outline-offset: 2px;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Badges secondaires                                                   */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .badge-secondary {
   position: absolute;
   top: 0.5rem; /* ou top-2 */
   right: 0.5rem; /* ou right-2 */
   z-index: 50;
-  background-color:  rgba(255, 0, 0, 0.5);
+  background-color: rgb(255 0 0 / 50%);
   color: rgb(var(--foreground-rgb));
   padding: 0.1rem 0.4rem;
   border-radius: 9999px;
@@ -255,9 +284,11 @@ body, #root {
   user-select: none;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Textes de différentes tailles                                        */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .text-xs {
   font-size: 0.75rem;
 }
@@ -267,16 +298,20 @@ body, #root {
   color: rgb(var(--foreground-rgb));
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Ombres petites                                                      */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .shadow-sm {
-  box-shadow: 0 1px 2px rgba(var(--shadow-color-rgb), 0.05);
+  box-shadow: 0 1px 2px rgb(var(--shadow-color-rgb) 0.05);
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Alertes mise en forme                                                */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .bg-warning {
   background-color: rgb(var(--warning-bg-rgb));
   color: rgb(var(--warning-text-rgb));
@@ -307,16 +342,20 @@ body, #root {
   color: rgb(var(--success-text-rgb));
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Transition globale pour changements thèmes (fond, texte)           */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 html {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Gestion des vues (viewMode) sur html.large|compact|minimal          */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 html.large .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -338,12 +377,15 @@ html.minimal .category-grid {
   grid-auto-flow: row;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Styles cartes boisson avec flexbox et disposition interne adaptée */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .drink-card {
   position: relative;
 }
+
 html.large .drink-card,
 html.compact .drink-card,
 html.minimal .drink-card {
@@ -352,7 +394,7 @@ html.minimal .drink-card {
   justify-content: space-between;
   background-color: rgb(var(--card-background-rgb));
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(var(--shadow-color-rgb), 0.1);
+  box-shadow: 0 1px 3px rgb(var(--shadow-color-rgb) 0.1);
   border: 1px solid rgb(var(--border-color-rgb));
 }
 
@@ -361,7 +403,7 @@ html.large .drink-card {
   font-size: 1rem;
   background-color: rgb(var(--card-background-rgb));
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(var(--shadow-color-rgb), 0.1);
+  box-shadow: 0 1px 3px rgb(var(--shadow-color-rgb) 0.1);
   border: 1px solid rgb(var(--border-color-rgb));
   max-width: 100%;
   box-sizing: border-box;
@@ -376,7 +418,7 @@ html.compact .drink-card {
   font-size: 0.75rem;
   background-color: rgb(var(--card-background-rgb));
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(var(--shadow-color-rgb), 0.1);
+  box-shadow: 0 1px 3px rgb(var(--shadow-color-rgb) 0.1);
   border: 1px solid rgb(var(--border-color-rgb));
   max-width: 100%;
   box-sizing: border-box;
@@ -390,7 +432,7 @@ html.minimal .drink-card {
   font-size: 0.75rem;
   background-color: rgb(var(--card-background-rgb));
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(var(--shadow-color-rgb), 0.1);
+  box-shadow: 0 1px 3px rgb(var(--shadow-color-rgb) 0.1);
   border: 1px solid rgb(var(--border-color-rgb));
   max-width: 100%;
   box-sizing: border-box;
@@ -399,9 +441,11 @@ html.minimal .drink-card {
   justify-content: space-between;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Gestion du texte dans les cartes (nom, prix) avec troncature */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .drink-card .drink-name {
   font-weight: 600;
   color: rgb(var(--foreground-rgb));
@@ -423,24 +467,29 @@ html.minimal .drink-card {
   line-height: 1.2;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Conteneur actions bouton icône dans carte (édition / suppression) */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .drink-card .drink-actions {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
   align-items: center;
 }
+
 .drink-content {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Boutons icônes petits, transparents et interaction discrète */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .btn-icon {
   background: none;
   border: none;
@@ -455,7 +504,7 @@ html.minimal .drink-card {
   transition: background-color 0.2s;
   width: 24px !important;   /* ajuste la largeur */
   height: 24px !important;  /* ajuste la hauteur */
-    min-width: 0 !important;
+  min-width: 0 !important;
   min-height: 0 !important;
   max-width: 24px !important;
   max-height: 24px !important;
@@ -472,31 +521,35 @@ html.minimal .drink-card {
 }
 
 .btn-icon:hover {
-  background-color: rgba(90, 45, 237, 0.1);
+  background-color: rgb(90 45 237 / 10%);
 }
 
 
-/*----------------------------------------------------------------------
+/* ----------------------------------------------------------------------
   Responsive grille mobile (ajoute le gap ainsi)
-----------------------------------------------------------------------*/
+---------------------------------------------------------------------- */
 @media (max-width: 640px) {
   html.large .category-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
   }
+
   html.compact .category-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
   }
+
   html.minimal .category-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 0.2rem;
   }
 }
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Styles tuiles - consommation                                        */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 html.large .drink-card {
   padding: 1rem;
   font-size: 1rem;
@@ -512,6 +565,7 @@ html.minimal .drink-card {
   padding: 0.35rem;
   font-size: 0.7rem;
 }
+
 html.large .drink-card {
   max-width: 100%;
   min-width: 140px;
@@ -528,9 +582,11 @@ html.minimal .drink-card {
 }
 
 
-/*----------------------------------------------------------------------*/
+/* ---------------------------------------------------------------------- */
+
 /* Panier Flottant                                                     */
-/*----------------------------------------------------------------------*/
+
+/* ---------------------------------------------------------------------- */
 .floating-cart {
   position: fixed;
   bottom: 0;
@@ -538,7 +594,7 @@ html.minimal .drink-card {
   right: 0;
   background-color: rgb(var(--card-background-rgb));
   border-top: 1px solid rgb(var(--border-color-rgb));
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 -2px 8px rgb(0 0 0 / 10%);
   padding: 0.75rem 1rem;
   z-index: 1000;
   display: flex;
@@ -556,8 +612,10 @@ html.minimal .drink-card {
   position: static;
   box-shadow: none;
   padding: initial;
+
   /* Autres styles pour vue large normale */
 }
+
 .content-container {
   padding-bottom: 80px; /* environ hauteur du panier */
 }
@@ -567,8 +625,30 @@ html.minimal .drink-card {
   overflow-y: auto;
   padding-right: 0.5rem;
 }
+
 .confirm-order-list {
   max-height: 60vh; /* limite la hauteur et permet scroll vertical */
   overflow-y: auto;
   padding-right: 0.5rem; /* pour scrollbar */
+}
+
+/* Liste du résumé de commande : max 5 articles puis scroll */
+.order-summary-list-scroll {
+  max-height: 350px; 
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 0.5rem;
+  margin-bottom: 0;
+  transition: max-height 0.2s
+}
+
+@media (max-width: 600px) {
+  .order-summary-list-scroll {
+    max-height: 220px; /* pour que le footer ne soit jamais coupé sur mobile */
+  }
+}
+
+.test-error {
+  Color: #f00;  /* Majuscule incorrecte */
+  margin: 10px;     /* Espace manquant après : */
 }

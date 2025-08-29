@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePWA } from '../hooks/usePWA';
 import { Button } from './ui/button';
 import { register } from '../serviceWorkerRegistration';
+import IosInstallPopup from './IosInstallPopup';
 
 import { useTheme } from '../contexts/ThemeContext';
 import { useViewMode } from '../contexts/ViewModeContext';
@@ -17,6 +18,7 @@ export default function LandingPage() {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [upToDate, setUpToDate] = useState(false);
   const [waitingSW, setWaitingSW] = useState(null);
+  const [showIosPopup, setShowIosPopup] = useState(false);
 
   useEffect(() => {
     register({
@@ -44,6 +46,18 @@ export default function LandingPage() {
     }
   };
 
+  // Détecter iOS
+  const isIOS = () =>
+    /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.navigator.standalone;
+
+  const handleInstallClick = () => {
+    if (isIOS()) {
+      setShowIosPopup(true);
+    } else {
+      installApp && installApp();
+    }
+  };
+
   // Classes globales via variables CSS pour thème
   const commonBase = "transition-colors duration-300";
 
@@ -64,25 +78,24 @@ export default function LandingPage() {
         et profitez d&apos;une expérience fluide, même hors connexion.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-        {isInstallable && (
-          <Button
-            onClick={installApp}
-            aria-label="Installer l'application Drink Order"
-            className="bg-primary hover:bg-primary-dark text-button-text text-lg px-6 py-3"
-          >
-            Installer l&apos;App
-          </Button>
-        )}
+        <Button
+          onClick={handleInstallClick}
+          aria-label="Installer l'application Drink Order"
+          className="btn-outline"
+        >
+          Installer l&apos;App
+        </Button>
+        <IosInstallPopup open={showIosPopup} onClose={() => setShowIosPopup(false)} />
         <Button
           className="btn-outline"
           onClick={() => navigate('/app')}
-                  >
+        >
           Accéder à l&apos;application
         </Button>
         <Button
           className="btn-outline"
           onClick={() => navigate('/app')}
-          >
+        >
           Vérifier les mises à jour
         </Button>
       </div>

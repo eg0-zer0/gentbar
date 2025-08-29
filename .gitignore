@@ -20,3 +20,6 @@ coverage/
 
 # VS Code settings
 .vscode/
+
+# Test
+src/test/
