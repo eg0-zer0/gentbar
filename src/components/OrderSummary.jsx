@@ -155,7 +155,7 @@ const OrderSummary = ({
           </div>
 
           <div className="mt-4">
-            <ShareButtons />
+            <ShareButtons order={orders} isCurrentOrder={true} />
           </div>
         </CardContent>
       ) : (
