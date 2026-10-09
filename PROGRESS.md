@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Étape en cours** : 1 · **Dernier commit** : —
+**Branche de travail** : `roadmap` · **Étape en cours** : 1 (terminée) · **Dernier commit** : d253273
 
 ---
 
@@ -51,10 +51,12 @@
 ---
 
 ## Journal
-*Une ligne par session : date — étape — ce qui a été fait — ce qui reste.*
+* 09/10/2026 — Étape 1 terminée : création de `public/_redirects` pour les réécritures SPA Netlify (A-28), script de build aligné avec `workbox generateSW`, options `navigateFallback` et `cleanupOutdatedCaches` configurées dans `workbox-config.js`, et régénération du Service Worker dans `public/service-worker.js`. `yarn build` validé avec succès. Reste : Étape 2.
 
 ## Écarts et décisions en cours
-*Points où le code actuel ne correspond pas à l'audit, fichiers modifiés hors liste (avec justification), questions en attente.*
+*Aucun écart par rapport à la feuille de route.*
 
 ## À tester par le propriétaire sur appareil
-*Ce que l'agent n'a pas pu vérifier lui-même.*
+* Tester le rechargement direct de `https://gentbar.netlify.app/app` après déploiement de la branche roadmap pour vérifier l'absence d'erreur 404 Netlify.
+* Tester l'ouverture et le fonctionnement en mode avion (hors ligne) avec le nouveau Service Worker.
+
