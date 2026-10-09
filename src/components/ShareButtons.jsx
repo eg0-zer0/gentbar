@@ -55,12 +55,12 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
     return summary;
   };
 
-  const shareText = formatOrderSummary(order);
-  const encodedText = encodeURIComponent(shareText);
+  const getShareText = () => formatOrderSummary(order);
 
   const handleCopyToClipboard = async () => {
+    const textToShare = getShareText();
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(textToShare);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast({
@@ -77,18 +77,20 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
   };
 
   const handleShare = (platform) => {
+    const textToShare = getShareText();
+    const encoded = encodeURIComponent(textToShare);
     switch (platform) {
       case 'email': {
         const subject = encodeURIComponent(`🍹 Commande de Boissons du ${new Date().toLocaleDateString('fr-FR')}`);
-        const body = encodeURIComponent(shareText);
+        const body = encoded;
         window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
         break;
       }
       case 'whatsapp':
-        window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+        window.open(`https://wa.me/?text=${encoded}`, '_blank');
         break;
       case 'sms':
-        window.open(`sms:?body=${encodedText}`, '_blank');
+        window.open(`sms:?body=${encoded}`, '_blank');
         break;
       case 'messenger':
         handleCopyToClipboard();

@@ -88,7 +88,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                       Confirmer la commande
                     </Button>
                   </div>
-                  <ShareButtons />
+                  <ShareButtons order={orders} isCurrentOrder={true} />
                 </div>
               </>
             )}
