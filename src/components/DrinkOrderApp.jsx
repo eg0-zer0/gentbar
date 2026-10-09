@@ -328,7 +328,7 @@ const DrinkOrderApp = () => {
 
         <InstallBanner />
 
-        <Toaster position="bottom-right" />
+        <Toaster />
       </div>
     </div>
   );
