@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Étape en cours** : 2 (terminée) · **Dernier commit** : 8f34f79
+**Branche de travail** : `roadmap` · **Étape en cours** : 2 (terminée et validée) · **Dernier commit** : 3b5db7f
 
 ---
 
@@ -17,7 +17,7 @@
 - [x] `EditDrinkModal` : `onClose` → `onOpenChange` (A-31)
 
 ## Étape 3 — Unifier les thèmes (A-01)
-- [ ] Jetons Tailwind pilotés par `html.dark` / `html.gentbar` dans `index.css`
+- [x] Jetons Tailwind pilotés par `html.dark` / `html.gentbar` dans `index.css`
 - [ ] Récapitulatif, en-tête, fenêtres, landing et composants `ui/*` vérifiés dans les 3 thèmes
 - [ ] Contraste vérifié (≥ 4,5:1)
 
