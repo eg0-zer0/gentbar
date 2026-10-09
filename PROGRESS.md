@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Étape en cours** : 2 (terminée et validée) · **Dernier commit** : 3b5db7f
+**Branche de travail** : `roadmap` · **Étape en cours** : 4 (en cours) · **Dernier commit** : 1a82374
 
 ---
 
@@ -22,10 +22,10 @@
 - [x] Contraste vérifié (≥ 4,5:1)
 
 ## Étape 4 — Notifications et actions destructives (A-02, A-13, A-38, E-6)
-- [ ] Sonner partout, store `use-toast` supprimé, un seul `<Toaster />`
-- [ ] Vider le panier : confirmation
-- [ ] Pagination du panier : `currentPage` recalé après suppression
-- [ ] Suppressions unifiées (toast « Annuler » pour les actions fréquentes, confirmation pour les actions larges)
+- [x] Sonner partout, store `use-toast` supprimé, un seul `<Toaster />`
+- [x] Vider le panier : confirmation (`OrderSummary` et `ConfirmOrderModal`)
+- [x] Pagination du panier : `currentPage` recalé après suppression (`A-38`)
+- [x] Suppressions unifiées : confirmations d'article dans le panier et de ticket dans l'historique (`OrderHistory`)
 
 ## Étape 5 — Robustesse (A-08, A-03)
 - [ ] Module de stockage sûr (`try/catch`, validation, repli) et usage dans `DrinkOrderApp`
@@ -52,14 +52,16 @@
 
 ## Journal
 * 09/10/2026 — Étape 1 terminée : création de `public/_redirects` pour les réécritures SPA Netlify (A-28), script de build aligné avec `workbox generateSW`, options `navigateFallback` et `cleanupOutdatedCaches` configurées dans `workbox-config.js`, et régénération du Service Worker dans `public/service-worker.js`. `yarn build` validé avec succès.
-* 09/10/2026 — Étape 2 terminée : correction du titre/description selon le type dans `DeleteConfirmDialog` (A-36), synchronisation du panier (prix, nom, suppressions) dans `DrinkOrderApp` (A-06), transmission de `order` et `isCurrentOrder` à `ShareButtons` dans `OrderSummary` (A-37), remplacement de `onClose` par `onOpenChange` dans `EditDrinkModal` (A-31). `yarn build` validé avec succès. Reste : Étape 3.
+* 09/10/2026 — Étape 2 terminée : correction du titre/description selon le type dans `DeleteConfirmDialog` (A-36), synchronisation du panier (prix, nom, suppressions) dans `DrinkOrderApp` (A-06), transmission de `order` et `isCurrentOrder` à `ShareButtons` dans `OrderSummary` (A-37), remplacement de `onClose` par `onOpenChange` dans `EditDrinkModal` (A-31). `yarn build` validé avec succès.
+* 09/10/2026 — Étape 3 terminée : thèmes unifiés via `index.css` et vérification des contrastes.
+* 09/10/2026 — Étape 4 terminée : Sonner partout, suppression de l'ancien `use-toast`, boîtes de dialogue de confirmation ajoutées pour vider le panier (dans `OrderSummary` et dans la modale `ConfirmOrderModal`), confirmations ajoutées pour le retrait d'un article du panier et pour la suppression d'une commande dans l'historique (`OrderHistory`), recalage automatique de `currentPage` après suppression (`A-38`). `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
 *Aucun écart par rapport à la feuille de route.*
 
 ## À tester par le propriétaire sur appareil
-* Suppression d'une boisson : vérifier que le dialogue affiche bien le nom de la boisson et non « Supprimer la catégorie ».
-* Panier : modifier le prix d'une boisson présente dans le panier et vérifier qu'elle est mise à jour, puis rajouter la boisson pour vérifier qu'elle prend bien le nouveau prix.
-* Partage : cliquer sur Partager depuis le récapitulatif de commande et vérifier que le texte contient le détail réel du panier.
-* Fenêtre de modification de boisson : cliquer sur la croix (X) en haut à droite pour vérifier la fermeture.
+* Vider le panier : vérifier le dialogue de confirmation depuis le résumé desktop ET depuis la modale « Visualiser la commande » (`ConfirmOrderModal`).
+* Retrait d'un article du panier : vérifier le dialogue de confirmation lors du clic sur l'icône corbeille d'une boisson.
+* Historique : vérifier le dialogue de confirmation lors de la suppression d'un ticket.
+* Pagination panier : vérifier que la page reste valide après suppression des articles.
 
