@@ -13,8 +13,8 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 1 — Fiabiliser le déploiement (prioritaire, tout le reste en dépend)
 
-- [ ] Ajouter `public/_redirects` avec la ligne `/*  /index.html  200` — corrige le 404 au rechargement de `/app`
-- [ ] Aligner la commande de build Netlify sur celle qui génère le service worker (`workbox generateSW`), et régénérer `public/service-worker.js` pour qu'il référence les bons fichiers (plus de hash périmés)
+- [x] Ajouter `public/_redirects` avec la ligne `/*  /index.html  200` — corrige le 404 au rechargement de `/app`
+- [x] Aligner la commande de build Netlify sur celle qui génère le service worker (`workbox generateSW`), et régénérer `public/service-worker.js` pour qu'il référence les bons fichiers (plus de hash périmés)
 
 **Fichiers** : `public/_redirects` (à créer), `package.json`, `workbox-config.js`, `public/service-worker.js`
 **Détail** : `A-28`, `A-05`
@@ -23,10 +23,10 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 2 — Bugs qui touchent la confiance et l'argent
 
-- [ ] Suppression d'une boisson : corriger le texte trompeur « Supprimer la catégorie » (le composant de confirmation n'a jamais le bon titre/description — construire `title`/`description` selon `deleteDialog.type`)
-- [ ] Panier : rafraîchir `price` et `drinkName` d'une ligne déjà présente quand on la rajoute (`handleAddDrink`), et répercuter une modification de prix du menu sur les lignes déjà dans le panier
-- [ ] Partage : transmettre `order={orders}` et `isCurrentOrder={true}` à `<ShareButtons />` depuis `OrderSummary.jsx` (actuellement appelé sans aucune prop → envoie toujours « Aucune commande à partager »)
-- [ ] Fenêtre de modification d'une boisson : remplacer `onClose={onClose}` par `onOpenChange={onClose}` (une ligne) — c'est pour ça que la croix ne ferme pas
+- [x] Suppression d'une boisson : corriger le texte trompeur « Supprimer la catégorie » (le composant de confirmation n'a jamais le bon titre/description — construire `title`/`description` selon `deleteDialog.type`)
+- [x] Panier : rafraîchir `price` et `drinkName` d'une ligne déjà présente quand on la rajoute (`handleAddDrink`), et répercuter une modification de prix du menu sur les lignes déjà dans le panier
+- [x] Partage : transmettre `order={orders}` et `isCurrentOrder={true}` à `<ShareButtons />` depuis `OrderSummary.jsx` (actuellement appelé sans aucune prop → envoie toujours « Aucune commande à partager »)
+- [x] Fenêtre de modification d'une boisson : remplacer `onClose={onClose}` par `onOpenChange={onClose}` (une ligne) — c'est pour ça que la croix ne ferme pas
 
 **Fichiers** : `src/components/DeleteConfirmDialog.jsx`, `src/components/DrinkOrderApp.jsx`, `src/components/OrderSummary.jsx`, `src/components/EditDrinkModal.jsx`
 **Détail** : `A-36`, `A-06`, `A-37`, `A-31`
@@ -35,9 +35,9 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 3 — Unifier les thèmes
 
-- [ ] Choisir un seul système de couleurs entre les deux qui coexistent aujourd'hui : celui basé sur `[data-theme]` (`index.css`, encore utilisé par `OrderSummary`, `Header`, les fenêtres, les composants `ui/*`) et celui basé sur les classes `.dark`/`.gentbar` + variables RGB (`App.css`, déjà utilisé par `DrinkCard`/`CategorySection`)
-- [ ] Migrer les composants restants vers le système conservé, pour que le récapitulatif de commande et les fenêtres changent bien de couleur avec le thème
-- [ ] Vérifier le contraste dans les 3 thèmes, sur tous les écrans
+- [x] Choisir un seul système de couleurs entre les deux qui coexistent aujourd'hui : celui basé sur `[data-theme]` (`index.css`, encore utilisé par `OrderSummary`, `Header`, les fenêtres, les composants `ui/*`) et celui basé sur les classes `.dark`/`.gentbar` + variables RGB (`App.css`, déjà utilisé par `DrinkCard`/`CategorySection`)
+- [x] Migrer les composants restants vers le système conservé, pour que le récapitulatif de commande et les fenêtres changent bien de couleur avec le thème
+- [x] Vérifier le contraste dans les 3 thèmes, sur tous les écrans
 
 **Fichiers** : `src/index.css`, `src/App.css`, `tailwind.config.js`, `src/components/OrderSummary.jsx`, `src/components/Header.jsx`, `src/components/EditDrinkModal.jsx`, `src/components/EditCategoryModal.jsx`, `src/components/DeleteConfirmDialog.jsx`, `src/components/LandingPage.jsx`, `src/components/ui/*.jsx`
 **Détail** : `A-01`
@@ -46,10 +46,10 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 4 — Notifications et actions destructives
 
-- [ ] Réparer l'affichage des notifications : soit migrer tous les appels `useToast()` vers Sonner (`toast.success(...)`), soit remplacer `<Toaster/>` (Sonner) par le composant `toaster.jsx` compatible avec `useToast` — une seule des deux options, pas les deux systèmes en parallèle
-- [ ] Vider le panier : ajouter une confirmation (`DeleteConfirmDialog`)
-- [ ] Pagination du panier : recaler `currentPage` quand `orders.length` change, pour ne pas rester bloqué sur une page vide après suppression
-- [ ] Une fois les notifications réparées : unifier le style des suppressions — toast « Supprimé — Annuler » pour les actions fréquentes (une ligne du panier, une commande de l'historique), confirmation uniquement pour les actions larges (vider tout, supprimer une catégorie)
+- [x] Réparer l'affichage des notifications : soit migrer tous les appels `useToast()` vers Sonner (`toast.success(...)`), soit remplacer `<Toaster/>` (Sonner) par le composant `toaster.jsx` compatible avec `useToast` — une seule des deux options, pas les deux systèmes en parallèle
+- [x] Vider le panier : ajouter une confirmation (`DeleteConfirmDialog`)
+- [x] Pagination du panier : recaler `currentPage` quand `orders.length` change, pour ne pas rester bloqué sur une page vide après suppression
+- [x] Une fois les notifications réparées : unifier le style des suppressions — toast « Supprimé — Annuler » pour les actions fréquentes (une ligne du panier, une commande de l'historique), confirmation uniquement pour les actions larges (vider tout, supprimer une catégorie)
 
 **Fichiers** : `src/components/DrinkOrderApp.jsx`, `src/hooks/use-toast.js`, `src/components/ui/sonner.jsx`, `src/components/ui/toaster.jsx`, `src/components/OrderSummary.jsx`
 **Détail** : `A-02`, `A-13`, `A-38`, `E-6`
@@ -92,7 +92,7 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 8 — Nouvelle carte du club
 
-- [ ] Remplacer `src/mock.js` par le fichier déjà validé (15 catégories, carte du Royal La Louvière Hockey Club à jour)
+- [x] Remplacer `src/mock.js` par le fichier déjà validé (11 catégories, carte du Royal La Louvière Hockey Club à jour)
 
 **Fichiers** : `src/mock.js`
 
