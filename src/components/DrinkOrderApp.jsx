@@ -93,7 +93,12 @@ const DrinkOrderApp = () => {
       const idx = prevOrders.findIndex(order => order.drinkId === drink.id);
       if (idx >= 0) {
         const updated = [...prevOrders];
-        updated[idx] = { ...updated[idx], quantity: updated[idx].quantity + 1 };
+        updated[idx] = {
+          ...updated[idx],
+          drinkName: drink.name,
+          price: drink.price,
+          quantity: updated[idx].quantity + 1
+        };
         return updated;
       }
       return [
@@ -163,6 +168,7 @@ const DrinkOrderApp = () => {
     setCategories(prev => prev.map(c =>
       c.id === categoryId ? { ...c, drinks: c.drinks.filter(d => d.id !== item.id) } : c
     ));
+    setOrders(prev => prev.filter(o => o.drinkId !== item.id));
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
     toast({ title: "Boisson supprimée", description: `${item.name} a été retirée du menu` });
   };
@@ -180,6 +186,11 @@ const DrinkOrderApp = () => {
         ...c,
         drinks: c.drinks.map(d => d.id === updated.id ? updated : d)
       })));
+      setOrders(prev => prev.map(o =>
+        o.drinkId === updated.id
+          ? { ...o, drinkName: updated.name, price: updated.price }
+          : o
+      ));
       toast({ title: "Boisson modifiée", description: `${updated.name} modifiée` });
     }
   };
@@ -200,7 +211,9 @@ const DrinkOrderApp = () => {
 
   const confirmDeleteCategory = () => {
     const cat = deleteDialog.item;
+    const catDrinkIds = new Set(cat?.drinks?.map(d => d.id) || []);
     setCategories(prev => prev.filter(c => c.id !== cat.id));
+    setOrders(prev => prev.filter(o => !catDrinkIds.has(o.drinkId)));
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
     toast({ title: "Catégorie supprimée", description: `${cat.name} supprimée` });
   };

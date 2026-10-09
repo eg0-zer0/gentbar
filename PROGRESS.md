@@ -12,7 +12,7 @@
 
 ## Étape 2 — Bugs de confiance et d'argent (A-36, A-06, A-37, A-31)
 - [x] Confirmation de suppression d'une boisson : bon titre/description selon le type (A-36)
-- [ ] Panier : prix/nom rafraîchis à l'ajout et à la modification d'une boisson (A-06)
+- [x] Panier : prix/nom rafraîchis à l'ajout et à la modification d'une boisson (A-06)
 - [ ] Partage : `order` et `isCurrentOrder` transmis à `ShareButtons` (A-37)
 - [ ] `EditDrinkModal` : `onClose` → `onOpenChange` (A-31)
 
