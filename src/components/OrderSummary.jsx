@@ -99,8 +99,8 @@ const OrderSummary = ({
               {currentOrders.map(order => (
                 <li className="flex justify-between items-center border-b border-border-color py-1" key={order.drinkId}>
                   <div>
-                    <p className="font-medium text-sm mb-0.5">{order.drinkName}</p>
-                    <p className="text-muted-text text-xs mb-0">{order.price.toFixed(2)} € / unité</p>
+                    <p className="font-medium text-sm mb-0.5 text-card-foreground">{order.drinkName}</p>
+                    <p className="text-muted-text text-xs mb-0 text-card-foreground">{order.price.toFixed(2)} € / unité</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button
