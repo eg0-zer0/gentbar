@@ -5,10 +5,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 import { Share2, Mail, MessageSquare, Phone, Check } from 'lucide-react';
 
-import { useToast } from '../hooks/use-toast';
+import { toast } from 'sonner';
 
 const ShareButtons = ({ order, isCurrentOrder = false }) => {
-  const { toast } = useToast();
+
   const [copied, setCopied] = useState(false);
 
   const formatOrderSummary = (orderData) => {

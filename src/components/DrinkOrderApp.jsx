@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useViewMode } from '../contexts/ViewModeContext';
-import { useToast } from '../hooks/use-toast';
+import { toast } from 'sonner';
 
 // UI components
 import Header from './Header';
@@ -25,7 +25,7 @@ import { generateDrinkId } from '../utils/id';
 import '../App.css';
 
 const DrinkOrderApp = () => {
-  const { toast } = useToast();
+
   const { viewMode, setViewMode } = useViewMode();
 
   const [categories, setCategories] = useState(() => JSON.parse(localStorage.getItem('categories')) || mockCategories);
