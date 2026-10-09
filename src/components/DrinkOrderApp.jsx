@@ -20,7 +20,7 @@ import { Toaster } from './ui/sonner';
 import { Plus } from 'lucide-react';
 
 // Data & utils
-import { mockCategories, mockOrderHistory } from '../mock';
+import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
 import '../App.css';
 
@@ -28,7 +28,15 @@ const DrinkOrderApp = () => {
 
   const { viewMode, setViewMode } = useViewMode();
 
-  const [categories, setCategories] = useState(() => JSON.parse(localStorage.getItem('categories')) || mockCategories);
+  const [categories, setCategories] = useState(() => {
+    const savedVersion = localStorage.getItem('menuVersion');
+    if (savedVersion !== MENU_VERSION) {
+      localStorage.setItem('menuVersion', MENU_VERSION);
+      localStorage.setItem('categories', JSON.stringify(mockCategories));
+      return mockCategories;
+    }
+    return JSON.parse(localStorage.getItem('categories')) || mockCategories;
+  });
   const [orders, setOrders] = useState(() => JSON.parse(localStorage.getItem('orders')) || []);
   const [orderHistory, setOrderHistory] = useState(() => JSON.parse(localStorage.getItem('orderHistory')) || mockOrderHistory);
   const [sortBy, setSortBy] = useState('name');
