@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Étape en cours** : 1 (terminée) · **Dernier commit** : d253273
+**Branche de travail** : `roadmap` · **Étape en cours** : 2 (terminée) · **Dernier commit** : 8f34f79
 
 ---
 
@@ -51,12 +51,15 @@
 ---
 
 ## Journal
-* 09/10/2026 — Étape 1 terminée : création de `public/_redirects` pour les réécritures SPA Netlify (A-28), script de build aligné avec `workbox generateSW`, options `navigateFallback` et `cleanupOutdatedCaches` configurées dans `workbox-config.js`, et régénération du Service Worker dans `public/service-worker.js`. `yarn build` validé avec succès. Reste : Étape 2.
+* 09/10/2026 — Étape 1 terminée : création de `public/_redirects` pour les réécritures SPA Netlify (A-28), script de build aligné avec `workbox generateSW`, options `navigateFallback` et `cleanupOutdatedCaches` configurées dans `workbox-config.js`, et régénération du Service Worker dans `public/service-worker.js`. `yarn build` validé avec succès.
+* 09/10/2026 — Étape 2 terminée : correction du titre/description selon le type dans `DeleteConfirmDialog` (A-36), synchronisation du panier (prix, nom, suppressions) dans `DrinkOrderApp` (A-06), transmission de `order` et `isCurrentOrder` à `ShareButtons` dans `OrderSummary` (A-37), remplacement de `onClose` par `onOpenChange` dans `EditDrinkModal` (A-31). `yarn build` validé avec succès. Reste : Étape 3.
 
 ## Écarts et décisions en cours
 *Aucun écart par rapport à la feuille de route.*
 
 ## À tester par le propriétaire sur appareil
-* Tester le rechargement direct de `https://gentbar.netlify.app/app` après déploiement de la branche roadmap pour vérifier l'absence d'erreur 404 Netlify.
-* Tester l'ouverture et le fonctionnement en mode avion (hors ligne) avec le nouveau Service Worker.
+* Suppression d'une boisson : vérifier que le dialogue affiche bien le nom de la boisson et non « Supprimer la catégorie ».
+* Panier : modifier le prix d'une boisson présente dans le panier et vérifier qu'elle est mise à jour, puis rajouter la boisson pour vérifier qu'elle prend bien le nouveau prix.
+* Partage : cliquer sur Partager depuis le récapitulatif de commande et vérifier que le texte contient le détail réel du panier.
+* Fenêtre de modification de boisson : cliquer sur la croix (X) en haut à droite pour vérifier la fermeture.
 
