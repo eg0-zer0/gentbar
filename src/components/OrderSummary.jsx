@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import React, { useState, useEffect } from 'react';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 import { Button } from './ui/button';
 import { Trash, Minus, Plus, Receipt, ChevronLeft, ChevronRight } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import useMediaQuery from '../hooks/useMediaQuery';
+import { toast } from 'sonner';
 
 const OrderSummary = ({
   orders,
@@ -14,6 +15,7 @@ const OrderSummary = ({
   isConfirmModalOpen
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const isWide = useMediaQuery('(min-width: 1080px)');
   const hasOrders = orders.length > 0;
@@ -139,9 +141,24 @@ const OrderSummary = ({
               Total : {totalAmount.toFixed(2)} €
             </div>
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-              <Button variant="destructive" className="btn-destructive" onClick={onClearAll}>
+              <Button variant="destructive" className="btn-destructive" onClick={() => setShowClearConfirm(true)}>
                 Vider le panier
               </Button>
+
+              {/* Confirmation dialog for clearing the cart */}
+              <DeleteConfirmDialog
+                isOpen={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                onConfirm={() => {
+                  onClearAll();
+                  setShowClearConfirm(false);
+                  toast('Panier vidé', { description: 'Toutes les boissons ont été retirées.' });
+                }}
+                title="Vider le panier"
+                description="Êtes‑vous sûr de vouloir vider le panier ? Cette action est irréversible."
+                confirmText="Vider"
+                cancelText="Annuler"
+              />
               <Button
                 className="btn-primary"
                 onClick={() => {
