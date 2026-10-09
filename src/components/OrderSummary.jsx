@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Trash, Minus, Plus, Receipt, ChevronLeft, ChevronRight } from 'lucide-react';
 import ShareButtons from './ShareButtons';
@@ -18,6 +19,7 @@ const OrderSummary = ({
 const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
   const isWide = useMediaQuery('(min-width: 1080px)');
+  const [itemToDelete, setItemToDelete] = useState(null);
   const hasOrders = orders.length > 0;
   const isFloating = hasOrders && !isWide;
 
@@ -31,18 +33,41 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentOrders = orders.slice(startIndex, endIndex);
 
+  // A-38 : Recaler currentPage après suppression pour ne pas rester sur une page vide
+  useEffect(() => {
+    if (totalPages > 0 && currentPage >= totalPages) {
+      setCurrentPage(Math.max(0, totalPages - 1));
+    }
+  }, [orders.length, totalPages, currentPage]);
+
   if (isConfirmModalOpen || !hasOrders) return null;
 
   if (isFloating) {
     return (
       <div className="floating-cart flex justify-end items-center w-full">
-        <Button
-          className="btn-primary px-4 py-2 rounded font-semibold text-base"
-          onClick={onConfirmOrder}
-          aria-label={`Voir la commande (${totalItems} article${totalItems > 1 ? 's' : ''})`}
-        >
-          {`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
-        </Button>
+                  <Button
+            className="btn-primary px-4 py-2 rounded font-semibold text-base"
+            onClick={onConfirmOrder}
+            aria-label={`Voir la commande (${totalItems} article${totalItems > 1 ? 's' : ''})`}
+          >
+            {`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
+          </Button>
+          {/* Confirmation dialog for clearing cart in floating mode */}
+          {showClearConfirm && (
+            <DeleteConfirmDialog
+              isOpen={showClearConfirm}
+              onClose={() => setShowClearConfirm(false)}
+              onConfirm={() => {
+                onClearAll();
+                setShowClearConfirm(false);
+                toast('Panier vidé', { description: 'Toutes les boissons ont été retirées.' });
+              }}
+              title="Vider le panier"
+              description="Êtes‑vous sûr de vouloir vider le panier ? Cette action est irréversible."
+              confirmText="Vider"
+              cancelText="Annuler"
+            />
+          )}
       </div>
     );
   }
@@ -125,7 +150,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                     <Button
                       className="btn-destructive min-w-0 w-7 h-5 p-0 flex justify-center items-center"
                       size="xs"
-                      onClick={() => onRemoveItem(order.drinkId)}
+                      onClick={() => setItemToDelete(order)}
                       aria-label={`Supprimer ${order.drinkName} du panier`}
                     >
                       <Trash className="w-3 h-3 text-red-500" />
@@ -145,20 +170,40 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                 Vider le panier
               </Button>
 
-              {/* Confirmation dialog for clearing the cart */}
-              <DeleteConfirmDialog
-                isOpen={showClearConfirm}
-                onClose={() => setShowClearConfirm(false)}
-                onConfirm={() => {
-                  onClearAll();
-                  setShowClearConfirm(false);
-                  toast('Panier vidé', { description: 'Toutes les boissons ont été retirées.' });
-                }}
-                title="Vider le panier"
-                description="Êtes‑vous sûr de vouloir vider le panier ? Cette action est irréversible."
-                confirmText="Vider"
-                cancelText="Annuler"
-              />
+              {itemToDelete && (
+                <DeleteConfirmDialog
+                  isOpen={!!itemToDelete}
+                  onClose={() => setItemToDelete(null)}
+                  onConfirm={() => {
+                    onRemoveItem(itemToDelete.drinkId);
+                    setItemToDelete(null);
+                    toast('Boisson retirée', { description: `${itemToDelete.drinkName} a été retirée du panier.` });
+                  }}
+                  type="drink"
+                  item={itemToDelete}
+                  title={`Supprimer ${itemToDelete?.drinkName ? `« ${itemToDelete.drinkName} »` : 'la boisson'} ?`}
+                  description={`Êtes‑vous sûr de vouloir supprimer ${itemToDelete?.drinkName ? `« ${itemToDelete.drinkName} »` : 'cette boisson'} du panier ?`}
+                  confirmText="Supprimer"
+                  cancelText="Annuler"
+                />
+              )}
+
+              {showClearConfirm && (
+                <DeleteConfirmDialog
+                  isOpen={showClearConfirm}
+                  onClose={() => setShowClearConfirm(false)}
+                  onConfirm={() => {
+                    onClearAll();
+                    setShowClearConfirm(false);
+                    toast('Panier vidé', { description: 'Toutes les boissons ont été retirées.' });
+                  }}
+                  title="Vider le panier"
+                  description="Êtes‑vous sûr de vouloir vider le panier ? Cette action est irréversible."
+                  confirmText="Vider"
+                  cancelText="Annuler"
+                />
+              )}
+
               <Button
                 className="btn-primary"
                 onClick={() => {

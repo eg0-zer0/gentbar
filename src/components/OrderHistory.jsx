@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
+import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
@@ -12,6 +14,7 @@ import {
 } from './ui/dialog';
 
 const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder }) => {
+  const [orderToDelete, setOrderToDelete] = useState(null);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -91,11 +94,7 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                   <ShareButtons order={order} isCurrentOrder={false} />
                   <button
                     aria-label="Supprimer cette commande"
-                    onClick={() => {
-                      if (typeof onRemoveOrder === 'function') {
-                        onRemoveOrder(order.id);
-                      }
-                    }}
+                    onClick={() => setOrderToDelete(order)}
                     className="btn-destructive p-2 rounded"
                   >
                     <Trash2 size={18} />
@@ -104,6 +103,24 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
               </Card>
             ))}
           </div>
+        )}
+
+        {orderToDelete && (
+          <DeleteConfirmDialog
+            isOpen={!!orderToDelete}
+            onClose={() => setOrderToDelete(null)}
+            onConfirm={() => {
+              if (typeof onRemoveOrder === 'function') {
+                onRemoveOrder(orderToDelete.id);
+              }
+              setOrderToDelete(null);
+              toast('Commande supprimée', { description: 'La commande a été retirée de l\'historique.' });
+            }}
+            title="Supprimer la commande ?"
+            description="Êtes-vous sûr de vouloir supprimer cette commande de l'historique ? Cette action est irréversible."
+            confirmText="Supprimer"
+            cancelText="Annuler"
+          />
         )}
       </DialogContent>
     </Dialog>

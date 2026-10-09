@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
+import DeleteConfirmDialog from './DeleteConfirmDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Trash2, Minus, Plus, Receipt } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import { useTheme } from '../contexts/ThemeContext';
+import { toast } from 'sonner';
 
 const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemoveItem, onClearAll, onConfirm }) => {
   const { theme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const totalAmount = orders.reduce((sum, o) => sum + o.price * o.quantity, 0);
   const totalItems = orders.reduce((sum, o) => sum + o.quantity, 0);
@@ -65,7 +69,8 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                           <Button
                             className="btn-destructive p-1"
                             size="xs"
-                            onClick={() => onRemoveItem(order.drinkId)}
+                            onClick={() => setItemToDelete(order)}
+                            aria-label={`Supprimer ${order.drinkName} du panier`}
                           >
                             <Trash2 className="w-3 h-3" />
                           </Button>
@@ -81,7 +86,11 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                     Total : {totalAmount.toFixed(2)} €
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="destructive" className="flex-1" onClick={onClearAll}>
+                    <Button
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => setShowClearConfirm(true)}
+                    >
                       Vider le panier
                     </Button>
                     <Button className="btn-primary" onClick={onConfirm}>
@@ -91,6 +100,47 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                   <ShareButtons order={orders} isCurrentOrder={true} />
                 </div>
               </>
+            )}
+
+            {/* Confirmation de suppression d'une boisson */}
+            {itemToDelete && (
+              <DeleteConfirmDialog
+                isOpen={!!itemToDelete}
+                onClose={() => setItemToDelete(null)}
+                onConfirm={() => {
+                  onRemoveItem(itemToDelete.drinkId);
+                  const remaining = orders.filter(o => o.drinkId !== itemToDelete.drinkId);
+                  setItemToDelete(null);
+                  if (remaining.length === 0) {
+                    onClose();
+                  }
+                  toast('Boisson retirée', { description: `${itemToDelete.drinkName} a été retirée du panier.` });
+                }}
+                type="drink"
+                item={itemToDelete}
+                title={`Supprimer ${itemToDelete?.drinkName ? `« ${itemToDelete.drinkName} »` : 'la boisson'} ?`}
+                description={`Êtes-vous sûr de vouloir supprimer ${itemToDelete?.drinkName ? `« ${itemToDelete.drinkName} »` : 'cette boisson'} du panier ?`}
+                confirmText="Supprimer"
+                cancelText="Annuler"
+              />
+            )}
+
+            {/* Confirmation pour vider le panier */}
+            {showClearConfirm && (
+              <DeleteConfirmDialog
+                isOpen={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                onConfirm={() => {
+                  onClearAll();
+                  setShowClearConfirm(false);
+                  onClose();
+                  toast('Panier vidé', { description: 'Toutes les boissons ont été retirées.' });
+                }}
+                title="Vider le panier"
+                description="Êtes-vous sûr de vouloir vider le panier ? Cette action est irréversible."
+                confirmText="Vider"
+                cancelText="Annuler"
+              />
             )}
 
             {!isExpanded && (
