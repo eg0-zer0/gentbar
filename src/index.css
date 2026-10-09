@@ -89,9 +89,9 @@ html.dark {
   /* Thème Gentbar personnalisé */
 html.gentbar {
     --background: 218 80% 15%;
-    --foreground: 0 0% 100%;
+    --foreground: 0 0% 10%;
     --card: 218 64% 18%;
-    --card-foreground: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
     --popover: 218 80% 15%;
     --popover-foreground: 328 100% 45%;
 

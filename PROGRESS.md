@@ -18,8 +18,8 @@
 
 ## Étape 3 — Unifier les thèmes (A-01)
 - [x] Jetons Tailwind pilotés par `html.dark` / `html.gentbar` dans `index.css`
-- [ ] Récapitulatif, en-tête, fenêtres, landing et composants `ui/*` vérifiés dans les 3 thèmes
-- [ ] Contraste vérifié (≥ 4,5:1)
+- [x] Récapitulatif, en-tête, fenêtres, landing et composants `ui/*` vérifiés dans les 3 thèmes
+- [x] Contraste vérifié (≥ 4,5:1)
 
 ## Étape 4 — Notifications et actions destructives (A-02, A-13, A-38, E-6)
 - [ ] Sonner partout, store `use-toast` supprimé, un seul `<Toaster />`
