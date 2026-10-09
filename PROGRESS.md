@@ -22,7 +22,7 @@
 - [x] Contraste vérifié (≥ 4,5:1)
 
 ## Étape 4 — Notifications et actions destructives (A-02, A-13, A-38, E-6)
-- [ ] Sonner partout, store `use-toast` supprimé, un seul `<Toaster />`
+- [x] Sonner partout, store `use-toast` supprimé, un seul `<Toaster />`
 - [ ] Vider le panier : confirmation
 - [ ] Pagination du panier : `currentPage` recalé après suppression
 - [ ] Suppressions unifiées (toast « Annuler » pour les actions fréquentes, confirmation pour les actions larges)

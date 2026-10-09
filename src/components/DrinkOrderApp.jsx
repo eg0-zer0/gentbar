@@ -106,7 +106,7 @@ const DrinkOrderApp = () => {
         { drinkId: drink.id, drinkName: drink.name, price: drink.price, quantity: 1, addedAt: new Date().toISOString() }
       ];
     });
-    toast({ title: "Boisson ajoutée", description: `${drink.name} ajoutée à la commande` });
+    toast("Boisson ajoutée", { description: `${drink.name} ajoutée à la commande` });
   };
 
   const handleUpdateQuantity = (id, qty) => {
@@ -119,12 +119,12 @@ const DrinkOrderApp = () => {
 
   const handleRemoveItem = (id) => {
     setOrders(prev => prev.filter(i => i.drinkId !== id));
-    toast({ title: "Article supprimé", description: "L'article a été retiré du panier" });
+    toast("Article supprimé", { description: "L'article a été retiré du panier" });
   };
 
   const handleClearAll = () => {
     setOrders([]);
-    toast({ title: "Commande vidée", description: "Toutes les commandes ont été supprimées" });
+    toast("Commande vidée", { description: "Toutes les commandes ont été supprimées" });
   };
 
   const handleConfirmOrderClick = () => {
@@ -144,7 +144,7 @@ const DrinkOrderApp = () => {
     setOrderHistory(prev => [newOrder, ...prev]);
     setOrders([]);
     setShowConfirmModal(false);
-    toast({ title: "Commande confirmée", description: `Total: ${total.toFixed(2)} €` });
+    toast("Commande confirmée", { description: `Total: ${total.toFixed(2)} €` });
   };
 
   // ---- GESTION CATEGORIES/DRINKS ----
@@ -170,7 +170,7 @@ const DrinkOrderApp = () => {
     ));
     setOrders(prev => prev.filter(o => o.drinkId !== item.id));
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
-    toast({ title: "Boisson supprimée", description: `${item.name} a été retirée du menu` });
+    toast("Boisson supprimée", { description: `${item.name} a été retirée du menu` });
   };
 
   const handleSaveDrink = (updated) => {
@@ -180,7 +180,7 @@ const DrinkOrderApp = () => {
           ? { ...c, drinks: [...c.drinks, { ...updated, id: generateDrinkId(updated.name, c.id) }] }
           : c
       ));
-      toast({ title: "Boisson ajoutée", description: `${updated.name} ajoutée au menu` });
+      toast("Boisson ajoutée", { description: `${updated.name} ajoutée au menu` });
     } else {
       setCategories(prev => prev.map(c => ({
         ...c,
@@ -191,7 +191,7 @@ const DrinkOrderApp = () => {
           ? { ...o, drinkName: updated.name, price: updated.price }
           : o
       ));
-      toast({ title: "Boisson modifiée", description: `${updated.name} modifiée` });
+      toast("Boisson modifiée", { description: `${updated.name} modifiée` });
     }
   };
 
@@ -215,17 +215,17 @@ const DrinkOrderApp = () => {
     setCategories(prev => prev.filter(c => c.id !== cat.id));
     setOrders(prev => prev.filter(o => !catDrinkIds.has(o.drinkId)));
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
-    toast({ title: "Catégorie supprimée", description: `${cat.name} supprimée` });
+    toast("Catégorie supprimée", { description: `${cat.name} supprimée` });
   };
 
   const handleSaveCategory = (cat) => {
     setCategories(prev => {
       const exists = prev.some(c => c.id === cat.id);
       if (exists) {
-        toast({ title: "Catégorie modifiée", description: `${cat.name} mise à jour` });
+        toast("Catégorie modifiée", { description: `${cat.name} mise à jour` });
         return prev.map(c => c.id === cat.id ? cat : c);
       } else {
-        toast({ title: "Catégorie ajoutée", description: `${cat.name} créée` });
+        toast("Catégorie ajoutée", { description: `${cat.name} créée` });
         return [...prev, { ...cat, id: `cat-${Date.now()}`, drinks: [], isCollapsed: false }];
       }
     });

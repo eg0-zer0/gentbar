@@ -63,16 +63,9 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
       await navigator.clipboard.writeText(textToShare);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: "Copié dans le presse-papiers",
-        description: "Le résumé de la commande a été copié.",
-      });
+      toast("Copié dans le presse-papiers", { description: "Le résumé de la commande a été copié." });
     } catch {
-      toast({
-        title: "Erreur de copie",
-        description: "Impossible de copier le texte.",
-        variant: "destructive",
-      });
+      toast("Erreur de copie", { description: "Impossible de copier le texte.", variant: "destructive" });
     }
   };
 
@@ -94,10 +87,7 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
         break;
       case 'messenger':
         handleCopyToClipboard();
-        toast({
-          title: "Texte copié",
-          description: "Collez le texte dans Messenger.",
-        });
+        toast("Texte copié", { description: "Collez le texte dans Messenger." });
         break;
       case 'copy':
         handleCopyToClipboard();
