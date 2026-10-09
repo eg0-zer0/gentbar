@@ -15,4 +15,11 @@ module.exports = {
 
   // Force le SW à activer sans attendre la fermeture des pages
   skipWaiting: true,
+
+  // Nettoyage des anciens caches obsolètes
+  cleanupOutdatedCaches: true,
+
+  // Repli SPA pour le routage côté client en mode hors ligne
+  navigateFallback: '/index.html',
+  navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
 };

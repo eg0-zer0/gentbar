@@ -8,7 +8,7 @@
 
 ## Étape 1 — Fiabiliser le déploiement (A-28, A-05)
 - [x] `public/_redirects` avec `/*  /index.html  200`
-- [ ] Commande de build alignée sur `workbox generateSW` ; `public/service-worker.js` régénéré (plus de hash périmés)
+- [x] Commande de build alignée sur `workbox generateSW` ; `public/service-worker.js` régénéré (plus de hash périmés)
 
 ## Étape 2 — Bugs de confiance et d'argent (A-36, A-06, A-37, A-31)
 - [ ] Confirmation de suppression d'une boisson : bon titre/description selon le type (A-36)

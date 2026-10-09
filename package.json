@@ -58,7 +58,7 @@
   },
   "scripts": {
     "start": "craco start",
-    "build": "craco build",
+    "build": "craco build && workbox generateSW workbox-config.js",
     "test": "react-scripts test --env=jsdom",
     "build-sw": "workbox generateSW workbox-config.js",
     "build-pwa": "craco build && workbox generateSW workbox-config.js",
