@@ -43,7 +43,7 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
   const textClass = "text-foreground";
 
   return (
-    <Dialog open={isOpen} onClose={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
         <DialogHeader>
           <DialogTitle className={`${textClass} font-semibold mb-4`}>

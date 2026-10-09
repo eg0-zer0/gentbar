@@ -14,7 +14,7 @@
 - [x] Confirmation de suppression d'une boisson : bon titre/description selon le type (A-36)
 - [x] Panier : prix/nom rafraîchis à l'ajout et à la modification d'une boisson (A-06)
 - [x] Partage : `order` et `isCurrentOrder` transmis à `ShareButtons` (A-37)
-- [ ] `EditDrinkModal` : `onClose` → `onOpenChange` (A-31)
+- [x] `EditDrinkModal` : `onClose` → `onOpenChange` (A-31)
 
 ## Étape 3 — Unifier les thèmes (A-01)
 - [ ] Jetons Tailwind pilotés par `html.dark` / `html.gentbar` dans `index.css`
