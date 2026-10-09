@@ -43,7 +43,8 @@
 - [ ] Composants orphelins supprimés (`AddFriendModal`, `FriendSelector`, `AddDrinkModal`, `InstallPrompt`, `ThemeToggle` si inutilisé)
 
 ## Étape 8 — Nouvelle carte du club
-- [ ] `src/mock.js` remplacé par la version validée
+- [x] `src/mock.js` remplacé par la version validée (11 catégories à jour, Royal La Louvière Hockey Club)
+- [x] Synchronisation automatique de version (`MENU_VERSION`) pour prise en compte immédiate sur les appareils existants
 
 ## Étape 9 — Nouvelles fonctionnalités *(uniquement sur demande explicite)*
 *Ordre : E-3, E-10, E-5, E-7, E-8, E-4, E-9, E-11, E-1, A-29, E-2.*
@@ -54,14 +55,13 @@
 * 09/10/2026 — Étape 1 terminée : création de `public/_redirects` pour les réécritures SPA Netlify (A-28), script de build aligné avec `workbox generateSW`, options `navigateFallback` et `cleanupOutdatedCaches` configurées dans `workbox-config.js`, et régénération du Service Worker dans `public/service-worker.js`. `yarn build` validé avec succès.
 * 09/10/2026 — Étape 2 terminée : correction du titre/description selon le type dans `DeleteConfirmDialog` (A-36), synchronisation du panier (prix, nom, suppressions) dans `DrinkOrderApp` (A-06), transmission de `order` et `isCurrentOrder` à `ShareButtons` dans `OrderSummary` (A-37), remplacement de `onClose` par `onOpenChange` dans `EditDrinkModal` (A-31). `yarn build` validé avec succès.
 * 09/10/2026 — Étape 3 terminée : thèmes unifiés via `index.css` et vérification des contrastes.
-* 09/10/2026 — Étape 4 terminée : Sonner partout, suppression de l'ancien `use-toast`, boîtes de dialogue de confirmation ajoutées pour vider le panier (dans `OrderSummary` et dans la modale `ConfirmOrderModal`), confirmations ajoutées pour le retrait d'un article du panier et pour la suppression d'une commande dans l'historique (`OrderHistory`), recalage automatique de `currentPage` après suppression (`A-38`). `yarn build` validé avec succès.
+* 09/10/2026 — Étape 4 terminée : Sonner partout, suppression de l'ancien `use-toast`, boîtes de dialogue de confirmation ajoutées pour vider le panier (dans `OrderSummary` et dans la modale `ConfirmOrderModal`), confirmations ajoutées pour le retrait d'un article du panier et pour la suppression d'une commande dans l'historique (`OrderHistory`), recalage automatique de `currentPage` après suppression (`A-38`). Notifications repositionnées en haut au centre (`top-center`), plus courtes et discrètes pour ne pas masquer le panier sur mobile. `yarn build` validé avec succès.
+* 09/10/2026 — Étape 8 terminée : remplacement de `src/mock.js` par la carte officielle validée (11 catégories, bières au fût/bouteille/sans alcool, alcools, cocktails, bulles & cidres, vins, softs, boissons chaudes, snacks, petite restauration). Ajout de `MENU_VERSION` dans `DrinkOrderApp.jsx` pour forcer le rafraîchissement automatique de la carte sur les téléphones ayant déjà ouvert l'application. `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
-*Aucun écart par rapport à la feuille de route.*
+* Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
 
 ## À tester par le propriétaire sur appareil
-* Vider le panier : vérifier le dialogue de confirmation depuis le résumé desktop ET depuis la modale « Visualiser la commande » (`ConfirmOrderModal`).
-* Retrait d'un article du panier : vérifier le dialogue de confirmation lors du clic sur l'icône corbeille d'une boisson.
-* Historique : vérifier le dialogue de confirmation lors de la suppression d'un ticket.
-* Pagination panier : vérifier que la page reste valide après suppression des articles.
+* Nouvelle carte : vérifier que les 11 catégories à jour s'affichent correctement avec leurs boissons et prix.
+* Notifications : vérifier qu'elles apparaissent en haut au centre de manière discrète sans gêner le panier en bas.
 
