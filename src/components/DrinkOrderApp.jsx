@@ -22,25 +22,28 @@ import { Plus } from 'lucide-react';
 // Data & utils
 import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
+import { load, save, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf } from '../lib/storage';
 import '../App.css';
+
+const normalizeSortBy = normalizeOneOf(['name', 'popularity', 'price-asc', 'price-desc', 'default']);
 
 const DrinkOrderApp = () => {
 
   const { viewMode, setViewMode } = useViewMode();
 
   const [categories, setCategories] = useState(() => {
-    const savedVersion = localStorage.getItem('menuVersion');
+    const savedVersion = loadRaw('menuVersion');
     if (savedVersion !== MENU_VERSION) {
-      localStorage.setItem('menuVersion', MENU_VERSION);
-      localStorage.setItem('categories', JSON.stringify(mockCategories));
+      saveRaw('menuVersion', MENU_VERSION);
+      save('categories', mockCategories);
       return mockCategories;
     }
-    return JSON.parse(localStorage.getItem('categories')) || mockCategories;
+    return load('categories', mockCategories, normalizeCategories);
   });
-  const [orders, setOrders] = useState(() => JSON.parse(localStorage.getItem('orders')) || []);
-  const [orderHistory, setOrderHistory] = useState(() => JSON.parse(localStorage.getItem('orderHistory')) || mockOrderHistory);
-  const [sortBy, setSortBy] = useState('name');
-  const [soundEnabled, setSoundEnabled] = useState(() => JSON.parse(localStorage.getItem('soundEnabled')) ?? true);
+  const [orders, setOrders] = useState(() => load('orders', [], normalizeOrders));
+  const [orderHistory, setOrderHistory] = useState(() => load('orderHistory', mockOrderHistory, normalizeOrderHistory));
+  const [sortBy, setSortBy] = useState(() => load('sortBy', 'name', normalizeSortBy));
+  const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', true, normalizeBoolean));
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -53,11 +56,12 @@ const DrinkOrderApp = () => {
   const [editCategoryModal, setEditCategoryModal] = useState({ isOpen: false, category: null });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, type: null, item: null, categoryId: null });
 
-  useEffect(() => { localStorage.setItem('categories', JSON.stringify(categories)); }, [categories]);
-  useEffect(() => { localStorage.setItem('orders', JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem('orderHistory', JSON.stringify(orderHistory)); }, [orderHistory]);
-  useEffect(() => { localStorage.setItem('soundEnabled', JSON.stringify(soundEnabled)); }, [soundEnabled]);
-  useEffect(() => { localStorage.setItem('viewMode', viewMode); }, [viewMode]);
+  useEffect(() => { save('categories', categories); }, [categories]);
+  useEffect(() => { save('orders', orders); }, [orders]);
+  useEffect(() => { save('orderHistory', orderHistory); }, [orderHistory]);
+  useEffect(() => { save('soundEnabled', soundEnabled); }, [soundEnabled]);
+  useEffect(() => { save('sortBy', sortBy); }, [sortBy]);
+  // viewMode : déjà persisté (et validé) par ViewModeContext.
 
   // Popularité des boissons
   const drinkPopularity = useMemo(() => {
