@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : 5 (Robustesse) · **Dernier commit** : 6a4e6c1
+**Branche de travail** : `roadmap` · **Prochaine étape** : 6 (Installation et PWA) · **Dernier commit** : 498fd7b
 
 ---
 
@@ -28,9 +28,9 @@
 - [x] Suppressions unifiées : confirmations d'article dans le panier et de ticket dans l'historique (`OrderHistory`)
 
 ## Étape 5 — Robustesse (A-08, A-03)
-- [ ] Module de stockage sûr (`try/catch`, validation, repli) et usage dans `DrinkOrderApp`
-- [ ] `ErrorBoundary` global
-- [ ] `sortBy` persisté
+- [x] Module de stockage sûr (`try/catch`, validation, repli) et usage dans `DrinkOrderApp`
+- [x] `ErrorBoundary` global (`src/components/ErrorBoundary.jsx` avec options recharger et réinitialiser)
+- [x] `sortBy` persisté avec validation et sauvegarde automatique
 
 ## Étape 6 — Installation et PWA (A-30, A-16, A-24)
 - [ ] Un seul écouteur `beforeinstallprompt` partagé (contexte)
@@ -57,11 +57,12 @@
 * 09/10/2026 — Étape 3 terminée : thèmes unifiés via `index.css` et vérification des contrastes.
 * 09/10/2026 — Étape 4 terminée : Sonner partout, suppression de l'ancien `use-toast`, boîtes de dialogue de confirmation ajoutées pour vider le panier (dans `OrderSummary` et dans la modale `ConfirmOrderModal`), confirmations ajoutées pour le retrait d'un article du panier et pour la suppression d'une commande dans l'historique (`OrderHistory`), recalage automatique de `currentPage` après suppression (`A-38`). Notifications repositionnées en haut au centre (`top-center`), plus courtes et discrètes pour ne pas masquer le panier sur mobile. `yarn build` validé avec succès.
 * 09/10/2026 — Étape 8 terminée : remplacement de `src/mock.js` par la carte officielle validée (11 catégories, bières au fût/bouteille/sans alcool, alcools, cocktails, bulles & cidres, vins, softs, boissons chaudes, snacks, petite restauration). Ajout de `MENU_VERSION` dans `DrinkOrderApp.jsx` pour forcer le rafraîchissement automatique de la carte sur les téléphones ayant déjà ouvert l'application. `yarn build` validé avec succès.
+* 10/10/2026 — Étape 5 terminée : création du module `src/lib/storage.js` avec chargement sûr (`load`, `save`), gestion d'erreurs, normalisation des données et backup automatique (`__backup`), remplacement des accès directs `localStorage` dans `DrinkOrderApp.jsx`, création et intégration de `ErrorBoundary` global (`src/components/ErrorBoundary.jsx`) évitant les pages blanches avec options de rechargement et de réinitialisation sécurisée, persistance du tri `sortBy` avec validation (`A-03`). `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
 
 ## À tester par le propriétaire sur appareil
-* Nouvelle carte : vérifier que les 11 catégories à jour s'affichent correctement avec leurs boissons et prix.
-* Notifications : vérifier qu'elles apparaissent en haut au centre de manière discrète sans gêner le panier en bas.
+* Persistance du tri : choisir un tri (ex. « Prix ↗ »), recharger la page ou naviguer vers la page d'accueil puis revenir sur l'application, vérifier que le tri reste conservé.
+* Robustesse : tester le bon chargement des données sans aucun écran blanc même en cas de données corrompues.
 

@@ -58,9 +58,9 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 5 — Robustesse
 
-- [ ] Encapsuler toutes les lectures/écritures `localStorage` dans un petit module (`try/catch`, validation, valeur de repli) plutôt que des `JSON.parse` directs
-- [ ] Ajouter un `ErrorBoundary` React global (écran « Une erreur est survenue » + bouton recharger)
-- [ ] Persister `sortBy` de la même façon que `viewMode` (actuellement jamais sauvegardé)
+- [x] Encapsuler toutes les lectures/écritures `localStorage` dans un petit module (`try/catch`, validation, valeur de repli) plutôt que des `JSON.parse` directs
+- [x] Ajouter un `ErrorBoundary` React global (écran « Une erreur est survenue » + bouton recharger)
+- [x] Persister `sortBy` de la même façon que `viewMode` (actuellement jamais sauvegardé)
 
 **Fichiers** : `src/components/DrinkOrderApp.jsx`, nouveau `src/lib/storage.js`, nouveau `src/components/ErrorBoundary.jsx`
 **Détail** : `A-08`, `A-03`
