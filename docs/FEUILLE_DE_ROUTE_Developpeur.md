@@ -69,10 +69,10 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 6 — Installation et PWA
 
-- [ ] Partager une seule instance de l'écouteur d'installation (`beforeinstallprompt`) entre tous les boutons (contexte React dédié), au lieu d'un `usePWA()` séparé par composant
-- [ ] Supprimer le second rendu d'`InstallBanner` (actuellement affiché à la fois dans `App.jsx` et dans `DrinkOrderApp.jsx`)
-- [ ] « Vérifier les mises à jour » : lui donner un vrai comportement (`registration.update()` + retour visible), ou le retirer s'il fait doublon avec « Accéder à l'application »
-- [ ] Manifest : ajouter `"purpose": "any maskable"` aux icônes, ajouter un `favicon.ico`, ajouter une route `*` (404) dans le routeur
+- [x] Partager une seule instance de l'écouteur d'installation (`beforeinstallprompt`) entre tous les boutons (contexte React dédié), au lieu d'un `usePWA()` séparé par composant
+- [x] Supprimer le second rendu d'`InstallBanner` (actuellement affiché à la fois dans `App.jsx` et dans `DrinkOrderApp.jsx`)
+- [x] « Vérifier les mises à jour » : lui donner un vrai comportement (`registration.update()` + retour visible), ou le retirer s'il fait doublon avec « Accéder à l'application »
+- [x] Manifest : ajouter `"purpose": "any maskable"` aux icônes, ajouter un `favicon.ico`, ajouter une route `*` (404) dans le routeur
 
 **Fichiers** : `src/hooks/usePWA.js`, nouveau `src/contexts/PWAContext.jsx`, `src/components/InstallBanner.jsx`, `src/components/Header.jsx`, `src/components/LandingPage.jsx`, `public/manifest.json`, `src/App.jsx`
 **Détail** : `A-30`, `A-16`, `A-24`

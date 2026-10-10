@@ -12,9 +12,7 @@ import EditDrinkModal from './EditDrinkModal';
 import EditCategoryModal from './EditCategoryModal';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import SortControls from './SortControls';
-import InstallBanner from './InstallBanner';
 import { Button } from './ui/button';
-import { Toaster } from './ui/sonner';
 
 // Icons etc.
 import { Plus } from 'lucide-react';
@@ -337,10 +335,6 @@ const DrinkOrderApp = () => {
             else if (deleteDialog.type === 'category') confirmDeleteCategory();
           }}
         />
-
-        <InstallBanner />
-
-        <Toaster />
       </div>
     </div>
   );

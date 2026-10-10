@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : 6 (Installation et PWA) · **Dernier commit** : 498fd7b
+**Branche de travail** : `roadmap` · **Prochaine étape** : 7 (Nettoyage) · **Dernier commit** : 6f179d4
 
 ---
 
@@ -33,10 +33,10 @@
 - [x] `sortBy` persisté avec validation et sauvegarde automatique
 
 ## Étape 6 — Installation et PWA (A-30, A-16, A-24)
-- [ ] Un seul écouteur `beforeinstallprompt` partagé (contexte)
-- [ ] `InstallBanner` rendu une seule fois (ou retiré)
-- [ ] « Vérifier les mises à jour » : vrai comportement ou retiré
-- [ ] Icônes `maskable`, `favicon.ico`, route `*` (404)
+- [x] Un seul écouteur `beforeinstallprompt` partagé (contexte `PWAContext`)
+- [x] `InstallBanner` retiré du projet et supprimé de `App.jsx` et `DrinkOrderApp.jsx` (décision A-35)
+- [x] « Vérifier les mises à jour » : vrai comportement avec `registration.update()` et notification de statut utilisateur
+- [x] Icônes `maskable`, `favicon.ico`, route `*` (404 avec page dédiée), redirection automatique standalone vers `/app`
 
 ## Étape 7 — Nettoyage (A-25, A-35)
 - [ ] Un seul fichier de verrouillage des dépendances
@@ -58,6 +58,7 @@
 * 09/10/2026 — Étape 4 terminée : Sonner partout, suppression de l'ancien `use-toast`, boîtes de dialogue de confirmation ajoutées pour vider le panier (dans `OrderSummary` et dans la modale `ConfirmOrderModal`), confirmations ajoutées pour le retrait d'un article du panier et pour la suppression d'une commande dans l'historique (`OrderHistory`), recalage automatique de `currentPage` après suppression (`A-38`). Notifications repositionnées en haut au centre (`top-center`), plus courtes et discrètes pour ne pas masquer le panier sur mobile. `yarn build` validé avec succès.
 * 09/10/2026 — Étape 8 terminée : remplacement de `src/mock.js` par la carte officielle validée (11 catégories, bières au fût/bouteille/sans alcool, alcools, cocktails, bulles & cidres, vins, softs, boissons chaudes, snacks, petite restauration). Ajout de `MENU_VERSION` dans `DrinkOrderApp.jsx` pour forcer le rafraîchissement automatique de la carte sur les téléphones ayant déjà ouvert l'application. `yarn build` validé avec succès.
 * 10/10/2026 — Étape 5 terminée : création du module `src/lib/storage.js` avec chargement sûr (`load`, `save`), gestion d'erreurs, normalisation des données et backup automatique (`__backup`), remplacement des accès directs `localStorage` dans `DrinkOrderApp.jsx`, création et intégration de `ErrorBoundary` global (`src/components/ErrorBoundary.jsx`) évitant les pages blanches avec options de rechargement et de réinitialisation sécurisée, persistance du tri `sortBy` avec validation (`A-03`). `yarn build` validé avec succès.
+* 10/10/2026 — Étape 6 terminée : création de `PWAContext` (écouteur unique `beforeinstallprompt`, détection standalone, feedback toast lors de l'installation), suppression de la bannière redondante `InstallBanner`, fiabilisation du bouton « Vérifier les mises à jour » sur la landing (appel réel à `registration.update()` avec notification Sonner), mise à jour du `manifest.json` (`purpose: any maskable`, `start_url: /app`), création du `favicon.ico` et du lien favicon SVG, ajout de la page 404 (`NotFoundPage`) sur la route `path="*"` et consolidation du `<Toaster />` unique à la racine de l'application. `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.

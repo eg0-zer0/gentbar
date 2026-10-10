@@ -2,51 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePWA } from '../hooks/usePWA';
 import { Button } from './ui/button';
-import { register } from '../serviceWorkerRegistration';
+import { toast } from 'sonner';
 import IosInstallPopup from './IosInstallPopup';
-
-import { useTheme } from '../contexts/ThemeContext';
 import { useViewMode } from '../contexts/ViewModeContext';
 
 export default function LandingPage() {
-  const { isInstallable, installApp } = usePWA();
+  const { isInstallable, isInstalled, installApp } = usePWA();
   const navigate = useNavigate();
-
-  const { theme } = useTheme();
   const { viewMode } = useViewMode();
 
-  const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [upToDate, setUpToDate] = useState(false);
-  const [waitingSW, setWaitingSW] = useState(null);
   const [showIosPopup, setShowIosPopup] = useState(false);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
 
+  // Redirection automatique si lancée en mode application autonome (standalone)
   useEffect(() => {
-    register({
-      onUpdate: (registration) => {
-        setWaitingSW(registration.waiting);
-        setUpdateAvailable(true);
-        setUpToDate(false);
-      },
-      onSuccess: () => {
-        setUpdateAvailable(false);
-        setUpToDate(true);
-        setTimeout(() => setUpToDate(false), 4000);
-      }
-    });
+    const isStandalone =
+      window.matchMedia?.('(display-mode: standalone)').matches ||
+      window.navigator?.standalone ||
+      document.referrer?.includes('android-app://');
+
+    if (isStandalone) {
+      navigate('/app', { replace: true });
+    }
+  }, [navigate]);
+
+  // Écoute de prise de contrôle par un nouveau Service Worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      const handleControllerChange = () => {
+        toast.info("Une nouvelle version est installée !", {
+          action: {
+            label: "Recharger",
+            onClick: () => window.location.reload()
+          }
+        });
+      };
+      navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange);
+      return () => {
+        navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange);
+      };
+    }
   }, []);
 
-  const reloadApp = () => {
-    if (waitingSW) {
-      waitingSW.postMessage({ type: 'SKIP_WAITING' });
-      waitingSW.addEventListener('statechange', (e) => {
-        if (e.target.state === 'activated') {
-          window.location.reload();
-        }
-      });
-    }
-  };
-
-  // Détecter iOS
+  // Détecter iOS non installé
   const isIOS = () =>
     /iphone|ipad|ipod/i.test(window.navigator.userAgent) && !window.navigator.standalone;
 
@@ -54,15 +52,39 @@ export default function LandingPage() {
     if (isIOS()) {
       setShowIosPopup(true);
     } else {
-      installApp && installApp();
+      installApp();
     }
   };
 
-  // Classes globales via variables CSS pour thème
-  const commonBase = "transition-colors duration-300";
+  // Vrai comportement pour « Vérifier les mises à jour » (A-16)
+  const handleCheckUpdate = async () => {
+    if (!('serviceWorker' in navigator)) {
+      toast.info("Les mises à jour automatiques ne sont pas supportées par ce navigateur.");
+      return;
+    }
+    setIsCheckingUpdate(true);
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        toast.info("Aucun Service Worker actif. L'application utilise la version en ligne.");
+        return;
+      }
+      await reg.update();
+      if (reg.installing || reg.waiting) {
+        toast.info("Une mise à jour est en cours de téléchargement...");
+      } else {
+        toast.success("Votre application est déjà à jour (dernière version installée).");
+      }
+    } catch (err) {
+      console.error("Erreur vérification mise à jour :", err);
+      toast.error("Impossible de vérifier les mises à jour hors connexion.");
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  };
 
   return (
-    <main className={`flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6 py-12 ${commonBase}`}>
+    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6 py-12 transition-colors duration-300">
       <div className="mb-6">
         <img
           src={`${process.env.PUBLIC_URL}/icons/icon-192x192.png`}
@@ -77,50 +99,47 @@ export default function LandingPage() {
         Gérez facilement vos commandes de boissons, consultez votre historique
         et profitez d&apos;une expérience fluide, même hors connexion.
       </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-        <Button
-          onClick={handleInstallClick}
-          aria-label="Installer l'application Drink Order"
-          className="btn-outline"
-        >
-          Installer l&apos;App
-        </Button>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+        {!isInstalled ? (
+          <Button
+            onClick={handleInstallClick}
+            aria-label="Installer l'application Drink Order"
+            className="btn-outline"
+          >
+            Installer l&apos;App
+          </Button>
+        ) : (
+          <div className="inline-flex items-center text-xs text-muted-text py-2 px-3.5 rounded-md border border-border-color bg-card">
+            ✓ Application déjà installée
+          </div>
+        )}
+
         <IosInstallPopup open={showIosPopup} onClose={() => setShowIosPopup(false)} />
+
         <Button
-          className="btn-outline"
+          className="btn-primary"
           onClick={() => navigate('/app')}
         >
           Accéder à l&apos;application
         </Button>
+
         <Button
           className="btn-outline"
-          onClick={() => navigate('/app')}
+          onClick={handleCheckUpdate}
+          disabled={isCheckingUpdate}
         >
-          Vérifier les mises à jour
+          {isCheckingUpdate ? 'Vérification...' : 'Vérifier les mises à jour'}
         </Button>
       </div>
-      <div className="mt-6 min-h-[2rem]">
-        {updateAvailable && (
-          <div className="inline-flex items-center gap-3 rounded px-3 py-1 bg-warning text-warning-text">
-            <span>Nouvelle version disponible</span>
-            <Button size="sm" className="bg-warning-accent text-button-text px-3 py-1" onClick={reloadApp}>
-              Mettre à jour
-            </Button>
-          </div>
-        )}
-        {!updateAvailable && upToDate && (
-          <div className="inline-block rounded px-3 py-1 bg-success text-success-text">
-            ✅ Application à jour — dernière version
-          </div>
-        )}
-      </div>
-      {!isInstallable && (
+
+      {!isInstalled && !isInstallable && (
         <p className="text-muted-text text-sm mt-6 max-w-sm">
           💡 Astuce : Vous pouvez aussi installer cette application depuis le
-          menu de votre navigateur.
-          Utilisez « Vérifier les mises à jour » pour vous assurer d&apos;avoir la dernière version.
+          menu de votre navigateur (⋮ ou Partager puis « Ajouter à l&apos;écran d&apos;accueil »).
         </p>
       )}
+
       <footer className="mt-8 text-xs text-muted-text">
         Mode d&apos;affichage actuel : <strong>{viewMode}</strong>
       </footer>
