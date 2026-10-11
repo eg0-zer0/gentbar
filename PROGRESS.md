@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : 7 (Nettoyage) · **Dernier commit** : 6f179d4
+**Branche de travail** : `roadmap` · **Prochaine étape** : 9 (Nouvelles fonctionnalités sur demande) · **Dernier commit** : 3b76978
 
 ---
 
@@ -39,8 +39,8 @@
 - [x] Icônes `maskable`, `favicon.ico`, route `*` (404 avec page dédiée), redirection automatique standalone vers `/app`
 
 ## Étape 7 — Nettoyage (A-25, A-35)
-- [ ] Un seul fichier de verrouillage des dépendances
-- [ ] Composants orphelins supprimés (`AddFriendModal`, `FriendSelector`, `AddDrinkModal`, `InstallPrompt`, `ThemeToggle` si inutilisé)
+- [x] Un seul fichier de verrouillage des dépendances (`yarn.lock` conservé, `package-lock.json` supprimé)
+- [x] Composants orphelins supprimés (`AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx`, `ThemeToggle.jsx`)
 
 ## Étape 8 — Nouvelle carte du club
 - [x] `src/mock.js` remplacé par la version validée (11 catégories à jour, Royal La Louvière Hockey Club)
@@ -59,6 +59,7 @@
 * 09/10/2026 — Étape 8 terminée : remplacement de `src/mock.js` par la carte officielle validée (11 catégories, bières au fût/bouteille/sans alcool, alcools, cocktails, bulles & cidres, vins, softs, boissons chaudes, snacks, petite restauration). Ajout de `MENU_VERSION` dans `DrinkOrderApp.jsx` pour forcer le rafraîchissement automatique de la carte sur les téléphones ayant déjà ouvert l'application. `yarn build` validé avec succès.
 * 10/10/2026 — Étape 5 terminée : création du module `src/lib/storage.js` avec chargement sûr (`load`, `save`), gestion d'erreurs, normalisation des données et backup automatique (`__backup`), remplacement des accès directs `localStorage` dans `DrinkOrderApp.jsx`, création et intégration de `ErrorBoundary` global (`src/components/ErrorBoundary.jsx`) évitant les pages blanches avec options de rechargement et de réinitialisation sécurisée, persistance du tri `sortBy` avec validation (`A-03`). `yarn build` validé avec succès.
 * 10/10/2026 — Étape 6 terminée : création de `PWAContext` (écouteur unique `beforeinstallprompt`, détection standalone, feedback toast lors de l'installation), suppression de la bannière redondante `InstallBanner`, fiabilisation du bouton « Vérifier les mises à jour » sur la landing (appel réel à `registration.update()` avec notification Sonner), mise à jour du `manifest.json` (`purpose: any maskable`, `start_url: /app`), création du `favicon.ico` et du lien favicon SVG, ajout de la page 404 (`NotFoundPage`) sur la route `path="*"` et consolidation du `<Toaster />` unique à la racine de l'application. `yarn build` validé avec succès.
+* 11/10/2026 — Étape 7 terminée : suppression de `package-lock.json` pour unifier le gestionnaire de paquets sur `yarn.lock` (`package.json`), suppression définitive des 5 composants orphelins (`AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx`, `ThemeToggle.jsx`). `yarn build` validé avec succès (138.8 kB JS, CSS allégé de 265 B).
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
