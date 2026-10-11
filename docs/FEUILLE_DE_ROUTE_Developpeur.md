@@ -81,9 +81,9 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ## Étape 7 — Nettoyage
 
-- [ ] Choisir un seul gestionnaire de paquets (`yarn.lock` **ou** `package-lock.json`, pas les deux)
-- [ ] Supprimer les composants orphelins : `AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx` (fonctionnalité « commande par ami » non retenue, voir contexte produit)
-- [ ] `ThemeToggle.jsx` : supprimer, ou le réutiliser si prévu quelque part (son code est déjà correct, juste inutilisé)
+- [x] Choisir un seul gestionnaire de paquets (`yarn.lock` **ou** `package-lock.json`, pas les deux)
+- [x] Supprimer les composants orphelins : `AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx` (fonctionnalité « commande par ami » non retenue, voir contexte produit)
+- [x] `ThemeToggle.jsx` : supprimer, ou le réutiliser si prévu quelque part (son code est déjà correct, juste inutilisé)
 
 **Fichiers** : `package.json`, `yarn.lock`/`package-lock.json`, composants listés ci-dessus
 **Détail** : `A-25`, `A-35`
