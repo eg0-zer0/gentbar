@@ -23,3 +23,7 @@ coverage/
 
 # Test
 src/test/
+
+# Generated Service Worker in public/
+public/service-worker.js*
+public/workbox-*.js*
