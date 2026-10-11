@@ -39,7 +39,7 @@ html.dark {
   --primary-dark-rgb: 100, 40, 190;
   --card-background-rgb: 31, 41, 55;
   --button-background-rgb: 124, 58, 237;
-  --button-text-rgb: 224, 224, 224;
+  --button-text-rgb: 255, 255, 255;
   --border-color-rgb: 55, 65, 81;
   --muted-text-rgb: 156, 163, 175;
   --shadow-color-rgb: 0, 0, 0;
@@ -61,7 +61,7 @@ html.gentbar {
   --primary-dark-rgb: 65, 90, 110;                 /* Bleu-vert foncé */
   --card-background-rgb: 38, 50, 75;               /* Fond carte légèrement plus clair */
   --button-background-rgb: 90, 120, 140;           /* Boutons bleu-vert */
-  --button-text-rgb: 245, 245, 250;                /* Texte boutons très clair */
+  --button-text-rgb: 255, 255, 255;                /* Texte boutons blanc (contraste ≥ 4,5:1) */
   --border-color-rgb: 60, 75, 95;                  /* Bordures douces */
   --muted-text-rgb: 150, 160, 180;                 /* Texte atténué */
   --shadow-color-rgb: 0, 0, 0;                      /* Ombres noires */

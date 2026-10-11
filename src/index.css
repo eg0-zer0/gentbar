@@ -51,10 +51,10 @@ code {
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 252 80% 67%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 252 80% 60%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
@@ -72,7 +72,7 @@ html.dark {
     --popover-foreground: 0 0% 98%;
 
     /* --primary: 252 80% 67%; */
-    --primary-foreground: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
@@ -89,11 +89,11 @@ html.dark {
   /* Thème Gentbar personnalisé */
 html.gentbar {
     --background: 218 80% 15%;
-    --foreground: 0 0% 10%;
+    --foreground: 0 0% 100%;
     --card: 218 64% 18%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
     --popover: 218 80% 15%;
-    --popover-foreground: 328 100% 45%;
+    --popover-foreground: 328 100% 60%;
 
     /* --primary: 328 100% 45%; */
     --primary-foreground: 0 0% 100%;
@@ -101,9 +101,9 @@ html.gentbar {
     --secondary-foreground: 0 0% 100%;
     --muted: 218 50% 25%;
     --muted-foreground: 0 0% 85%;
-    --accent: 328 80% 60%;
+    --accent: 328 80% 46%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 9 100% 47%;
+    --destructive: 9 100% 43%;
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 100%;
     --input: 218 80% 15%;
