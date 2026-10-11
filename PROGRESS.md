@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : 9 (Nouvelles fonctionnalités sur demande) · **Dernier commit** : 3b76978
+**Branche de travail** : `roadmap-fix` · **Prochaine étape** : 9 (Nouvelles fonctionnalités sur demande) · **Dernier commit** : c1b5238
 
 ---
 
@@ -46,6 +46,12 @@
 - [x] `src/mock.js` remplacé par la version validée (11 catégories à jour, Royal La Louvière Hockey Club)
 - [x] Synchronisation automatique de version (`MENU_VERSION`) pour prise en compte immédiate sur les appareils existants
 
+## Étape 8 bis — Corrections (1, 2, 4 et 6 de docs/VERIFICATION_Etapes_1-8.md)
+- [x] Contraste WCAG ≥ 4,5:1 sur toutes les paires de jetons des 3 thèmes (`index.css`, `App.css`) ; `--foreground` et `--card-foreground` du thème gentbar remis à `0 0% 100%` (Problème 1)
+- [x] Sauvegarde de l'ancienne carte dans `categories__backup` et purge automatique du panier pour les boissons obsolètes lors de la migration `MENU_VERSION` (Problème 2)
+- [x] Son désactivé par défaut (`soundEnabled` à false si non défini) et suppression du toast « Boisson ajoutée » lors de l'ajout au panier (Problème 4)
+- [x] `public/service-worker.js` et `public/workbox-*.js` retirés du suivi git (`git rm --cached`) et ajoutés au `.gitignore` ; build toujours intègre dans `build/` (Problème 6)
+
 ## Étape 9 — Nouvelles fonctionnalités *(uniquement sur demande explicite)*
 *Ordre : E-3, E-10, E-5, E-7, E-8, E-4, E-9, E-11, E-1, A-29, E-2.*
 
@@ -60,11 +66,16 @@
 * 10/10/2026 — Étape 5 terminée : création du module `src/lib/storage.js` avec chargement sûr (`load`, `save`), gestion d'erreurs, normalisation des données et backup automatique (`__backup`), remplacement des accès directs `localStorage` dans `DrinkOrderApp.jsx`, création et intégration de `ErrorBoundary` global (`src/components/ErrorBoundary.jsx`) évitant les pages blanches avec options de rechargement et de réinitialisation sécurisée, persistance du tri `sortBy` avec validation (`A-03`). `yarn build` validé avec succès.
 * 10/10/2026 — Étape 6 terminée : création de `PWAContext` (écouteur unique `beforeinstallprompt`, détection standalone, feedback toast lors de l'installation), suppression de la bannière redondante `InstallBanner`, fiabilisation du bouton « Vérifier les mises à jour » sur la landing (appel réel à `registration.update()` avec notification Sonner), mise à jour du `manifest.json` (`purpose: any maskable`, `start_url: /app`), création du `favicon.ico` et du lien favicon SVG, ajout de la page 404 (`NotFoundPage`) sur la route `path="*"` et consolidation du `<Toaster />` unique à la racine de l'application. `yarn build` validé avec succès.
 * 11/10/2026 — Étape 7 terminée : suppression de `package-lock.json` pour unifier le gestionnaire de paquets sur `yarn.lock` (`package.json`), suppression définitive des 5 composants orphelins (`AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx`, `ThemeToggle.jsx`). `yarn build` validé avec succès (138.8 kB JS, CSS allégé de 265 B).
+* 11/10/2026 — Étape 8 bis terminée (branche `roadmap-fix`) : validation des contrastes WCAG ≥ 4,5:1 sur tous les thèmes (clair, sombre, gentbar) et rétablissement du blanc pur pour le texte gentbar, sécurisation de la migration de carte avec backup `categories__backup` et dédoublonnage/élagage du panier, son désactivé par défaut et suppression de la notification répétitive à chaque ajout de boisson au panier, exclusion git des fichiers service worker dans `public/` tout en garantissant leur génération propre dans `build/`. `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
+* Étape 8 bis exécutée sur la branche isolée `roadmap-fix` pour les points 1, 2, 4 et 6 de `docs/VERIFICATION_Etapes_1-8.md` sans impacter `main`.
 
 ## À tester par le propriétaire sur appareil
+* Rendu visuel et lisibilité des textes sous le thème Gentbar (contraste texte blanc sur fond bleu nuit vérifié à plus de 14:1).
+* Non-déclenchement de toast lors de l'ajout d'une boisson au panier (mise à jour directe du compteur du panier sans notification superflue).
 * Persistance du tri : choisir un tri (ex. « Prix ↗ »), recharger la page ou naviguer vers la page d'accueil puis revenir sur l'application, vérifier que le tri reste conservé.
 * Robustesse : tester le bon chargement des données sans aucun écran blanc même en cas de données corrompues.
+
 
