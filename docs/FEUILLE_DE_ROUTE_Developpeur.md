@@ -98,6 +98,18 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ---
 
+## Étape 8 bis — Corrections de vérification (contraste WCAG, migration carte, notifications, SW)
+
+- [x] Contraste WCAG ≥ 4,5:1 sur toutes les paires de jetons des 3 thèmes (`index.css`, `App.css`) ; remise de `--foreground` et `--card-foreground` à blanc pur pour Gentbar ; normalisation des modales (`ConfirmOrderModal`, `SortControls`, `OrderHistory`)
+- [x] Sauvegarde de l'ancienne carte dans `categories__backup` et purge automatique du panier des boissons devenues obsolètes lors d'une migration `MENU_VERSION`
+- [x] Son désactivé par défaut si non paramétré et suppression du toast redondant à chaque ajout de boisson au panier
+- [x] Alignement horizontal et égalisation de la taille du bouton de suppression dans les fenêtres d'édition (`EditDrinkModal`, `EditCategoryModal`)
+- [x] Retrait de `public/service-worker.js` et `public/workbox-*.js` du suivi git (`git rm --cached`) avec ajout au `.gitignore` ; génération automatique propre assurée dans `build/`
+
+**Fichiers** : `src/index.css`, `src/App.css`, `src/components/DrinkOrderApp.jsx`, `src/components/ConfirmOrderModal.jsx`, `src/components/EditDrinkModal.jsx`, `src/components/EditCategoryModal.jsx`, `src/components/SortControls.jsx`, `src/components/OrderHistory.jsx`, `src/components/ui/input.jsx`, `.gitignore`
+
+---
+
 ## Étape 9 — Nouvelles fonctionnalités (seulement une fois les étapes 1 à 8 faites)
 
 Chaque fonctionnalité est détaillée (principe, flux, décisions déjà prises) dans `AUDIT_GentBar_Order_App.md`, section « Nouvelles fonctionnalités détaillées ». Ordre suggéré, du plus simple/isolé au plus structurant :
