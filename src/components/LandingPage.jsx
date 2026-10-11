@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { usePWA } from '../hooks/usePWA';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
@@ -9,13 +9,18 @@ import { useViewMode } from '../contexts/ViewModeContext';
 export default function LandingPage() {
   const { isInstallable, isInstalled, installApp } = usePWA();
   const navigate = useNavigate();
+  const location = useLocation();
   const { viewMode } = useViewMode();
 
   const [showIosPopup, setShowIosPopup] = useState(false);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
 
-  // Redirection automatique si lancée en mode application autonome (standalone)
+  const isManualVisit = location.search.includes('manual') || location.state?.fromMenu;
+
+  // Redirection automatique seulement lors du premier lancement de l'application autonome
   useEffect(() => {
+    if (isManualVisit) return;
+
     const isStandalone =
       window.matchMedia?.('(display-mode: standalone)').matches ||
       window.navigator?.standalone ||
@@ -24,7 +29,7 @@ export default function LandingPage() {
     if (isStandalone) {
       navigate('/app', { replace: true });
     }
-  }, [navigate]);
+  }, [isManualVisit, navigate]);
 
   // Écoute de prise de contrôle par un nouveau Service Worker
   useEffect(() => {
