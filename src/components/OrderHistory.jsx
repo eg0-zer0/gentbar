@@ -46,19 +46,19 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
             {orderHistory.map((order) => (
               <Card
                 key={order.id}
-                className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
+                className="border border-border rounded-lg p-3 bg-card text-foreground"
               >
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
                         {formatDate(order.date)}
                       </span>
                     </div>
                     <Badge
                       variant="secondary"
-                      className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
                     >
                       {order.total.toFixed(2)}€
                     </Badge>
@@ -71,26 +71,26 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                         key={index}
                         className="flex justify-between items-center text-sm"
                       >
-                        <span className="text-gray-700 dark:text-gray-300">
+                        <span className="text-foreground">
                           {item.quantity}x {item.drinkName}
                         </span>
-                        <span className="text-gray-600 dark:text-gray-400">
+                        <span className="text-muted-foreground">
                           {(item.quantity * item.price).toFixed(2)}€
                         </span>
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
-                    <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Receipt className="w-3 h-3" />
                       {order.items.reduce((sum, item) => sum + item.quantity, 0)} articles
                     </div>
-                    <span className="font-semibold text-sm dark:text-gray-200">
+                    <span className="font-semibold text-sm text-foreground">
                       Total: {order.total.toFixed(2)}€
                     </span>
                   </div>
                 </CardContent>
-                <div className="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                <div className="flex justify-end gap-2 pt-2 border-t border-border">
                   <ShareButtons order={order} isCurrentOrder={false} />
                   <button
                     aria-label="Supprimer cette commande"

@@ -21,15 +21,15 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto rounded-md p-0">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Receipt className="w-5 h-10" />
+      <DialogContent className="max-w-md mx-auto rounded-md p-0 overflow-hidden bg-card text-foreground border border-border shadow-xl">
+        <DialogHeader className="p-4 border-b border-border bg-card">
+          <DialogTitle className="flex items-center gap-2 text-foreground font-semibold">
+            <Receipt className="w-5 h-5 text-primary" />
             Résumé de la commande
           </DialogTitle>
         </DialogHeader>
 
-        <Card className={theme === 'dark' ? 'bg-gray-800' : 'bg-white'}>
+        <Card className="bg-card text-foreground border-0 shadow-none">
           <CardContent className="p-5 flex flex-col">
             {/* Bouton de toggle d'affichage */}
             <Button
@@ -43,11 +43,11 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
               <>
                 {/* LISTE AVEC SCROLL */}
                 <div className="order-summary-list-scroll mb-4" style={{ maxHeight: '308px', overflowY: 'auto' }}>
-                  <ul className="space-y-2 p-5 m-0 list-none">
+                  <ul className="space-y-2 p-1 m-0 list-none">
                     {orders.map(order => (
-                      <li key={order.drinkId} className="flex justify-between items-center border-b py-1">
+                      <li key={order.drinkId} className="flex justify-between items-center border-b border-border py-2">
                         <div>
-                          <p className="font-medium">{order.drinkName}</p>
+                          <p className="font-medium text-foreground">{order.drinkName}</p>
                           <p className="text-xs text-muted-text">{order.price.toFixed(2)} € / unité</p>
                         </div>
                         <div className="flex items-center gap-1">
@@ -58,7 +58,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                           >
                             <Minus className="w-3 h-3" />
                           </Button>
-                          <span className="w-5 text-center">{order.quantity}</span>
+                          <span className="w-5 text-center text-foreground">{order.quantity}</span>
                           <Button
                             className="btn-primary p-1"
                             size="xs"
@@ -81,19 +81,19 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                 </div>
 
                 {/* FOOTER */}
-                <div className="border-t pt-4 flex flex-col gap-3">
-                  <div className="text-lg font-semibold">
+                <div className="border-t border-border pt-4 flex flex-col gap-3">
+                  <div className="text-lg font-semibold text-foreground">
                     Total : {totalAmount.toFixed(2)} €
                   </div>
                   <div className="flex gap-2">
                     <Button
                       variant="destructive"
-                      className="flex-1"
+                      className="btn-destructive flex-1"
                       onClick={() => setShowClearConfirm(true)}
                     >
                       Vider le panier
                     </Button>
-                    <Button className="btn-primary" onClick={onConfirm}>
+                    <Button className="btn-primary flex-1" onClick={onConfirm}>
                       Confirmer la commande
                     </Button>
                   </div>

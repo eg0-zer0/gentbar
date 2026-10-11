@@ -66,8 +66,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ex: Boissons chaudes"
                 required
-                className={`${bgClass} ${textClass} w-full`}
-                style={{ backgroundColor: 'rgb(var(--card-background-rgb))', color: 'rgb(var(--foreground-rgb))' }}
+                className="w-full bg-background text-foreground"
               />
             </div>
 
@@ -81,31 +80,31 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 placeholder="Ex: ☕"
                 required
                 maxLength={2}
-                className={`${bgClass} ${textClass} w-full`}
-                style={{ backgroundColor: 'rgb(var(--card-background-rgb))', color: 'rgb(var(--foreground-rgb))' }}
+                className="w-full bg-background text-foreground"
               />
             </div>
 
             {/* Place pour les emojis ici */}
 
-            <div className="flex justify-end gap-4">
-              <Button variant="outline" className="btn-outline" onClick={() => { onClose(); setShowDeleteConfirm(false); }}>
-                Annuler
-              </Button>
-              <Button variant="primary" className="btn-primary" type="submit">
-                {category?.id ? 'Modifier' : 'Ajouter'}
-              </Button>
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-border mt-4">
+              {category?.id ? (
+                <Button
+                  variant="destructive"
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  Supprimer la catégorie
+                </Button>
+              ) : <div />}
+              <div className="flex items-center gap-3">
+                <Button variant="outline" type="button" onClick={() => { onClose(); setShowDeleteConfirm(false); }}>
+                  Annuler
+                </Button>
+                <Button type="submit">
+                  {category?.id ? 'Modifier' : 'Ajouter'}
+                </Button>
+              </div>
             </div>
-
-            {category?.id && (
-              <Button
-                variant="destructive"
-                className="btn-destructive w-full mt-4"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                Supprimer la catégorie
-              </Button>
-            )}
           </form>
         </DialogContent>
       </Dialog>

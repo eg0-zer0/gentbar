@@ -22,9 +22,6 @@
   --warning-text-rgb: 120, 53, 15;                /* Texte alertes */
   --success-bg-rgb: 187, 247, 208;                /* Fond succès vert */
   --success-text-rgb: 21, 128, 61;                 /* Texte succès */
-
-  /* Définition complémentaire */
-  --foreground: rgb(var(--foreground-rgb));
 }
 
 /* ---------------------------------------------------------------------- */

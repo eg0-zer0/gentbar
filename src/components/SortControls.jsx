@@ -26,8 +26,8 @@ const SortControls = ({ sortBy, setSortBy }) => {
 
   const currentSort = sortOptions.find(option => option.value === sortBy);
 
-  const bgSelectedClass = theme === 'dark' ? 'bg-accent text-white' : 'bg-accent text-white';
-  const bgHoverClass = theme === 'dark' ? 'hover:bg-accent/80' : 'hover:bg-accent/90';
+  const bgSelectedClass = 'bg-accent text-accent-foreground font-semibold';
+  const bgHoverClass = 'hover:bg-accent/80 hover:text-accent-foreground';
 
   return (
     <div className="inline-block text-sm font-medium">
@@ -46,7 +46,7 @@ const SortControls = ({ sortBy, setSortBy }) => {
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className={`w-48 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`} align="start">
+        <DropdownMenuContent className="w-48 bg-popover text-popover-foreground border border-border shadow-md" align="start">
           {sortOptions.map((option) => {
             const Icon = option.icon;
             const selected = sortBy === option.value;

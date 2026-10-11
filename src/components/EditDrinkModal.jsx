@@ -62,8 +62,7 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ex: Red Bull"
               required
-              className={`${bgClass} ${textClass} w-full`}
-              style={{ backgroundColor: 'rgb(var(--card-background))', color: 'rgb(var(--foreground))' }}
+              className="w-full bg-background text-foreground"
             />
           </div>
           <div>
@@ -79,31 +78,31 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               onChange={e => setFormData({ ...formData, price: e.target.value })}
               placeholder="Ex: 3.50"
               required
-              className={`${bgClass} ${textClass} w-full`}
-              style={{ backgroundColor: 'rgb(var(--card-background))', color: 'rgb(var(--foreground))' }}
+              className="w-full bg-background text-foreground"
             />
           </div>
-          <div className="flex justify-end gap-4">
-            <Button variant="outline" className="btn-outline" onClick={onClose}>
-              Annuler
-            </Button>
-            <Button variant="primary" type="submit">
-              {isEditMode ? 'Modifier' : 'Ajouter'}
-            </Button>
+          <div className="flex items-center justify-between gap-3 pt-4 border-t border-border mt-4">
+            {isEditMode && onDelete ? (
+              <Button
+                variant="destructive"
+                type="button"
+                onClick={() => {
+                  onDelete(drink);
+                  onClose();
+                }}
+              >
+                Supprimer la boisson
+              </Button>
+            ) : <div />}
+            <div className="flex items-center gap-3">
+              <Button variant="outline" type="button" onClick={onClose}>
+                Annuler
+              </Button>
+              <Button type="submit">
+                {isEditMode ? 'Modifier' : 'Ajouter'}
+              </Button>
+            </div>
           </div>
-          {isEditMode && onDelete && (
-            <Button
-              variant="destructive"
-              className="btn-destructive w-full mt-4"
-              type="button"
-              onClick={() => {
-                onDelete(drink);
-                onClose();
-              }}
-            >
-              Supprimer la boisson
-            </Button>
-          )}
         </form>
       </DialogContent>
     </Dialog>
