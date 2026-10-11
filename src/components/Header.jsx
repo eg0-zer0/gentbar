@@ -70,10 +70,10 @@ const Header = ({ soundEnabled, onToggleSound, onShowHistory }) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48 dropdown-menu-content" align="end">
-          <DropdownMenuItem className="dropdown-menu-item" onClick={() => { navigate('/'); setMenuOpen(false); }}>
-    <Home className="mr-2 w-4 h-4 text-foreground" />
-    Accueil
-            </DropdownMenuItem>
+          <DropdownMenuItem className="dropdown-menu-item" onClick={() => { navigate('/?manual=true', { state: { fromMenu: true } }); setMenuOpen(false); }}>
+            <Home className="mr-2 w-4 h-4 text-foreground" />
+            Accueil
+          </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => { cycleTheme(); setMenuOpen(false); }}>
               {renderNextThemeIcon()}
