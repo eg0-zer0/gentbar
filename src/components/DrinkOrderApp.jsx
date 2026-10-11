@@ -67,7 +67,7 @@ const DrinkOrderApp = () => {
   const [orders, setOrders] = useState(() => load('orders', [], normalizeOrders));
   const [orderHistory, setOrderHistory] = useState(() => load('orderHistory', mockOrderHistory, normalizeOrderHistory));
   const [sortBy, setSortBy] = useState(() => load('sortBy', 'name', normalizeSortBy));
-  const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', true, normalizeBoolean));
+  const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', false, normalizeBoolean));
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -150,7 +150,6 @@ const DrinkOrderApp = () => {
         { drinkId: drink.id, drinkName: drink.name, price: drink.price, quantity: 1, addedAt: new Date().toISOString() }
       ];
     });
-    toast("Boisson ajoutée", { description: `${drink.name} ajoutée à la commande` });
   };
 
   const handleUpdateQuantity = (id, qty) => {
