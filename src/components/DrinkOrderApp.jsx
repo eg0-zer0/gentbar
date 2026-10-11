@@ -25,17 +25,43 @@ import '../App.css';
 
 const normalizeSortBy = normalizeOneOf(['name', 'popularity', 'price-asc', 'price-desc', 'default']);
 
+// Message à afficher une fois après un remplacement de carte ayant retiré des lignes du panier.
+let menuMigrationNotice = null;
+
+/**
+ * Remplace la carte stockée quand MENU_VERSION change (8 bis) :
+ *  1. l'ancienne carte est copiée telle quelle dans `categories__backup` (jamais perdue) ;
+ *  2. la nouvelle carte est installée, puis le marqueur de version est écrit en dernier
+ *     (une interruption en cours de route relance simplement la migration) ;
+ *  3. les lignes du panier dont le drinkId n'existe plus dans la nouvelle carte sont retirées.
+ * Idempotent : sans changement de version, ne fait rien.
+ */
+const migrateMenuIfNeeded = () => {
+  if (loadRaw('menuVersion') === MENU_VERSION) return;
+
+  const previousRaw = loadRaw('categories');
+  if (previousRaw !== null) saveRaw('categories__backup', previousRaw);
+
+  save('categories', mockCategories);
+
+  const validIds = new Set(mockCategories.flatMap((c) => c.drinks.map((d) => d.id)));
+  const currentOrders = load('orders', [], normalizeOrders);
+  const keptOrders = currentOrders.filter((o) => validIds.has(o.drinkId));
+  const removedCount = currentOrders.length - keptOrders.length;
+  if (removedCount > 0) {
+    save('orders', keptOrders);
+    menuMigrationNotice = `${removedCount} article${removedCount > 1 ? 's' : ''} retiré${removedCount > 1 ? 's' : ''} du panier : absent${removedCount > 1 ? 's' : ''} de la nouvelle carte.`;
+  }
+
+  saveRaw('menuVersion', MENU_VERSION);
+};
+
 const DrinkOrderApp = () => {
 
   const { viewMode, setViewMode } = useViewMode();
 
   const [categories, setCategories] = useState(() => {
-    const savedVersion = loadRaw('menuVersion');
-    if (savedVersion !== MENU_VERSION) {
-      saveRaw('menuVersion', MENU_VERSION);
-      save('categories', mockCategories);
-      return mockCategories;
-    }
+    migrateMenuIfNeeded();
     return load('categories', mockCategories, normalizeCategories);
   });
   const [orders, setOrders] = useState(() => load('orders', [], normalizeOrders));
@@ -60,6 +86,14 @@ const DrinkOrderApp = () => {
   useEffect(() => { save('soundEnabled', soundEnabled); }, [soundEnabled]);
   useEffect(() => { save('sortBy', sortBy); }, [sortBy]);
   // viewMode : déjà persisté (et validé) par ViewModeContext.
+
+  // Remplacement de carte : prévenir si des articles ont été retirés du panier (une seule fois).
+  useEffect(() => {
+    if (menuMigrationNotice) {
+      toast(menuMigrationNotice);
+      menuMigrationNotice = null;
+    }
+  }, []);
 
   // Popularité des boissons
   const drinkPopularity = useMemo(() => {
