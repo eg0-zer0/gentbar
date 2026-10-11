@@ -13,7 +13,7 @@ export default function LandingPage() {
   const { viewMode } = useViewMode();
 
   const [showIosPopup, setShowIosPopup] = useState(false);
-  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle' | 'checking' | 'up-to-date' | 'downloading'
 
   const isManualVisit = location.search.includes('manual') || location.state?.fromMenu;
 
@@ -35,6 +35,7 @@ export default function LandingPage() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       const handleControllerChange = () => {
+        setUpdateStatus('downloading');
         toast.info("Une nouvelle version est installée !", {
           action: {
             label: "Recharger",
@@ -67,24 +68,26 @@ export default function LandingPage() {
       toast.info("Les mises à jour automatiques ne sont pas supportées par ce navigateur.");
       return;
     }
-    setIsCheckingUpdate(true);
+    setUpdateStatus('checking');
     try {
       const reg = await navigator.serviceWorker.getRegistration();
       if (!reg) {
         toast.info("Aucun Service Worker actif. L'application utilise la version en ligne.");
+        setUpdateStatus('idle');
         return;
       }
       await reg.update();
       if (reg.installing || reg.waiting) {
+        setUpdateStatus('downloading');
         toast.info("Une mise à jour est en cours de téléchargement...");
       } else {
+        setUpdateStatus('up-to-date');
         toast.success("Votre application est déjà à jour (dernière version installée).");
       }
     } catch (err) {
       console.error("Erreur vérification mise à jour :", err);
       toast.error("Impossible de vérifier les mises à jour hors connexion.");
-    } finally {
-      setIsCheckingUpdate(false);
+      setUpdateStatus('idle');
     }
   };
 
@@ -130,11 +133,17 @@ export default function LandingPage() {
         </Button>
 
         <Button
-          className="btn-outline"
+          className={updateStatus === 'up-to-date' ? 'btn-outline border-green-500 text-green-600 dark:text-green-400 font-medium' : 'btn-outline'}
           onClick={handleCheckUpdate}
-          disabled={isCheckingUpdate}
+          disabled={updateStatus === 'checking'}
         >
-          {isCheckingUpdate ? 'Vérification...' : 'Vérifier les mises à jour'}
+          {updateStatus === 'checking'
+            ? 'Vérification...'
+            : updateStatus === 'up-to-date'
+            ? '✓ Votre application est à jour'
+            : updateStatus === 'downloading'
+            ? 'Mise à jour en cours...'
+            : 'Vérifier les mises à jour'}
         </Button>
       </div>
 
