@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feature-ticket` · **Prochaine étape** : 9.2 E-9 Verrouillage de l'écran du ticket · **Dernier commit** : e7f4d89
+**Branche de travail** : `feature-ticket` · **Prochaine étape** : 9.2 E-9 Verrouillage de l'écran du ticket · **Dernier commit** : f177f73
 
 ---
 
