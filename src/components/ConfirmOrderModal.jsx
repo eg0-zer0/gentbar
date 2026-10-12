@@ -21,7 +21,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto rounded-md p-0 overflow-hidden bg-card text-foreground border border-border shadow-xl">
+      <DialogContent className="w-[92vw] max-w-md mx-auto rounded-lg p-0 overflow-hidden bg-card text-foreground border border-border shadow-xl">
         <DialogHeader className="p-4 border-b border-border bg-card">
           <DialogTitle className="flex items-center gap-2 text-foreground font-semibold">
             <Receipt className="w-5 h-5 text-primary" />
@@ -88,16 +88,16 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                   <div className="text-lg font-semibold text-foreground">
                     Total : {totalAmount.toFixed(2)} €
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button className="btn-primary w-full sm:flex-1 order-1 sm:order-2" onClick={onConfirm}>
+                      Confirmer la commande
+                    </Button>
                     <Button
                       variant="destructive"
-                      className="btn-destructive flex-1"
+                      className="btn-destructive w-full sm:flex-1 order-2 sm:order-1"
                       onClick={() => setShowClearConfirm(true)}
                     >
                       Vider le panier
-                    </Button>
-                    <Button className="btn-primary flex-1" onClick={onConfirm}>
-                      Confirmer la commande
                     </Button>
                   </div>
                   <ShareButtons order={orders} isCurrentOrder={true} />

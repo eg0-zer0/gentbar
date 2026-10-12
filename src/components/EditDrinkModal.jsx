@@ -57,7 +57,7 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
+      <DialogContent className={`${bgClass} w-[92vw] max-w-md mx-auto rounded-lg p-5 sm:p-6 shadow-lg`}>
         <DialogHeader>
           <DialogTitle className={`${textClass} font-semibold mb-1`}>
             {isEditMode ? 'Modifier la boisson' : 'Ajouter une boisson'}
@@ -98,11 +98,12 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               className="w-full bg-background text-foreground"
             />
           </div>
-          <div className="flex items-center justify-between gap-3 pt-4 border-t border-border mt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-border mt-4">
             {isEditMode && onDelete ? (
               <Button
                 variant="destructive"
                 type="button"
+                className="w-full sm:w-auto order-2 sm:order-1"
                 onClick={() => {
                   onDelete(drink);
                   onClose();
@@ -110,12 +111,12 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               >
                 Supprimer la boisson
               </Button>
-            ) : <div />}
-            <div className="flex items-center gap-3">
-              <Button variant="outline" type="button" onClick={onClose}>
+            ) : <div className="hidden sm:block" />}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end order-1 sm:order-2">
+              <Button variant="outline" type="button" className="flex-1 sm:flex-initial" onClick={onClose}>
                 Annuler
               </Button>
-              <Button type="submit" className="btn-primary">
+              <Button type="submit" className="btn-primary flex-1 sm:flex-initial">
                 {isEditMode ? 'Modifier' : 'Ajouter'}
               </Button>
             </div>

@@ -46,24 +46,33 @@ const CategorySection = ({
     <section aria-label={`Catégorie ${category.name}`} className="mb-6">
       {/* En-tête de la catégorie, cliquable pour dérouler/plier */}
       <header
-        className="flex items-center justify-between cursor-pointer select-none mb-2"
+        className="flex items-center justify-between cursor-pointer select-none mb-2 py-1"
         onClick={() => onToggleCategory(category.id)}
         role="button"
         aria-expanded={!category.isCollapsed}
         tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && onToggleCategory(category.id)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onToggleCategory(category.id);
+          }
+        }}
       >
-        <div className="flex items-center gap-2">
-          {category.isCollapsed ? <ChevronRight /> : <ChevronDown />}
-          <h2 className="text-lg font-semibold">{category.name}</h2>
-          {/* Optionnel : icône ou badge */}
-          {category.icon && <span aria-hidden="true">{category.icon}</span>}
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="flex-shrink-0 text-muted-foreground">
+            {category.isCollapsed ? <ChevronRight size={20} /> : <ChevronDown size={20} />}
+          </span>
+          <h2 className="text-lg font-semibold break-words leading-tight">
+            {category.name}
+            {category.icon && <span aria-hidden="true" className="ml-1.5 select-none">{category.icon}</span>}
+          </h2>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
           <Button
             size="sm"
             variant="outline"
+            className="h-8 w-8 p-0"
             onClick={(e) => {
               e.stopPropagation();
               onAddDrinkToCategory(category.id);
@@ -78,6 +87,7 @@ const CategorySection = ({
               <Button
                 size="sm"
                 variant="outline"
+                className="h-8 w-8 p-0"
                 aria-label={`Options pour la catégorie ${category.name}`}
                 onClick={(e) => e.stopPropagation()}
               >
