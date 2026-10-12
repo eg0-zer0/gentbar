@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 import { Trash, Trash2, History, Calendar, Receipt } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import {
@@ -15,7 +16,7 @@ import {
 } from './ui/dialog';
 import { formatPrice } from '../lib/format';
 
-const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder }) => {
+const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder, onOpenTicket }) => {
   const [orderToDelete, setOrderToDelete] = useState(null);
 
   const formatDate = (dateString) => {
@@ -95,7 +96,19 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                     </span>
                   </div>
                 </CardContent>
-                <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                <div className="flex justify-end items-center gap-2 pt-2 border-t border-border">
+                  {onOpenTicket && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5"
+                      onClick={() => onOpenTicket(order)}
+                      aria-label="Voir le ticket de cette commande"
+                    >
+                      <Receipt className="w-3.5 h-3.5" />
+                      Ticket
+                    </Button>
+                  )}
                   <ShareButtons order={order} isCurrentOrder={false} />
                   <button
                     aria-label="Supprimer cette commande"
