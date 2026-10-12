@@ -3,6 +3,43 @@ import { Badge } from './ui/badge';
 import { useViewMode } from '../contexts/ViewModeContext';
 import { Edit, Trash2, TrendingUp } from 'lucide-react';
 
+let sharedAudioCtx = null;
+
+const getSharedAudioContext = () => {
+  if (typeof window === 'undefined') return null;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return null;
+  if (!sharedAudioCtx) {
+    try {
+      sharedAudioCtx = new AudioCtx();
+    } catch {
+      return null;
+    }
+  }
+  if (sharedAudioCtx && sharedAudioCtx.state === 'suspended') {
+    sharedAudioCtx.resume().catch(() => {});
+  }
+  return sharedAudioCtx;
+};
+
+const playBeep = () => {
+  try {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch {
+    // L'échec audio ne doit jamais bloquer l'ajout au panier
+  }
+};
+
 const DrinkCard = ({
   drink,
   onAdd,
@@ -15,10 +52,11 @@ const DrinkCard = ({
   const [pulse, setPulse] = useState(false);
   const { viewMode } = useViewMode();
   const cardRef = useRef(null);
+
   const handleClick = () => {
     setIsAdded(true);
-    if (soundEnabled) playBeep();
     if (onAdd) onAdd(drink);
+    if (soundEnabled) playBeep();
   };
 
   // Niveau de popularité
@@ -45,21 +83,6 @@ const DrinkCard = ({
     }
     return () => clearTimeout(timer);
   }, [quantityInOrder]);
-
-  const playBeep = () => {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.1);
-    osc.onended = () => ctx.close();
-  };
 
   const addedHighlightClass = isAdded ? 'ring-2 ring-green-400' : '';
   const pulseClass = pulse ? 'animate-pulse' : '';
