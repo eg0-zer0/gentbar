@@ -76,25 +76,17 @@ const TicketView = ({
   const lastTapRef = useRef(0);
   const hintTimeoutRef = useRef(null);
   const wakeLockSentinelRef = useRef(null);
-  const videoWakeLockRef = useRef(null);
 
-  // Maintien actif de l'écran allumé au bar (Wake Lock API + fallback vidéo NoSleep)
+  // Maintien actif de l'écran allumé au bar si supporté par le navigateur (Wake Lock API)
   const requestWakeLock = async () => {
-    // 1. Tenter l'API standard Screen Wake Lock
     if ('wakeLock' in navigator && typeof navigator.wakeLock?.request === 'function') {
       try {
         if (!wakeLockSentinelRef.current || wakeLockSentinelRef.current.released) {
           wakeLockSentinelRef.current = await navigator.wakeLock.request('screen');
         }
       } catch {
-        // En cas de rejet par le navigateur (ex. mode économie d'énergie), le fallback vidéo prend le relais
+        // Non bloquant : dépend des permissions et de la batterie du terminal
       }
-    }
-    // 2. Fallback universel : boucle vidéo muette (maintient l'écran allumé sur iOS et Android)
-    if (videoWakeLockRef.current) {
-      try {
-        videoWakeLockRef.current.play().catch(() => {});
-      } catch {}
     }
   };
 
@@ -102,11 +94,6 @@ const TicketView = ({
     if (wakeLockSentinelRef.current) {
       wakeLockSentinelRef.current.release().catch(() => {});
       wakeLockSentinelRef.current = null;
-    }
-    if (videoWakeLockRef.current) {
-      try {
-        videoWakeLockRef.current.pause();
-      } catch {}
     }
   };
 
@@ -465,6 +452,7 @@ const TicketView = ({
               isCurrentOrder={false} 
               className="w-auto h-8 px-2.5 text-xs"
               size="sm"
+              disabled={isLocked}
             />
 
             {onReorder && (
@@ -527,17 +515,6 @@ const TicketView = ({
           </div>
         </div>
       )}
-
-      {/* Vidéo invisible en boucle pour maintenir l'écran allumé sur tous les mobiles (fallback WakeLock, E-9) */}
-      <video
-        ref={videoWakeLockRef}
-        playsInline
-        muted
-        loop
-        className="hidden pointer-events-none"
-        aria-hidden="true"
-        src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tYXZjMQAAADFtb292AAAAbG12aGQAAAAA7Fv18Oxb9fAAA+gAAAAPAAEAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-      />
     </div>
   );
 };

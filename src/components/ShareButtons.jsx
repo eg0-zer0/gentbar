@@ -8,7 +8,7 @@ import { Share2, Mail, MessageSquare, Phone, Check, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/format';
 
-const ShareButtons = ({ order, isCurrentOrder = false, className = '', size }) => {
+const ShareButtons = ({ order, isCurrentOrder = false, className = '', size, disabled = false }) => {
   const [copied, setCopied] = useState(false);
 
   const formatOrderSummary = (orderData) => {
@@ -117,6 +117,7 @@ const ShareButtons = ({ order, isCurrentOrder = false, className = '', size }) =
     return (
       <Button
         size={size}
+        disabled={disabled}
         className={`btn-outline flex items-center justify-center gap-1.5 text-foreground border-border ${className || 'w-full'}`}
         onClick={handleNativeShare}
         aria-label="Partager la commande"
@@ -132,6 +133,7 @@ const ShareButtons = ({ order, isCurrentOrder = false, className = '', size }) =
       <DropdownMenuTrigger asChild>
         <Button
           size={size}
+          disabled={disabled}
           className={`btn-outline flex items-center justify-center gap-1.5 text-foreground border-border ${className || 'w-full'}`}
           aria-label="Partager la commande"
         >
