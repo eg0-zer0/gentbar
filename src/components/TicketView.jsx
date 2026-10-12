@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { 
   X, 
   Check, 
   RotateCcw, 
-  Receipt
+  Receipt,
+  Lock,
+  Unlock
 } from 'lucide-react';
 import { formatPrice } from '../lib/format';
 import ShareButtons from './ShareButtons';
@@ -68,8 +70,77 @@ const TicketView = ({
     }, 0);
   }, [items, checkedIds]);
 
+  // État du verrouillage de l'écran (E-9) - non persisté, démarre déverrouillé
+  const [isLocked, setIsLocked] = useState(false);
+  const [showUnlockHint, setShowUnlockHint] = useState(false);
+  const lastTapRef = useRef(0);
+  const hintTimeoutRef = useRef(null);
+
+  // Maintien de l'écran allumé pendant la prise de commande au bar (Wake Lock API, E-9)
+  useEffect(() => {
+    let wakeLockSentinel = null;
+    let isMounted = true;
+
+    const requestWakeLock = async () => {
+      if ('wakeLock' in navigator && typeof navigator.wakeLock?.request === 'function') {
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request('screen');
+        } catch {
+          // Ignorer si non supporté ou refusé par le système (ex. mode économie)
+        }
+      }
+    };
+
+    requestWakeLock();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && isMounted) {
+        requestWakeLock();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      isMounted = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (wakeLockSentinel) {
+        wakeLockSentinel.release().catch(() => {});
+      }
+      if (hintTimeoutRef.current) {
+        clearTimeout(hintTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Détection du double-tap n'importe où sur l'écran pour déverrouiller (E-9)
+  const handleLockTap = (e) => {
+    if (!isLocked) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 400; // ms
+
+    if (now - lastTapRef.current < DOUBLE_TAP_DELAY) {
+      // Double tap validé -> déverrouillage immédiat
+      setIsLocked(false);
+      lastTapRef.current = 0;
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      setShowUnlockHint(false);
+    } else {
+      // Premier tap -> mémorisation et affichage du rappel visuel
+      lastTapRef.current = now;
+      setShowUnlockHint(true);
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      hintTimeoutRef.current = setTimeout(() => {
+        setShowUnlockHint(false);
+      }, 1500);
+    }
+  };
+
   // Bascule coche d'une boisson et sauvegarde
   const toggleItem = (key) => {
+    if (isLocked) return;
     setCheckedIds(prev => {
       const next = new Set(prev);
       if (next.has(key)) {
@@ -88,6 +159,7 @@ const TicketView = ({
 
   // Cocher / Décocher tout et sauvegarde
   const handleToggleAll = () => {
+    if (isLocked) return;
     if (checkedIds.size === items.length) {
       const emptySet = new Set();
       setCheckedIds(emptySet);
@@ -169,8 +241,8 @@ const TicketView = ({
       aria-modal="true"
       aria-label="Ticket de commande"
     >
-      {/* En-tête compact sans date/heure superflue */}
-      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm px-3 sm:px-4 py-2">
+      {/* En-tête compact avec bouton de verrouillage (E-9) */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border shadow-sm px-3 sm:px-4 py-2">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
           {/* Titre */}
           <div className="flex items-center gap-1.5 min-w-0">
@@ -181,7 +253,7 @@ const TicketView = ({
           </div>
 
           {/* Compteur et boutons d'action rapide */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
               <span className={isComplete ? 'text-green-500 font-bold' : 'text-primary font-bold'}>
                 {servedDrinksCount}/{totalDrinksCount}
@@ -194,9 +266,30 @@ const TicketView = ({
               size="sm"
               className="btn-outline text-xs h-7 px-2"
               onClick={handleToggleAll}
+              disabled={isLocked}
               aria-label={checkedIds.size === items.length ? "Tout décocher" : "Tout cocher"}
             >
               {checkedIds.size === items.length ? "Décocher" : "Tout cocher"}
+            </Button>
+
+            {/* Bouton Cadenas (E-9 Verrouillage écran) */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`p-1 h-8 w-8 rounded-full flex items-center justify-center transition-colors ${
+                isLocked 
+                  ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 ring-1 ring-amber-500/50' 
+                  : 'text-foreground hover:bg-accent'
+              }`}
+              onClick={() => setIsLocked(prev => !prev)}
+              aria-label={isLocked ? "Déverrouiller l'écran (ou double-tapez n'importe où)" : "Verrouiller l'écran"}
+              title={isLocked ? "Déverrouiller l'écran" : "Verrouiller l'écran contre les appuis accidentels"}
+            >
+              {isLocked ? (
+                <Lock className="w-4 h-4 stroke-[2.5]" />
+              ) : (
+                <Unlock className="w-4 h-4 text-muted-foreground" />
+              )}
             </Button>
 
             <Button
@@ -204,6 +297,7 @@ const TicketView = ({
               size="sm"
               className="p-1 h-8 w-8 rounded-full hover:bg-accent flex items-center justify-center"
               onClick={onClose}
+              disabled={isLocked}
               aria-label="Fermer le ticket"
             >
               <X className="w-5 h-5 text-foreground" />
@@ -324,6 +418,7 @@ const TicketView = ({
                 size="sm"
                 className="btn-outline flex items-center gap-1 text-xs h-8 px-2.5"
                 onClick={() => onReorder(order)}
+                disabled={isLocked}
                 aria-label="Recommander cette commande"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -335,6 +430,7 @@ const TicketView = ({
               size="sm"
               className="btn-primary font-semibold text-xs h-8 px-3"
               onClick={onClose}
+              disabled={isLocked}
               aria-label="Fermer la vue ticket"
             >
               Fermer
@@ -342,6 +438,36 @@ const TicketView = ({
           </div>
         </div>
       </footer>
+
+      {/* Calque protecteur couvrant l'écran quand verrouillé (E-9) */}
+      {isLocked && (
+        <div 
+          onClick={handleLockTap}
+          className="fixed inset-0 z-35 bg-black/[0.06] dark:bg-black/25 cursor-pointer select-none transition-colors"
+          role="button"
+          tabIndex={0}
+          aria-label="Écran verrouillé. Double-tapez n'importe où pour déverrouiller"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setIsLocked(false);
+            }
+          }}
+        />
+      )}
+
+      {/* Badge flottant discret rappelant l'état verrouillé (E-9) */}
+      {isLocked && (
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+          <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-xl backdrop-blur-md border transition-all duration-200 ${
+            showUnlockHint 
+              ? 'bg-amber-600 text-white border-amber-500 scale-105 ring-2 ring-amber-400/50' 
+              : 'bg-background/95 text-foreground border-border/80'
+          }`}>
+            <Lock className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+            <span>{showUnlockHint ? "Double-tapez pour déverrouiller" : "Écran verrouillé"}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
