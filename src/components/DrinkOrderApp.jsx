@@ -12,10 +12,12 @@ import EditDrinkModal from './EditDrinkModal';
 import EditCategoryModal from './EditCategoryModal';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import SortControls from './SortControls';
+import TicketView from './TicketView';
 import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 // Icons etc.
-import { Plus } from 'lucide-react';
+import { Plus, CheckCircle2, Receipt } from 'lucide-react';
 
 // Data & utils
 import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
@@ -71,6 +73,8 @@ const DrinkOrderApp = () => {
   const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', false, normalizeBoolean));
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [ticketViewData, setTicketViewData] = useState(null);
+  const [orderSuccessModal, setOrderSuccessModal] = useState({ isOpen: false, order: null });
 
   const [editDrinkModal, setEditDrinkModal] = useState({
     isOpen: false,
@@ -199,6 +203,51 @@ const DrinkOrderApp = () => {
     setOrders([]);
     setShowConfirmModal(false);
     toast("Commande confirmée", { description: `Total : ${formatPrice(total)}` });
+    setOrderSuccessModal({ isOpen: true, order: newOrder });
+  };
+
+  // ---- GESTION VUE TICKET (E-4) ----
+
+  const handleOpenTicket = (orderToView, returnTo = 'cart') => {
+    if (returnTo === 'history') {
+      setShowHistory(false);
+    }
+    if (returnTo === 'cart') {
+      setShowConfirmModal(false);
+    }
+    setTicketViewData({ order: orderToView, returnTo });
+  };
+
+  const handleCloseTicket = () => {
+    const returnTo = ticketViewData?.returnTo;
+    setTicketViewData(null);
+    if (returnTo === 'history') {
+      setShowHistory(true);
+    }
+  };
+
+  const handleReorder = (orderToReorder) => {
+    const itemsToReorder = orderToReorder?.items || [];
+    if (itemsToReorder.length === 0) return;
+
+    setOrders(itemsToReorder.map(item => {
+      const foundDrink = categories.flatMap(c => c.drinks).find(
+        d => d.id === item.drinkId || d.name.toLowerCase() === (item.drinkName || item.name || '').toLowerCase()
+      );
+      return {
+        drinkId: item.drinkId || foundDrink?.id || generateDrinkId(),
+        drinkName: item.drinkName || item.name || foundDrink?.name || 'Boisson',
+        price: typeof item.price === 'number' ? item.price : (foundDrink?.price || 0),
+        quantity: item.quantity || 1
+      };
+    }));
+
+    setTicketViewData(null);
+    setShowHistory(false);
+    setOrderSuccessModal({ isOpen: false, order: null });
+    toast.success("Commande chargée dans le panier", {
+      description: `${itemsToReorder.length} article${itemsToReorder.length > 1 ? 's' : ''} ajouté${itemsToReorder.length > 1 ? 's' : ''} au panier.`
+    });
   };
 
   // ---- GESTION CATEGORIES/DRINKS ----
@@ -333,6 +382,12 @@ const DrinkOrderApp = () => {
               onClearAll={handleClearAll}
               onConfirmOrder={handleConfirmOrderClick}
               isConfirmModalOpen={showConfirmModal}
+              onOpenTicket={() => handleOpenTicket({
+                id: 'current',
+                isCurrentOrder: true,
+                items: orders,
+                total: orders.reduce((sum, o) => sum + o.price * o.quantity, 0)
+              }, 'cart')}
             />
           </div>
         </div>
@@ -343,7 +398,8 @@ const DrinkOrderApp = () => {
           onClose={() => setShowHistory(false)}
           isOpen={showHistory}
           categories={categories}
-          onRemoveOrder={handleRemoveOrder} 
+          onRemoveOrder={handleRemoveOrder}
+          onOpenTicket={(order) => handleOpenTicket(order, 'history')}
         />
 
         <ConfirmOrderModal
@@ -354,6 +410,12 @@ const DrinkOrderApp = () => {
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
           onConfirm={finalizeOrder}
+          onOpenTicket={() => handleOpenTicket({
+            id: 'current',
+            isCurrentOrder: true,
+            items: orders,
+            total: orders.reduce((sum, o) => sum + o.price * o.quantity, 0)
+          }, 'cart')}
         />
 
         <EditDrinkModal
@@ -377,6 +439,59 @@ const DrinkOrderApp = () => {
             else if (deleteDialog.type === 'category') confirmDeleteCategory();
           }}
         />
+
+        {/* Écran de succès post-confirmation (E-4) */}
+        <Dialog 
+          open={orderSuccessModal.isOpen} 
+          onOpenChange={(open) => {
+            if (!open) setOrderSuccessModal({ isOpen: false, order: null });
+          }}
+        >
+          <DialogContent className="max-w-sm mx-auto rounded-lg p-6 bg-card text-foreground border border-border shadow-xl text-center">
+            <DialogHeader className="flex flex-col items-center">
+              <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-950/60 text-green-600 dark:text-green-400 flex items-center justify-center mb-3">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <DialogTitle className="text-xl font-bold text-foreground">
+                Commande confirmée !
+              </DialogTitle>
+              <DialogDescription className="text-sm text-muted-foreground mt-1">
+                Votre commande de {orderSuccessModal.order?.items?.reduce((s, i) => s + i.quantity, 0) || 0} article(s) pour un total de {formatPrice(orderSuccessModal.order?.total || 0)} a bien été enregistrée.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-6 flex flex-col gap-2.5">
+              <Button
+                className="btn-primary w-full flex items-center justify-center gap-2 py-2.5 font-semibold"
+                onClick={() => {
+                  const confirmedOrder = orderSuccessModal.order;
+                  setOrderSuccessModal({ isOpen: false, order: null });
+                  handleOpenTicket(confirmedOrder, 'menu');
+                }}
+              >
+                <Receipt className="w-4 h-4" />
+                Voir le ticket
+              </Button>
+              <Button
+                variant="outline"
+                className="btn-outline w-full py-2"
+                onClick={() => setOrderSuccessModal({ isOpen: false, order: null })}
+              >
+                Retour au menu
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Vue Ticket plein écran (E-4) */}
+        {ticketViewData && (
+          <TicketView
+            order={ticketViewData.order}
+            categories={categories}
+            onClose={handleCloseTicket}
+            onReorder={ticketViewData.order.isCurrentOrder ? null : handleReorder}
+          />
+        )}
       </div>
     </div>
   );
