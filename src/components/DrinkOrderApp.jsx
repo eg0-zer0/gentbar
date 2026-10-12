@@ -252,7 +252,7 @@ const DrinkOrderApp = () => {
   };
 
   const handleAddDrinkToCategory = (categoryId) => {
-    setEditDrinkModal({ isOpen: true, drink: { id: '', name: '', price: 0 }, categoryId, mode: 'add' });
+    setEditDrinkModal({ isOpen: true, drink: { id: '', name: '', price: '' }, categoryId, mode: 'add' });
   };
 
   const handleEditCategory = (cat) => setEditCategoryModal({ isOpen: true, category: cat });
@@ -275,16 +275,14 @@ const DrinkOrderApp = () => {
   };
 
   const handleSaveCategory = (cat) => {
-    setCategories(prev => {
-      const exists = prev.some(c => c.id === cat.id);
-      if (exists) {
-        toast("Catégorie modifiée", { description: `${cat.name} mise à jour` });
-        return prev.map(c => c.id === cat.id ? cat : c);
-      } else {
-        toast("Catégorie ajoutée", { description: `${cat.name} créée` });
-        return [...prev, { ...cat, id: `cat-${Date.now()}`, drinks: [], isCollapsed: false }];
-      }
-    });
+    const exists = categories.some(c => c.id === cat.id);
+    if (exists) {
+      setCategories(prev => prev.map(c => c.id === cat.id ? cat : c));
+      toast("Catégorie modifiée", { description: `${cat.name} mise à jour` });
+    } else {
+      setCategories(prev => [...prev, { ...cat, id: `cat-${Date.now()}`, drinks: [], isCollapsed: false }]);
+      toast("Catégorie ajoutée", { description: `${cat.name} créée` });
+    }
   };
 
   const handleAddCategory = () => setEditCategoryModal({ isOpen: true, category: { name: '', icon: '' } });

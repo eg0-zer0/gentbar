@@ -15,7 +15,7 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
   });
 
   useEffect(() => {
-    if (drink) {
+    if (drink && mode === 'edit') {
       setFormData({
         name: drink.name || '',
         price: typeof drink.price === 'number' ? drink.price.toString() : (drink.price || ''),
@@ -23,15 +23,17 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
     } else {
       setFormData({ name: '', price: '' });
     }
-  }, [drink]);
+  }, [drink, mode]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.name && formData.price !== '') {
+    const trimmedName = formData.name.trim();
+    const parsedPrice = parseFloat(formData.price);
+    if (trimmedName && !isNaN(parsedPrice) && parsedPrice >= 0) {
       onSave({
         ...drink,
-        name: formData.name,
-        price: parseFloat(formData.price),
+        name: trimmedName,
+        price: parsedPrice,
       });
       onClose();
     }

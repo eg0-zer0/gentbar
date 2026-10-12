@@ -29,11 +29,13 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.name && formData.icon) {
+    const trimmedName = formData.name.trim();
+    const trimmedIcon = formData.icon.trim();
+    if (trimmedName && trimmedIcon) {
       onSave({
         ...category,
-        name: formData.name,
-        icon: formData.icon,
+        name: trimmedName,
+        icon: trimmedIcon,
       });
       onClose();
       setShowDeleteConfirm(false); // Assurer que confirmation est fermée à la sauvegarde aussi
