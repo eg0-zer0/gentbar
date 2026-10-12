@@ -14,7 +14,8 @@ const OrderSummary = ({
   onRemoveItem,
   onClearAll,
   onConfirmOrder,
-  isConfirmModalOpen
+  isConfirmModalOpen,
+  onOpenTicket
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -205,15 +206,28 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                 />
               )}
 
-              <Button
-                className="btn-primary"
-                onClick={() => {
-                  setIsExpanded(false);
-                  onConfirmOrder();
-                }}
-              >
-                Visualiser la commande
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  className="btn-primary"
+                  onClick={() => {
+                    setIsExpanded(false);
+                    onConfirmOrder();
+                  }}
+                >
+                  Visualiser la commande
+                </Button>
+                {onOpenTicket && (
+                  <Button
+                    variant="outline"
+                    className="btn-outline flex items-center justify-center gap-2"
+                    onClick={onOpenTicket}
+                    aria-label="Voir le ticket de la commande"
+                  >
+                    <Receipt className="w-4 h-4" />
+                    Voir le ticket
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 
