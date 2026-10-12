@@ -160,3 +160,26 @@ export const normalizeOneOf = (allowed) => (v) => (allowed.includes(v) ? { value
 
 // Clés de données de l'application (réinitialisation).
 export const APP_DATA_KEYS = ['categories', 'orders', 'orderHistory', 'menuVersion', 'sortBy', 'soundEnabled'];
+
+/**
+ * Demande au navigateur la persistance du stockage (A-27) pour éviter l'éviction automatique
+ * (notamment sur Safari iOS après 7 jours sans utilisation).
+ * @returns {Promise<boolean>} Indique si le stockage est persistant.
+ */
+export async function requestPersistentStorage() {
+  if (typeof navigator !== 'undefined' && navigator.storage && navigator.storage.persist) {
+    try {
+      const isPersisted = typeof navigator.storage.persisted === 'function'
+        ? await navigator.storage.persisted()
+        : false;
+      if (!isPersisted) {
+        return await navigator.storage.persist();
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+

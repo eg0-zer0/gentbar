@@ -4,9 +4,13 @@ import "./index.css";      // Tailwind + base CSS
 import "./App.css";        // Variables/theme + classes personnalisées
 import App from "./App";
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
+import { requestPersistentStorage } from './lib/storage';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
+
+// Demande de persistance du stockage local (A-27)
+requestPersistentStorage();
 
 if (process.env.NODE_ENV === 'production') {
   serviceWorkerRegistration.register({

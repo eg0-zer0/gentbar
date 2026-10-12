@@ -20,7 +20,7 @@ import { Plus } from 'lucide-react';
 // Data & utils
 import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
-import { load, save, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf } from '../lib/storage';
+import { load, save, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf, requestPersistentStorage } from '../lib/storage';
 import { formatPrice } from '../lib/format';
 import '../App.css';
 
@@ -86,6 +86,7 @@ const DrinkOrderApp = () => {
   useEffect(() => { save('orderHistory', orderHistory); }, [orderHistory]);
   useEffect(() => { save('soundEnabled', soundEnabled); }, [soundEnabled]);
   useEffect(() => { save('sortBy', sortBy); }, [sortBy]);
+  useEffect(() => { requestPersistentStorage(); }, []);
   // viewMode : déjà persisté (et validé) par ViewModeContext.
 
   // Remplacement de carte : prévenir si des articles ont été retirés du panier (une seule fois).
