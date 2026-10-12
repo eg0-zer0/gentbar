@@ -29,8 +29,6 @@ const Badge = React.forwardRef(({ className, variant, ...props }, ref) => {
   return (
     <div
       ref={ref}
-      role="status"
-      aria-live="polite"
       className={cn(badgeVariants({ variant }), className)}
       {...props}
     />

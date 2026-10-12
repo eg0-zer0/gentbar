@@ -10,7 +10,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogDescription
 } from './ui/dialog';
 
 const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder }) => {
@@ -35,6 +36,9 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
             <History className="w-5 h-5" />
             Historique des commandes
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Consultez et partagez vos commandes passées.
+          </DialogDescription>
         </DialogHeader>
 
         {orderHistory.length === 0 ? (

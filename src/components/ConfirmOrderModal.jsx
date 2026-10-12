@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Trash2, Minus, Plus, Receipt } from 'lucide-react';
@@ -27,6 +27,9 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
             <Receipt className="w-5 h-5 text-primary" />
             Résumé de la commande
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Vérifiez le contenu de votre commande avant de la valider.
+          </DialogDescription>
         </DialogHeader>
 
         <Card className="bg-card text-foreground border-0 shadow-none">

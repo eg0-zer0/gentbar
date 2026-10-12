@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -60,9 +60,12 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
           <DialogHeader>
-            <DialogTitle className={`${textClass} text-xl font-semibold mb-4`}>
-              {category?.id ? 'Modifier la catégorie' : 'Ajouter'}
+            <DialogTitle className={`${textClass} text-xl font-semibold mb-1`}>
+              {category?.id ? 'Modifier la catégorie' : 'Ajouter une catégorie'}
             </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground mb-3">
+              {category?.id ? 'Modifiez le nom et l’icône de la catégorie.' : 'Saisissez les informations de la nouvelle catégorie.'}
+            </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">

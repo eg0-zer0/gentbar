@@ -62,7 +62,7 @@
 
 ### 8 ter-b — Accessibilité et ergonomie
 - [x] A-10 : touche Espace en plus d'Entrée sur les cartes de boissons
-- [ ] A-21 : `Badge` sans `role="status"`/`aria-live` global ; `DialogDescription` ajoutée aux 4 fenêtres (modification boisson, modification catégorie, historique, confirmation)
+- [x] A-21 : `Badge` sans `role="status"`/`aria-live` global ; `DialogDescription` ajoutée aux 4 fenêtres (modification boisson, modification catégorie, historique, confirmation)
 - [ ] A-07 : `viewport-fit=cover` + marges `env(safe-area-inset-*)` pour la barre flottante du panier et le haut de page (iPhone)
 - [ ] A-18 : règle `prefers-reduced-motion`, transition globale limitée aux éléments concernés
 - [ ] A-12 : `size="xs"` inexistant remplacé (3 occurrences dans `OrderSummary`)

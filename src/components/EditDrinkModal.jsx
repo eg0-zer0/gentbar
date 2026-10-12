@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -59,9 +59,12 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
         <DialogHeader>
-          <DialogTitle className={`${textClass} font-semibold mb-4`}>
+          <DialogTitle className={`${textClass} font-semibold mb-1`}>
             {isEditMode ? 'Modifier la boisson' : 'Ajouter une boisson'}
           </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground mb-3">
+            {isEditMode ? 'Modifiez les informations de cette boisson.' : 'Saisissez les informations pour ajouter une nouvelle boisson au menu.'}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
