@@ -15,7 +15,7 @@ const OrderSummary = ({
   onClearAll,
   onConfirmOrder,
   isConfirmModalOpen,
-  onOpenTicket
+  isTicketOpen
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -42,7 +42,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
     }
   }, [orders.length, totalPages, currentPage]);
 
-  if (isConfirmModalOpen || !hasOrders) return null;
+  if (isConfirmModalOpen || !hasOrders || isTicketOpen) return null;
 
   if (isFloating) {
     return (
@@ -206,28 +206,15 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                 />
               )}
 
-              <div className="flex flex-col gap-2">
-                <Button
-                  className="btn-primary"
-                  onClick={() => {
-                    setIsExpanded(false);
-                    onConfirmOrder();
-                  }}
-                >
-                  Visualiser la commande
-                </Button>
-                {onOpenTicket && (
-                  <Button
-                    variant="outline"
-                    className="btn-outline flex items-center justify-center gap-2"
-                    onClick={onOpenTicket}
-                    aria-label="Voir le ticket de la commande"
-                  >
-                    <Receipt className="w-4 h-4" />
-                    Voir le ticket
-                  </Button>
-                )}
-              </div>
+              <Button
+                className="btn-primary"
+                onClick={() => {
+                  setIsExpanded(false);
+                  onConfirmOrder();
+                }}
+              >
+                Visualiser la commande
+              </Button>
             </div>
           </div>
 

@@ -1,24 +1,21 @@
 import React, { useState, useMemo } from 'react';
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
 import { 
   X, 
   Check, 
   RotateCcw, 
-  Receipt, 
-  Share2, 
-  CheckCircle2, 
-  Circle,
-  Calendar
+  Receipt
 } from 'lucide-react';
 import { formatPrice } from '../lib/format';
 import ShareButtons from './ShareButtons';
 
 /**
- * Vue Ticket (E-4) : Prise de commande au bar.
- * Reçoit `order` (panier en cours, commande confirmée ou commande d'historique).
- * Gros caractères, groupé par catégorie dans l'ordre du menu, cases « pris » locales,
- * total fixe, emplacement note libre E-7, fermeture explicite avec retour à l'écran d'origine.
+ * Vue Ticket (E-4) : Prise de commande au bar en mode compact et lisible.
+ * - Conçu pour tenir entièrement sur un seul écran de smartphone (montrer au barman dans le bruit).
+ * - Noms de boissons complets sans coupure (...).
+ * - Groupement ordonné par famille (ordre du menu) sans bandeaux de catégories superflus.
+ * - Mémorisation des cases cochées par commande.
+ * - Fermeture explicite ramenant à l'écran d'origine.
  */
 const TicketView = ({
   order,
@@ -26,10 +23,25 @@ const TicketView = ({
   onClose,
   onReorder
 }) => {
-  // L'état des cases « pris » est purement local (non persisté, E-4)
-  const [checkedIds, setCheckedIds] = useState(() => new Set());
+  // Clé de persistance des coches par commande
+  const storageKey = useMemo(() => {
+    return order?.id ? `gentbar_ticket_checked_${order.id}` : null;
+  }, [order?.id]);
 
-  // Normalisation des articles de la commande
+  // Initialisation des coches depuis le stockage ou ensemble vide
+  const [checkedIds, setCheckedIds] = useState(() => {
+    if (typeof window !== 'undefined' && storageKey) {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) return new Set(JSON.parse(saved));
+      } catch {
+        // En cas d'erreur de lecture localStorage, repli sur ensemble vide
+      }
+    }
+    return new Set();
+  });
+
+  // Normalisation des articles
   const items = useMemo(() => {
     if (!order) return [];
     if (Array.isArray(order.items)) return order.items;
@@ -38,13 +50,13 @@ const TicketView = ({
     return [];
   }, [order]);
 
-  // Calcul du total
+  // Calcul du montant total
   const totalAmount = useMemo(() => {
     if (order && typeof order.total === 'number') return order.total;
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [order, items]);
 
-  // Nombre total de verres / articles
+  // Nombre total de verres
   const totalDrinksCount = useMemo(() => {
     return items.reduce((sum, item) => sum + (item.quantity || 1), 0);
   }, [items]);
@@ -57,7 +69,7 @@ const TicketView = ({
     }, 0);
   }, [items, checkedIds]);
 
-  // Bascule l'état d'un article
+  // Bascule coche d'une boisson et sauvegarde
   const toggleItem = (key) => {
     setCheckedIds(prev => {
       const next = new Set(prev);
@@ -66,70 +78,69 @@ const TicketView = ({
       } else {
         next.add(key);
       }
+      if (typeof window !== 'undefined' && storageKey) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify([...next]));
+        } catch {}
+      }
       return next;
     });
   };
 
-  // Cocher / Décocher tout
+  // Cocher / Décocher tout et sauvegarde
   const handleToggleAll = () => {
     if (checkedIds.size === items.length) {
-      setCheckedIds(new Set());
+      const emptySet = new Set();
+      setCheckedIds(emptySet);
+      if (typeof window !== 'undefined' && storageKey) {
+        try {
+          localStorage.removeItem(storageKey);
+        } catch {}
+      }
     } else {
       const allKeys = items.map((item, idx) => item.drinkId || `${item.drinkName || item.name}-${idx}`);
-      setCheckedIds(new Set(allKeys));
+      const fullSet = new Set(allKeys);
+      setCheckedIds(fullSet);
+      if (typeof window !== 'undefined' && storageKey) {
+        try {
+          localStorage.setItem(storageKey, JSON.stringify([...fullSet]));
+        } catch {}
+      }
     }
   };
 
-  // Groupement des articles par catégorie dans l'ordre officiel du menu (E-4)
-  const groupedCategories = useMemo(() => {
-    const groups = [];
+  // Liste ordonnée selon les familles du menu (bières fût, bouteilles, vins, softs...)
+  // sans nommer expressément les catégories (évite les gros cadres et le gaspillage d'espace)
+  const orderedItems = useMemo(() => {
+    const list = [];
     const assignedIndices = new Set();
 
     categories.forEach(category => {
       const categoryDrinks = category.drinks || [];
-      const matchingItems = [];
-
       items.forEach((item, index) => {
         const itemName = item.drinkName || item.name;
-        const matchesCategory = categoryDrinks.some(
+        const matches = categoryDrinks.some(
           d => d.id === item.drinkId || d.name.toLowerCase() === (itemName || '').toLowerCase()
         );
 
-        if (matchesCategory) {
-          matchingItems.push({ item, originalIndex: index });
+        if (matches && !assignedIndices.has(index)) {
+          list.push({ item, originalIndex: index, categoryId: category.id });
           assignedIndices.add(index);
         }
       });
+    });
 
-      if (matchingItems.length > 0) {
-        groups.push({
-          id: category.id,
-          name: category.name,
-          icon: category.icon,
-          items: matchingItems
-        });
+    // Boissons personnalisées ou orphelines
+    items.forEach((item, index) => {
+      if (!assignedIndices.has(index)) {
+        list.push({ item, originalIndex: index, categoryId: 'other' });
       }
     });
 
-    // Éléments non catégorisés (ou catégorie supprimée)
-    const orphanItems = items
-      .map((item, index) => ({ item, originalIndex: index }))
-      .filter(({ originalIndex }) => !assignedIndices.has(originalIndex));
-
-    if (orphanItems.length > 0) {
-      groups.push({
-        id: 'other',
-        name: 'Autres boissons',
-        icon: '🍹',
-        items: orphanItems
-      });
-    }
-
-    return groups;
+    return list;
   }, [categories, items]);
 
   const isComplete = totalDrinksCount > 0 && servedDrinksCount === totalDrinksCount;
-  const isCurrentOrder = Boolean(order?.isCurrentOrder);
 
   const formatDate = (dateString) => {
     if (!dateString) return null;
@@ -145,7 +156,7 @@ const TicketView = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex flex-col bg-background text-foreground overflow-y-auto"
+      className="fixed inset-0 z-[100] flex flex-col bg-background text-foreground overflow-y-auto"
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
@@ -154,44 +165,45 @@ const TicketView = ({
       aria-modal="true"
       aria-label="Ticket de commande"
     >
-      {/* En-tête fixe */}
-      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
+      {/* En-tête compact sans coupure de titre */}
+      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm px-4 py-2.5">
+        <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
+          {/* Titre et date */}
           <div className="flex items-center gap-2 min-w-0">
-            <Receipt className="w-6 h-6 text-primary flex-shrink-0" />
-            <div className="min-w-0">
-              <h1 className="text-lg font-bold truncate text-foreground">
-                Ticket de commande
-              </h1>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                {order?.date ? (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {formatDate(order.date)}
-                  </span>
-                ) : isCurrentOrder ? (
-                  <Badge variant="outline" className="text-[10px] py-0 px-1.5">
-                    Panier en cours
-                  </Badge>
-                ) : null}
-              </div>
-            </div>
+            <Receipt className="w-5 h-5 text-primary flex-shrink-0" />
+            <h1 className="text-base sm:text-lg font-bold text-foreground whitespace-nowrap">
+              Ticket
+            </h1>
+            {order?.date && (
+              <span className="text-xs text-muted-foreground whitespace-nowrap truncate">
+                • {formatDate(order.date)}
+              </span>
+            )}
           </div>
 
+          {/* Compteur et boutons d'action rapide */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
+              <span className={isComplete ? 'text-green-500 font-bold' : 'text-primary font-bold'}>
+                {servedDrinksCount}/{totalDrinksCount}
+              </span>
+              {' '}servis
+            </span>
+
             <Button
               variant="outline"
               size="sm"
-              className="btn-outline text-xs px-2.5 py-1"
+              className="btn-outline text-xs h-7 px-2"
               onClick={handleToggleAll}
               aria-label={checkedIds.size === items.length ? "Tout décocher" : "Tout cocher"}
             >
-              {checkedIds.size === items.length ? "Tout décocher" : "Tout cocher"}
+              {checkedIds.size === items.length ? "Décocher" : "Tout cocher"}
             </Button>
+
             <Button
               variant="ghost"
               size="sm"
-              className="p-2 h-9 w-9 rounded-full hover:bg-accent"
+              className="p-1 h-8 w-8 rounded-full hover:bg-accent flex items-center justify-center"
               onClick={onClose}
               aria-label="Fermer le ticket"
             >
@@ -199,31 +211,13 @@ const TicketView = ({
             </Button>
           </div>
         </div>
-
-        {/* Barre de progression & compteur de service */}
-        <div className="max-w-2xl mx-auto mt-3 flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2 font-medium">
-            <span>Servis :</span>
-            <span className={`font-bold ${isComplete ? 'text-green-500' : 'text-primary'}`}>
-              {servedDrinksCount} sur {totalDrinksCount}
-            </span>
-            {isComplete && (
-              <Badge className="bg-green-600 text-white text-xs">
-                Terminé ✓
-              </Badge>
-            )}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {checkedIds.size} ligne{checkedIds.size > 1 ? 's' : ''} cochée{checkedIds.size > 1 ? 's' : ''}
-          </div>
-        </div>
       </header>
 
-      {/* Contenu principal du ticket */}
-      <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-4 space-y-6 pb-28">
-        {/* Emplacement note libre (E-7) - vide par défaut mais prêt */}
+      {/* Corps du ticket : liste épurée type ticket de caisse, condensée pour tenir sur un écran */}
+      <main className="flex-1 max-w-xl w-full mx-auto px-3 sm:px-4 py-3 space-y-1.5 pb-24">
+        {/* Emplacement note libre (E-7) */}
         {order?.note ? (
-          <div className="p-3 rounded-lg bg-accent/15 border border-accent/30 text-foreground text-sm">
+          <div className="p-2.5 mb-2 rounded-lg bg-accent/15 border border-accent/30 text-foreground text-xs sm:text-sm">
             <span className="font-semibold text-accent">Note : </span>
             <span>{order.note}</span>
           </div>
@@ -236,113 +230,109 @@ const TicketView = ({
             Aucun article dans cette commande.
           </div>
         ) : (
-          groupedCategories.map((group) => (
-            <section 
-              key={group.id} 
-              className="bg-card border border-border rounded-xl p-4 shadow-sm space-y-3"
-              aria-label={group.name}
-            >
-              {/* En-tête de catégorie */}
-              <div className="flex items-center gap-2 pb-2 border-b border-border/70 font-semibold text-base text-foreground">
-                <span className="text-xl" role="img" aria-hidden="true">{group.icon}</span>
-                <span>{group.name}</span>
-              </div>
+          <ul className="divide-y divide-border/60 bg-card border border-border rounded-xl shadow-sm overflow-hidden p-0 m-0 list-none">
+            {orderedItems.map(({ item, originalIndex, categoryId }, idx) => {
+              const key = item.drinkId || `${item.drinkName || item.name}-${originalIndex}`;
+              const isChecked = checkedIds.has(key);
+              const itemName = item.drinkName || item.name;
+              
+              // Séparation discrète entre deux familles de boissons différentes
+              const prevItem = orderedItems[idx - 1];
+              const isNewGroup = prevItem && prevItem.categoryId !== categoryId;
 
-              {/* Liste des articles en gros caractères pour le bar */}
-              <ul className="space-y-2.5 m-0 p-0 list-none">
-                {group.items.map(({ item, originalIndex }) => {
-                  const key = item.drinkId || `${item.drinkName || item.name}-${originalIndex}`;
-                  const isChecked = checkedIds.has(key);
-                  const itemName = item.drinkName || item.name;
-
-                  return (
-                    <li
-                      key={key}
-                      onClick={() => toggleItem(key)}
-                      className={`flex items-center justify-between gap-3 p-3 rounded-lg cursor-pointer select-none transition-colors border ${
-                        isChecked 
-                          ? 'bg-muted/40 border-border/50 text-muted-foreground' 
-                          : 'bg-background hover:bg-accent/10 border-border text-foreground'
-                      }`}
-                      role="checkbox"
-                      aria-checked={isChecked}
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          toggleItem(key);
-                        }
-                      }}
-                    >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {/* Case à cocher visuelle */}
-                        <div 
-                          className={`w-6 h-6 rounded-md border flex items-center justify-center transition-colors flex-shrink-0 ${
-                            isChecked 
-                              ? 'bg-green-600 border-green-600 text-white' 
-                              : 'border-muted-foreground/60 bg-transparent'
-                          }`}
-                        >
-                          {isChecked && <Check className="w-4 h-4 stroke-[3]" />}
-                        </div>
-
-                        {/* Quantité en gros caractères */}
-                        <span className={`text-xl font-bold min-w-[2.2rem] ${isChecked ? 'line-through text-muted-foreground' : 'text-primary'}`}>
-                          {item.quantity}×
-                        </span>
-
-                        {/* Nom de la boisson en gros caractères */}
-                        <span className={`text-lg font-semibold truncate ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                          {itemName}
-                        </span>
+              return (
+                <React.Fragment key={key}>
+                  {isNewGroup && (
+                    <li className="h-[1px] bg-border/80 border-t border-border/80 my-0 list-none" aria-hidden="true" />
+                  )}
+                  <li
+                    onClick={() => toggleItem(key)}
+                    className={`flex items-center justify-between gap-2.5 px-3 py-2.5 cursor-pointer select-none transition-colors ${
+                      isChecked 
+                        ? 'bg-muted/40 text-muted-foreground' 
+                        : 'bg-card hover:bg-accent/10 text-foreground'
+                    }`}
+                    role="checkbox"
+                    aria-checked={isChecked}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleItem(key);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      {/* Case à cocher carrée */}
+                      <div 
+                        className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${
+                          isChecked 
+                            ? 'bg-green-600 border-green-600 text-white' 
+                            : 'border-muted-foreground/60 bg-transparent'
+                        }`}
+                      >
+                        {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                       </div>
 
-                      {/* Montant de la ligne */}
-                      <span className={`text-sm font-medium flex-shrink-0 ${isChecked ? 'line-through opacity-70' : 'text-foreground'}`}>
-                        {formatPrice(item.price * item.quantity)}
+                      {/* Quantité bien lisible */}
+                      <span className={`text-lg font-bold min-w-[2rem] flex-shrink-0 ${isChecked ? 'line-through text-muted-foreground' : 'text-primary'}`}>
+                        {item.quantity}×
                       </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))
+
+                      {/* Nom de la boisson EN ENTIER (sans troncature ni '...') */}
+                      <span className={`text-base font-semibold leading-tight break-words ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                        {itemName}
+                      </span>
+                    </div>
+
+                    {/* Prix unitaire ou total de la ligne */}
+                    <span className={`text-sm font-semibold flex-shrink-0 whitespace-nowrap ml-2 ${isChecked ? 'line-through opacity-70' : 'text-foreground'}`}>
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
+                  </li>
+                </React.Fragment>
+              );
+            })}
+          </ul>
         )}
       </main>
 
-      {/* Barre inférieure fixe (Total + Actions) */}
-      <footer className="fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur border-t border-border shadow-lg px-4 py-3">
-        <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-3">
-            <span className="text-sm uppercase tracking-wide text-muted-foreground font-semibold">Total :</span>
-            <span className="text-2xl font-extrabold text-foreground">
+      {/* Barre inférieure fixe (Total + Actions responsives sans chevauchement) */}
+      <footer className="fixed bottom-0 left-0 right-0 z-30 bg-background/95 backdrop-blur border-t border-border shadow-lg px-3 sm:px-4 py-2.5">
+        <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
+          {/* Total bien visible */}
+          <div className="flex items-baseline gap-1.5 flex-shrink-0">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-bold">TOTAL</span>
+            <span className="text-xl sm:text-2xl font-black text-foreground">
               {formatPrice(totalAmount)}
             </span>
           </div>
 
-          <div className="w-full sm:w-auto flex items-center justify-end gap-2">
-            {/* Partage */}
+          {/* Actions : Partager, Recommander, Fermer sans chevauchement */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
             <ShareButtons 
-              order={isCurrentOrder ? { items, total: totalAmount } : order} 
-              isCurrentOrder={isCurrentOrder} 
+              order={order} 
+              isCurrentOrder={false} 
+              className="w-auto h-8 px-2.5 text-xs"
+              size="sm"
             />
 
-            {/* Bouton Recommander (si disponible pour commande passée ou confirmée) */}
             {onReorder && (
               <Button
                 variant="outline"
-                className="btn-outline flex items-center gap-1.5"
+                size="sm"
+                className="btn-outline flex items-center gap-1 text-xs h-8 px-2.5"
                 onClick={() => onReorder(order)}
                 aria-label="Recommander cette commande"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-3.5 h-3.5" />
                 <span>Recommander</span>
               </Button>
             )}
 
-            {/* Bouton explicite Fermer */}
             <Button
-              className="btn-primary px-4 font-semibold"
+              size="sm"
+              className="btn-primary font-semibold text-xs h-8 px-3"
               onClick={onClose}
               aria-label="Fermer la vue ticket"
             >

@@ -208,22 +208,12 @@ const DrinkOrderApp = () => {
 
   // ---- GESTION VUE TICKET (E-4) ----
 
-  const handleOpenTicket = (orderToView, returnTo = 'cart') => {
-    if (returnTo === 'history') {
-      setShowHistory(false);
-    }
-    if (returnTo === 'cart') {
-      setShowConfirmModal(false);
-    }
-    setTicketViewData({ order: orderToView, returnTo });
+  const handleOpenTicket = (orderToView) => {
+    setTicketViewData({ order: orderToView });
   };
 
   const handleCloseTicket = () => {
-    const returnTo = ticketViewData?.returnTo;
     setTicketViewData(null);
-    if (returnTo === 'history') {
-      setShowHistory(true);
-    }
   };
 
   const handleReorder = (orderToReorder) => {
@@ -382,12 +372,7 @@ const DrinkOrderApp = () => {
               onClearAll={handleClearAll}
               onConfirmOrder={handleConfirmOrderClick}
               isConfirmModalOpen={showConfirmModal}
-              onOpenTicket={() => handleOpenTicket({
-                id: 'current',
-                isCurrentOrder: true,
-                items: orders,
-                total: orders.reduce((sum, o) => sum + o.price * o.quantity, 0)
-              }, 'cart')}
+              isTicketOpen={Boolean(ticketViewData)}
             />
           </div>
         </div>
@@ -399,7 +384,7 @@ const DrinkOrderApp = () => {
           isOpen={showHistory}
           categories={categories}
           onRemoveOrder={handleRemoveOrder}
-          onOpenTicket={(order) => handleOpenTicket(order, 'history')}
+          onOpenTicket={(order) => handleOpenTicket(order)}
         />
 
         <ConfirmOrderModal
@@ -410,12 +395,6 @@ const DrinkOrderApp = () => {
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
           onConfirm={finalizeOrder}
-          onOpenTicket={() => handleOpenTicket({
-            id: 'current',
-            isCurrentOrder: true,
-            items: orders,
-            total: orders.reduce((sum, o) => sum + o.price * o.quantity, 0)
-          }, 'cart')}
         />
 
         <EditDrinkModal
@@ -466,7 +445,7 @@ const DrinkOrderApp = () => {
                 onClick={() => {
                   const confirmedOrder = orderSuccessModal.order;
                   setOrderSuccessModal({ isOpen: false, order: null });
-                  handleOpenTicket(confirmedOrder, 'menu');
+                  handleOpenTicket(confirmedOrder);
                 }}
               >
                 <Receipt className="w-4 h-4" />

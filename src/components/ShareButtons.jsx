@@ -8,7 +8,7 @@ import { Share2, Mail, MessageSquare, Phone, Check, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/format';
 
-const ShareButtons = ({ order, isCurrentOrder = false }) => {
+const ShareButtons = ({ order, isCurrentOrder = false, className = '', size }) => {
   const [copied, setCopied] = useState(false);
 
   const formatOrderSummary = (orderData) => {
@@ -116,12 +116,13 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
   if (hasNativeShare) {
     return (
       <Button
-        className="btn-outline flex items-center justify-center gap-2 text-foreground border-border w-full"
+        size={size}
+        className={`btn-outline flex items-center justify-center gap-1.5 text-foreground border-border ${className || 'w-full'}`}
         onClick={handleNativeShare}
         aria-label="Partager la commande"
       >
-        <Share2 className="w-5 h-5" />
-        Partager
+        <Share2 className="w-4 h-4 flex-shrink-0" />
+        <span>Partager</span>
       </Button>
     );
   }
@@ -130,11 +131,12 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          className="btn-outline flex items-center justify-center gap-2 text-foreground border-border w-full"
+          size={size}
+          className={`btn-outline flex items-center justify-center gap-1.5 text-foreground border-border ${className || 'w-full'}`}
           aria-label="Partager la commande"
         >
-          <Share2 className="w-5 h-5" />
-          Partager
+          <Share2 className="w-4 h-4 flex-shrink-0" />
+          <span>Partager</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-52 bg-card text-foreground border border-border shadow-md">

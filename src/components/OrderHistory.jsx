@@ -109,7 +109,12 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                       Ticket
                     </Button>
                   )}
-                  <ShareButtons order={order} isCurrentOrder={false} />
+                  <ShareButtons 
+                    order={order} 
+                    isCurrentOrder={false} 
+                    className="w-auto h-8 px-2.5 text-xs"
+                    size="sm"
+                  />
                   <button
                     aria-label="Supprimer cette commande"
                     onClick={() => setOrderToDelete(order)}

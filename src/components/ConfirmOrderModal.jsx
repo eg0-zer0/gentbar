@@ -9,7 +9,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/format';
 
-const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemoveItem, onClearAll, onConfirm, onOpenTicket }) => {
+const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemoveItem, onClearAll, onConfirm }) => {
   const { theme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -101,17 +101,6 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                       Vider le panier
                     </Button>
                   </div>
-                  {onOpenTicket && (
-                    <Button
-                      variant="outline"
-                      className="btn-outline w-full flex items-center justify-center gap-2"
-                      onClick={onOpenTicket}
-                      aria-label="Voir le ticket de la commande"
-                    >
-                      <Receipt className="w-4 h-4" />
-                      Voir le ticket
-                    </Button>
-                  )}
                   <ShareButtons order={orders} isCurrentOrder={true} />
                 </div>
               </>
