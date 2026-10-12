@@ -29,6 +29,9 @@ La branche `main` est déployée automatiquement sur Netlify à chaque push : c'
 - **Commande « par ami »** : abandonnée (ne rien développer dans ce sens).
 - **Son à l'ajout** : désactivé par défaut.
 - **Gestionnaire de paquets** : celui déclaré dans `package.json` (yarn) ; n'en changer qu'à l'étape 7.
+- **Vue Ticket (E-4)** : `TicketView` reçoit une commande en paramètre (`order`), pour servir trois cas : le panier en cours (bouton « Voir le ticket »), la commande qui vient d'être confirmée (ouverture proposée dans l'écran de succès, avec « Recommander »), et une commande de l'historique. Prévoir dès maintenant un emplacement pour la note libre (E-7) en haut du ticket, vide pour l'instant. Les cases « pris » ne sont pas persistées.
+- **Montants** : toujours affichés au format français (`3,00 €`) via `src/lib/format.js` ; ne pas formater un prix à la main.
+- **Partage** : feuille de partage native en priorité, « copier » en repli.
 
 ## Définition de « terminé » pour une étape
 
