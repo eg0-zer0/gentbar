@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `main` (déployée) / `roadmap` (reprise étape 9) · **Prochaine étape** : 9 (Nouvelles fonctionnalités sur demande) · **Dernier commit** : a320c02
+**Branche de travail** : `roadmap` · **Prochaine étape** : 8 ter-a (Logique et données) · **Dernier commit** : d767c58
 
 ---
 
@@ -52,8 +52,38 @@
 - [x] Son désactivé par défaut (`soundEnabled` à false si non défini) et suppression du toast « Boisson ajoutée » lors de l'ajout au panier (Problème 4)
 - [x] `public/service-worker.js` et `public/workbox-*.js` retirés du suivi git (`git rm --cached`) et ajoutés au `.gitignore` ; build toujours intègre dans `build/` (Problème 6)
 
-## Étape 9 — Nouvelles fonctionnalités *(uniquement sur demande explicite)*
-*Ordre : E-3, E-10, E-5, E-7, E-8, E-4, E-9, E-11, E-1, A-29, E-2.*
+## Étape 8 ter — Points d'audit restants (3 sous-étapes, une par session)
+
+### 8 ter-a — Logique et données
+- [ ] A-17 : popularité calculée par `drinkId` (conserver `drinkId` dans les lignes de l'historique ; repli sur le nom pour les anciennes commandes)
+- [ ] A-23 : formulaires — nom nettoyé (`trim`), prix vide (et non « 0 ») à l'ajout d'une boisson, notification sortie de la fonction de mise à jour d'état (`handleSaveCategory`)
+- [ ] A-14 : partage natif (`navigator.share`) avec repli « copier » ; entrée Messenger retirée
+- [ ] A-20 : un seul `AudioContext` réutilisé, protégé par `try/catch`, qui ne doit jamais empêcher l'ajout au panier
+
+### 8 ter-b — Accessibilité et ergonomie
+- [ ] A-10 : touche Espace en plus d'Entrée sur les cartes de boissons
+- [ ] A-21 : `Badge` sans `role="status"`/`aria-live` global ; `DialogDescription` ajoutée aux 4 fenêtres (modification boisson, modification catégorie, historique, confirmation)
+- [ ] A-07 : `viewport-fit=cover` + marges `env(safe-area-inset-*)` pour la barre flottante du panier et le haut de page (iPhone)
+- [ ] A-18 : règle `prefers-reduced-motion`, transition globale limitée aux éléments concernés
+- [ ] A-12 : `size="xs"` inexistant remplacé (3 occurrences dans `OrderSummary`)
+
+### 8 ter-c — Cohérence et nettoyage
+- [ ] A-26 : « Drink » / « Drink Order » remplacés par GentBar ; montants affichés au format français (`3,00 €`) via un utilitaire unique
+- [ ] A-27 : `navigator.storage.persist()` demandé au démarrage
+- [ ] A-09 : code mort du tri `'default'` retiré
+- [ ] A-25 : dépendances sans aucun usage retirées (`axios`, `zod`, `next-themes`, `date-fns` — revérifier avant)
+
+## Étape 9 — Nouvelles fonctionnalités *(une par session, dans cet ordre)*
+- [ ] 9.1 E-4 Vue Ticket
+- [ ] 9.2 E-9 Verrouillage de l'écran du ticket
+- [ ] 9.3 E-8 Recommander la même tournée
+- [ ] 9.4 E-7 Note libre sur une commande
+- [ ] 9.5 E-3 Recherche dans le menu + E-10 Alerte de doublon
+- [ ] 9.6 E-5 Tri par popularité par défaut
+- [ ] 9.7 E-1 Récapitulatif de soirée et partage équitable
+- [ ] 9.8 E-2 Cagnotte
+- [ ] 9.9 E-11 Ajout en lot (texte collé)
+- [ ] 9.10 A-29 Multi-bars (en sous-étapes, après la fusion A-04)
 
 ---
 
