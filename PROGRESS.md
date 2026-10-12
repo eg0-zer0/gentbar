@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-c (Cohérence et nettoyage) · **Dernier commit** : d8be929
+**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 9.1 E-4 Vue Ticket · **Dernier commit** : 937cb26
 
 ---
 
@@ -98,6 +98,8 @@
 * 11/10/2026 — Étape 7 terminée : suppression de `package-lock.json` pour unifier le gestionnaire de paquets sur `yarn.lock` (`package.json`), suppression définitive des 5 composants orphelins (`AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx`, `ThemeToggle.jsx`). `yarn build` validé avec succès (138.8 kB JS, CSS allégé de 265 B).
 * 11/10/2026 — Étape 8 bis terminée (branche `roadmap-fix`) : validation des contrastes WCAG ≥ 4,5:1 sur tous les thèmes (clair, sombre, gentbar) et rétablissement du blanc pur pour le texte gentbar, sécurisation de la migration de carte avec backup `categories__backup` et dédoublonnage/élagage du panier, son désactivé par défaut et suppression de la notification répétitive à chaque ajout de boisson au panier, exclusion git des fichiers service worker dans `public/` tout en garantissant leur génération propre dans `build/`. `yarn build` validé avec succès.
 * 12/10/2026 — Étape 8 ter-a terminée (branche `roadmap-8ter`) : popularité calculée par `drinkId` avec repli nom (A-17), formulaires nettoyés avec `trim`, prix vide à l'ajout et extraction du `toast` de la fonction de mise à jour d'état `setCategories` (A-23), partage natif `navigator.share` prioritaire avec repli copier et suppression de Messenger (A-14), AudioContext partagé protégé par `try/catch` avec exécution de `onAdd` prioritaire (A-20). `yarn build` validé avec succès.
+* 12/10/2026 — Étape 8 ter-b terminée (branche `roadmap-8ter`) : touche Espace sur les cartes de boissons (A-10), DialogDescription ajoutée aux 4 fenêtres et nettoyage rôles ARIA (A-21), safe areas iOS `env(safe-area-inset-*)` et `viewport-fit=cover` (A-07), transitions ciblées et respect de `prefers-reduced-motion` (A-18), remplacement de `size="xs"` (A-12). `yarn build` validé avec succès.
+* 12/10/2026 — Étape 8 ter-c terminée (branche `roadmap-8ter`) : harmonisation nom « GentBar » et formatage des montants francophone via utilitaire unique `formatPrice` dans `src/lib/format.js` (A-26), demande de stockage persistant `navigator.storage.persist()` au démarrage (A-27), retrait du code mort du tri `'default'` et des imports inutilisés (A-09), désinstallation des dépendances inutilisées `axios`, `zod`, `next-themes`, `date-fns` (A-25). `yarn build` validé avec succès (139.72 kB JS, 11.91 kB CSS).
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
