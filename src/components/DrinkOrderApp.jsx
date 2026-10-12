@@ -95,18 +95,26 @@ const DrinkOrderApp = () => {
     }
   }, []);
 
-  // Popularité des boissons
+  // Popularité des boissons (comptée par drinkId, avec repli sur le nom pour l'historique antérieur)
   const drinkPopularity = useMemo(() => {
-    const popularity = {};
-    orderHistory.forEach(order => {
-      order.items.forEach(item => {
-        popularity[item.drinkName] = (popularity[item.drinkName] || 0) + item.quantity;
+    const nameToId = new Map();
+    categories.forEach(c => {
+      c.drinks.forEach(d => {
+        if (!nameToId.has(d.name)) {
+          nameToId.set(d.name, d.id);
+        }
       });
     });
+
     const byId = {};
-    categories.forEach(c => c.drinks.forEach(d => {
-      byId[d.id] = popularity[d.name] || 0;
-    }));
+    orderHistory.forEach(order => {
+      order.items.forEach(item => {
+        const id = item.drinkId || nameToId.get(item.drinkName);
+        if (id) {
+          byId[id] = (byId[id] || 0) + item.quantity;
+        }
+      });
+    });
     return byId;
   }, [orderHistory, categories]);
 
@@ -181,7 +189,12 @@ const DrinkOrderApp = () => {
     const newOrder = {
       id: `order-${Date.now()}`,
       date: new Date().toISOString(),
-      items: orders.map(o => ({ drinkName: o.drinkName, quantity: o.quantity, price: o.price })),
+      items: orders.map(o => ({
+        drinkId: o.drinkId,
+        drinkName: o.drinkName,
+        quantity: o.quantity,
+        price: o.price
+      })),
       total
     };
     setOrderHistory(prev => [newOrder, ...prev]);

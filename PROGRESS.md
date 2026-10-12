@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : 8 ter-a (Logique et données) · **Dernier commit** : 998cf94
+**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-a (Logique et données) · **Dernier commit** : a820a9c
 
 ---
 
@@ -55,7 +55,7 @@
 ## Étape 8 ter — Points d'audit restants (3 sous-étapes, une par session)
 
 ### 8 ter-a — Logique et données
-- [ ] A-17 : popularité calculée par `drinkId` (conserver `drinkId` dans les lignes de l'historique ; repli sur le nom pour les anciennes commandes)
+- [x] A-17 : popularité calculée par `drinkId` (conserver `drinkId` dans les lignes de l'historique ; repli sur le nom pour les anciennes commandes)
 - [ ] A-23 : formulaires — nom nettoyé (`trim`), prix vide (et non « 0 ») à l'ajout d'une boisson, notification sortie de la fonction de mise à jour d'état (`handleSaveCategory`)
 - [ ] A-14 : partage natif (`navigator.share`) avec repli « copier » ; entrée Messenger retirée
 - [ ] A-20 : un seul `AudioContext` réutilisé, protégé par `try/catch`, qui ne doit jamais empêcher l'ajout au panier
