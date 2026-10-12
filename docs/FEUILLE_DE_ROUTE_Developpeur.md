@@ -110,22 +110,48 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 
 ---
 
-## Étape 9 — Nouvelles fonctionnalités (seulement une fois les étapes 1 à 8 faites)
+## Étape 8 ter — Points d'audit restants
 
-Chaque fonctionnalité est détaillée (principe, flux, décisions déjà prises) dans `AUDIT_GentBar_Order_App.md`, section « Nouvelles fonctionnalités détaillées ». Ordre suggéré, du plus simple/isolé au plus structurant :
+### 8 ter-a — Logique et données
 
-1. `E-6` — unifier les suppressions *(déjà fait en partie à l'étape 4)*
-2. `E-3` — recherche dans le menu
-3. `E-10` — alerte de doublon de nom (réutilise la recherche)
-4. `E-5` — tri par popularité par défaut
-5. `E-7` — note libre sur une commande
-6. `E-8` — recommander la même tournée
-7. `E-4` — vue Ticket (prise de commande au bar)
-8. `E-9` — verrouillage de l'écran (dépend de la vue Ticket)
-9. `E-11` — création rapide d'une carte (coller une liste + astuce photo)
-10. `E-1` — récapitulatif de soirée et partage équitable
-11. `A-29` (points 1 à 9) — multi-bars : plusieurs cartes, partage par lien/QR, commande sur deux bars
-12. `E-2` — mode Cagnotte (la plus structurante, toutes les décisions sont déjà actées dans sa fiche)
+- **A-17** : `src/components/DrinkOrderApp.jsx` (calcul de popularité, finalizeOrder doit enregistrer drinkId), `src/lib/storage.js` (la normalisation de l'historique doit conserver drinkId)
+- **A-23** : `src/components/EditDrinkModal.jsx`, `src/components/EditCategoryModal.jsx`, `src/components/DrinkOrderApp.jsx`
+- **A-14** : `src/components/ShareButtons.jsx`
+- **A-20** : `src/components/DrinkCard.jsx`
+
+### 8 ter-b — Accessibilité et ergonomie
+
+- **A-10** : `src/components/DrinkCard.jsx`
+- **A-21** : `src/components/ui/badge.jsx`, `EditDrinkModal.jsx`, `EditCategoryModal.jsx`, `OrderHistory.jsx`, `ConfirmOrderModal.jsx`
+- **A-07** : `public/index.html`, `src/App.css`
+- **A-18** : `src/index.css`, `src/App.css`
+- **A-12** : `src/components/OrderSummary.jsx`
+
+### 8 ter-c — Cohérence et nettoyage
+
+- **A-26** : `public/index.html`, `LandingPage.jsx`, `ShareButtons.jsx`, `OrderHistory.jsx`, `OrderSummary.jsx`, `ConfirmOrderModal.jsx`, nouveau `src/lib/format.js`
+- **A-27** : `src/components/DrinkOrderApp.jsx` (ou `src/index.js`)
+- **A-09** : `src/components/DrinkOrderApp.jsx`
+- **A-25** : `package.json`, `yarn.lock`
+
+*Hors périmètre de cette étape : A-04 (fusion de carte, préalable du multi-bars), A-33 (performance : mesurer avant d'agir), A-35 (couleurs CMJN du club, décision à prendre avec le club).*
+
+---
+
+## Étape 9 — Nouvelles fonctionnalités (détail dans l'audit, section « Nouvelles fonctionnalités détaillées »)
+
+| # | Fonctionnalité | Fichiers principaux |
+|---|---|---|
+| **9.1** | **E-4** Vue Ticket | nouveau `TicketView.jsx`, `OrderSummary.jsx` (bouton « Voir le ticket »), `ConfirmOrderModal.jsx` (ouverture après confirmation), `OrderHistory.jsx` (ouvrir un ticket passé), `DrinkOrderApp.jsx`, `App.css` |
+| **9.2** | **E-9** Verrouillage | `TicketView.jsx` |
+| **9.3** | **E-8** Recommander | `OrderHistory.jsx`, `ConfirmOrderModal.jsx`, `DrinkOrderApp.jsx` |
+| **9.4** | **E-7** Note libre | `ConfirmOrderModal.jsx`, `DrinkOrderApp.jsx`, `OrderHistory.jsx`, `ShareButtons.jsx`, `TicketView.jsx` |
+| **9.5** | **E-3** Recherche + **E-10** Doublon | nouveau `MenuSearch.jsx`, nouveau `src/lib/search.js`, `DrinkOrderApp.jsx`, `CategorySection.jsx`, `EditDrinkModal.jsx` |
+| **9.6** | **E-5** Tri par popularité par défaut | `SortControls.jsx`, `DrinkOrderApp.jsx` |
+| **9.7** | **E-1** Récap. et partage équitable | nouveau `SplitBillModal.jsx`, nouveau `src/lib/split.js` (arrondi, réutilisé par E-2), `OrderHistory.jsx`, `DrinkOrderApp.jsx` |
+| **9.8** | **E-2** Cagnotte | nouveau `CagnotteContext.jsx` et `CagnotteModal.jsx`, `Header.jsx`, `ConfirmOrderModal.jsx`, `App.css` |
+| **9.9** | **E-11** Ajout en lot | nouveau `BulkAddDrinksModal.jsx`, nouveau `src/lib/parseDrinkList.js`, `CategorySection.jsx` |
+| **9.10** | **A-29** Multi-bars | sous-étapes : (a) modèle de données et sélecteur, (b) fusion A-04 en remplacement de MENU_VERSION, (c) partage par lien/QR, (d) commande sur deux bars |
 
 ---
 
