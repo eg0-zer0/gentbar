@@ -24,7 +24,7 @@ import { load, save, loadRaw, saveRaw, normalizeCategories, normalizeOrders, nor
 import { formatPrice } from '../lib/format';
 import '../App.css';
 
-const normalizeSortBy = normalizeOneOf(['name', 'popularity', 'price-asc', 'price-desc', 'default']);
+const normalizeSortBy = normalizeOneOf(['name', 'popularity', 'price-asc', 'price-desc']);
 
 // Message à afficher une fois après un remplacement de carte ayant retiré des lignes du panier.
 let menuMigrationNotice = null;
@@ -135,10 +135,6 @@ const DrinkOrderApp = () => {
         return sorted.sort((a, b) => a.name.localeCompare(b.name));
     }
   };
-
-  const getSortedCategories = () => (sortBy === 'default')
-    ? categories
-    : categories.map(c => ({ ...c, drinks: sortDrinks(c.drinks, sortBy) }));
 
   // ---- GESTION PANIER ----
 
@@ -310,7 +306,7 @@ const DrinkOrderApp = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-            {getSortedCategories().map(c => (
+            {categories.map(c => (
               <CategorySection
                 key={c.id}
                 category={c}

@@ -1,10 +1,7 @@
 import React from 'react';
 
 import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-
-import { ArrowUpDown, TrendingUp, DollarSign, ArrowDownAZ, Layers3 } from 'lucide-react';
-
+import { ArrowUpDown, TrendingUp, DollarSign, ArrowDownAZ } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,10 +9,7 @@ import {
   DropdownMenuTrigger
 } from './ui/dropdown-menu';
 
-import { useTheme } from '../contexts/ThemeContext';
-
 const SortControls = ({ sortBy, setSortBy }) => {
-  const { theme } = useTheme();
 
   const sortOptions = [
     { value: 'name', label: 'Alphabétique', icon: ArrowDownAZ },

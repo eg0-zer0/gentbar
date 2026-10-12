@@ -70,7 +70,7 @@
 ### 8 ter-c — Cohérence et nettoyage
 - [x] A-26 : « Drink » / « Drink Order » remplacés par GentBar ; montants affichés au format français (`3,00 €`) via un utilitaire unique
 - [x] A-27 : `navigator.storage.persist()` demandé au démarrage
-- [ ] A-09 : code mort du tri `'default'` retiré
+- [x] A-09 : code mort du tri `'default'` retiré
 - [ ] A-25 : dépendances sans aucun usage retirées (`axios`, `zod`, `next-themes`, `date-fns` — revérifier avant)
 
 ## Étape 9 — Nouvelles fonctionnalités *(une par session, dans cet ordre)*
