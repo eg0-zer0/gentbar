@@ -75,48 +75,97 @@ const TicketView = ({
   const [showUnlockHint, setShowUnlockHint] = useState(false);
   const lastTapRef = useRef(0);
   const hintTimeoutRef = useRef(null);
+  const wakeLockSentinelRef = useRef(null);
+  const videoWakeLockRef = useRef(null);
 
-  // Maintien de l'écran allumé pendant la prise de commande au bar (Wake Lock API, E-9)
-  useEffect(() => {
-    let wakeLockSentinel = null;
-    let isMounted = true;
-
-    const requestWakeLock = async () => {
-      if ('wakeLock' in navigator && typeof navigator.wakeLock?.request === 'function') {
-        try {
-          wakeLockSentinel = await navigator.wakeLock.request('screen');
-        } catch {
-          // Ignorer si non supporté ou refusé par le système (ex. mode économie)
+  // Maintien actif de l'écran allumé au bar (Wake Lock API + fallback vidéo NoSleep)
+  const requestWakeLock = async () => {
+    // 1. Tenter l'API standard Screen Wake Lock
+    if ('wakeLock' in navigator && typeof navigator.wakeLock?.request === 'function') {
+      try {
+        if (!wakeLockSentinelRef.current || wakeLockSentinelRef.current.released) {
+          wakeLockSentinelRef.current = await navigator.wakeLock.request('screen');
         }
+      } catch {
+        // En cas de rejet par le navigateur (ex. mode économie d'énergie), le fallback vidéo prend le relais
       }
-    };
+    }
+    // 2. Fallback universel : boucle vidéo muette (maintient l'écran allumé sur iOS et Android)
+    if (videoWakeLockRef.current) {
+      try {
+        videoWakeLockRef.current.play().catch(() => {});
+      } catch {}
+    }
+  };
 
+  const releaseWakeLock = () => {
+    if (wakeLockSentinelRef.current) {
+      wakeLockSentinelRef.current.release().catch(() => {});
+      wakeLockSentinelRef.current = null;
+    }
+    if (videoWakeLockRef.current) {
+      try {
+        videoWakeLockRef.current.pause();
+      } catch {}
+    }
+  };
+
+  useEffect(() => {
     requestWakeLock();
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && isMounted) {
+      if (document.visibilityState === 'visible') {
         requestWakeLock();
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      isMounted = false;
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (wakeLockSentinel) {
-        wakeLockSentinel.release().catch(() => {});
-      }
+      releaseWakeLock();
       if (hintTimeoutRef.current) {
         clearTimeout(hintTimeoutRef.current);
       }
     };
   }, []);
 
+  // Blocage strict du défilement et du pull-to-refresh lorsque l'écran est verrouillé (E-9)
+  useEffect(() => {
+    if (!isLocked) return;
+
+    const preventTouch = (e) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+
+    // { passive: false } requis pour autoriser e.preventDefault() sur touchmove
+    window.addEventListener('touchmove', preventTouch, { passive: false });
+    window.addEventListener('wheel', preventTouch, { passive: false });
+
+    return () => {
+      window.removeEventListener('touchmove', preventTouch);
+      window.removeEventListener('wheel', preventTouch);
+    };
+  }, [isLocked]);
+
+  // Bascule du verrouillage (geste utilisateur qui renouvelle le wake lock)
+  const handleToggleLock = () => {
+    const nextLocked = !isLocked;
+    setIsLocked(nextLocked);
+    if (nextLocked) {
+      requestWakeLock();
+    }
+  };
+
   // Détection du double-tap n'importe où sur l'écran pour déverrouiller (E-9)
   const handleLockTap = (e) => {
     if (!isLocked) return;
     e.preventDefault();
     e.stopPropagation();
+
+    // Renouveler le wake lock sur tap utilisateur
+    requestWakeLock();
 
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 400; // ms
@@ -232,10 +281,16 @@ const TicketView = ({
 
   return (
     <div 
-      className="fixed inset-0 z-[100] flex flex-col bg-background text-foreground overflow-y-auto"
+      className={`fixed inset-0 z-[100] flex flex-col bg-background text-foreground ${
+        isLocked 
+          ? 'overflow-hidden overscroll-none touch-none select-none' 
+          : 'overflow-y-auto'
+      }`}
       style={{
         paddingTop: 'env(safe-area-inset-top, 0px)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        touchAction: isLocked ? 'none' : 'auto',
+        overscrollBehavior: isLocked ? 'none' : 'auto'
       }}
       role="dialog"
       aria-modal="true"
@@ -281,7 +336,7 @@ const TicketView = ({
                   ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 ring-1 ring-amber-500/50' 
                   : 'text-foreground hover:bg-accent'
               }`}
-              onClick={() => setIsLocked(prev => !prev)}
+              onClick={handleToggleLock}
               aria-label={isLocked ? "Déverrouiller l'écran (ou double-tapez n'importe où)" : "Verrouiller l'écran"}
               title={isLocked ? "Déverrouiller l'écran" : "Verrouiller l'écran contre les appuis accidentels"}
             >
@@ -443,7 +498,11 @@ const TicketView = ({
       {isLocked && (
         <div 
           onClick={handleLockTap}
-          className="fixed inset-0 z-35 bg-black/[0.06] dark:bg-black/25 cursor-pointer select-none transition-colors"
+          className="fixed inset-0 z-35 bg-black/[0.06] dark:bg-black/25 cursor-pointer select-none transition-colors touch-none overscroll-none"
+          style={{
+            touchAction: 'none',
+            overscrollBehavior: 'none'
+          }}
           role="button"
           tabIndex={0}
           aria-label="Écran verrouillé. Double-tapez n'importe où pour déverrouiller"
@@ -468,6 +527,17 @@ const TicketView = ({
           </div>
         </div>
       )}
+
+      {/* Vidéo invisible en boucle pour maintenir l'écran allumé sur tous les mobiles (fallback WakeLock, E-9) */}
+      <video
+        ref={videoWakeLockRef}
+        playsInline
+        muted
+        loop
+        className="hidden pointer-events-none"
+        aria-hidden="true"
+        src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDJpc29tYXZjMQAAADFtb292AAAAbG12aGQAAAAA7Fv18Oxb9fAAA+gAAAAPAAEAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+      />
     </div>
   );
 };
