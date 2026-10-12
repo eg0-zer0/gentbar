@@ -584,6 +584,13 @@ html.minimal .drink-card {
 /* Panier Flottant                                                     */
 
 /* ---------------------------------------------------------------------- */
+/* Prise en charge Safe Area Inset (iOS notch, barre d'accueil) */
+header {
+  padding-top: max(1rem, env(safe-area-inset-top, 0px));
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
+}
+
 .floating-cart {
   position: fixed;
   bottom: 0;
@@ -592,7 +599,10 @@ html.minimal .drink-card {
   background-color: rgb(var(--card-background-rgb));
   border-top: 1px solid rgb(var(--border-color-rgb));
   box-shadow: 0 -2px 8px rgb(0 0 0 / 10%);
-  padding: 0.75rem 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: max(0.75rem, calc(0.75rem + env(safe-area-inset-bottom, 0px)));
+  padding-left: max(1rem, env(safe-area-inset-left, 0px));
+  padding-right: max(1rem, env(safe-area-inset-right, 0px));
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -614,7 +624,7 @@ html.minimal .drink-card {
 }
 
 .content-container {
-  padding-bottom: 80px; /* environ hauteur du panier */
+  padding-bottom: max(80px, calc(80px + env(safe-area-inset-bottom, 0px))) !important;
 }
 
 .order-summary-list {
