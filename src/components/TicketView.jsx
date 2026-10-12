@@ -158,18 +158,6 @@ const TicketView = ({
 
   const isComplete = totalDrinksCount > 0 && servedDrinksCount === totalDrinksCount;
 
-  const formatDate = (dateString) => {
-    if (!dateString) return null;
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return null;
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   return (
     <div 
       className="fixed inset-0 z-[100] flex flex-col bg-background text-foreground overflow-y-auto"
@@ -181,20 +169,15 @@ const TicketView = ({
       aria-modal="true"
       aria-label="Ticket de commande"
     >
-      {/* En-tête compact */}
+      {/* En-tête compact sans date/heure superflue */}
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm px-3 sm:px-4 py-2">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
-          {/* Titre et date */}
+          {/* Titre */}
           <div className="flex items-center gap-1.5 min-w-0">
             <Receipt className="w-5 h-5 text-primary flex-shrink-0" />
-            <h1 className="text-base sm:text-lg font-bold text-foreground whitespace-nowrap">
+            <h1 className="text-base sm:text-lg font-bold text-foreground">
               Ticket
             </h1>
-            {order?.date && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                • {formatDate(order.date)}
-              </span>
-            )}
           </div>
 
           {/* Compteur et boutons d'action rapide */}
@@ -246,27 +229,14 @@ const TicketView = ({
             Aucun article dans cette commande.
           </div>
         ) : (
-          <div className="space-y-4">
-            {categoryGroups.map((group) => {
-              const groupDrinksCount = group.items.reduce((s, { item }) => s + (item.quantity || 1), 0);
-              return (
-                <div 
-                  key={group.id} 
-                  className="bg-card border-2 border-border/80 rounded-xl overflow-hidden shadow-sm"
-                >
-                  {/* Bandeau de démarcation bien marqué de la catégorie */}
-                  <div className="bg-muted px-3.5 py-2 border-b-2 border-border/80 border-l-4 border-l-primary flex items-center justify-between text-xs font-bold uppercase tracking-wider text-primary">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-base" role="img" aria-hidden="true">{group.icon}</span>
-                      <span className="truncate">{group.name}</span>
-                    </div>
-                    <span className="text-[11px] font-semibold text-muted-foreground whitespace-nowrap ml-2 px-2 py-0.5 rounded-full bg-background/80 border border-border/60">
-                      {groupDrinksCount} verre{groupDrinksCount > 1 ? 's' : ''}
-                    </span>
-                  </div>
-
-                  {/* Liste des verres de cette catégorie */}
-                  <ul className="divide-y divide-border/60 p-0 m-0 list-none">
+          <div className="space-y-2.5">
+            {categoryGroups.map((group) => (
+              <div 
+                key={group.id} 
+                className="bg-card border-2 border-border/80 rounded-xl overflow-hidden shadow-sm"
+              >
+                {/* Liste des verres de cette catégorie avec démarcation nette entre blocs */}
+                <ul className="divide-y divide-border/60 p-0 m-0 list-none">
                     {group.items.map(({ item, originalIndex }) => {
                       const key = item.drinkId || `${item.drinkName || item.name}-${originalIndex}`;
                       const isChecked = checkedIds.has(key);
@@ -323,8 +293,7 @@ const TicketView = ({
                     })}
                   </ul>
                 </div>
-              );
-            })}
+              ))}
           </div>
         )}
       </main>
