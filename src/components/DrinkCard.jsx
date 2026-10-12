@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Badge } from './ui/badge';
 import { useViewMode } from '../contexts/ViewModeContext';
 import { Edit, Trash2, TrendingUp } from 'lucide-react';
+import { formatPrice } from '../lib/format';
 
 let sharedAudioCtx = null;
 
@@ -122,7 +123,7 @@ if (viewMode === 'large') {
       {/* Ligne 2 : Nom boisson, centrée */}
       <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
       {/* Ligne 3 : Prix, centré */}
-      <div className="drink-price text-muted-text mb-2 text-center">{drink.price.toFixed(2)} €</div>
+      <div className="drink-price text-muted-text mb-2 text-center">{formatPrice(drink.price)}</div>
       {/* Bouton modifier, petit en bas à droite */}
       <div className="drink-actions" style={{ position: 'absolute', bottom: 0, right: 0 }}>
         <button

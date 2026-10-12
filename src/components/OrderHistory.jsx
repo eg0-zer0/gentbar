@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogDescription
 } from './ui/dialog';
+import { formatPrice } from '../lib/format';
 
 const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder }) => {
   const [orderToDelete, setOrderToDelete] = useState(null);
@@ -64,7 +65,7 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                       variant="secondary"
                       className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
                     >
-                      {order.total.toFixed(2)}€
+                      {formatPrice(order.total)}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -79,7 +80,7 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                           {item.quantity}x {item.drinkName}
                         </span>
                         <span className="text-muted-foreground">
-                          {(item.quantity * item.price).toFixed(2)}€
+                          {formatPrice(item.quantity * item.price)}
                         </span>
                       </div>
                     ))}
@@ -90,7 +91,7 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                       {order.items.reduce((sum, item) => sum + item.quantity, 0)} articles
                     </div>
                     <span className="font-semibold text-sm text-foreground">
-                      Total: {order.total.toFixed(2)}€
+                      Total : {formatPrice(order.total)}
                     </span>
                   </div>
                 </CardContent>

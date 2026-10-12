@@ -7,6 +7,7 @@ import { Trash2, Minus, Plus, Receipt } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
+import { formatPrice } from '../lib/format';
 
 const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemoveItem, onClearAll, onConfirm }) => {
   const { theme } = useTheme();
@@ -51,7 +52,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                       <li key={order.drinkId} className="flex justify-between items-center border-b border-border py-2">
                         <div>
                           <p className="font-medium text-foreground">{order.drinkName}</p>
-                          <p className="text-xs text-muted-text">{order.price.toFixed(2)} € / unité</p>
+                          <p className="text-xs text-muted-text">{formatPrice(order.price)} / unité</p>
                         </div>
                         <div className="flex items-center gap-1">
                           <Button
@@ -86,7 +87,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                 {/* FOOTER */}
                 <div className="border-t border-border pt-4 flex flex-col gap-3">
                   <div className="text-lg font-semibold text-foreground">
-                    Total : {totalAmount.toFixed(2)} €
+                    Total : {formatPrice(totalAmount)}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Button className="btn-primary w-full sm:flex-1 order-1 sm:order-2" onClick={onConfirm}>

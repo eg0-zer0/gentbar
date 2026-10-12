@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Share2, Mail, MessageSquare, Phone, Check, Copy } from 'lucide-react';
 
 import { toast } from 'sonner';
+import { formatPrice } from '../lib/format';
 
 const ShareButtons = ({ order, isCurrentOrder = false }) => {
   const [copied, setCopied] = useState(false);
@@ -36,19 +37,19 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
       ? new Date(orderData.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
       : new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-    let summary = `🍹 Commande de Boissons\n`;
+    let summary = `🍹 Commande GentBar\n`;
     summary += `📅 ${date} à ${time}\n\n`;
-    summary += `📝 Détail de la commande:\n`;
+    summary += `📝 Détail de la commande :\n`;
 
     items.forEach((item) => {
       const itemName = item.drinkName;
       const quantity = item.quantity;
       const price = item.price;
       const itemTotal = quantity * price;
-      summary += `• ${quantity}x ${itemName} - ${itemTotal.toFixed(2)}€\n`;
+      summary += `• ${quantity}x ${itemName} - ${formatPrice(itemTotal)}\n`;
     });
 
-    summary += `\n💰 Total: ${total.toFixed(2)}€\n\n`;
+    summary += `\n💰 Total : ${formatPrice(total)}\n\n`;
     summary += `📱 Généré via GentBar Order App`;
 
     return summary;

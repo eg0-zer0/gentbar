@@ -96,11 +96,11 @@ export default function LandingPage() {
       <div className="mb-6">
         <img
           src={`${process.env.PUBLIC_URL}/icons/icon-192x192.png`}
-          alt="Logo Drink Order"
+          alt="Logo GentBar"
           className="w-24 h-24 mx-auto mb-4"
         />
         <h1 className="text-4xl font-bold text-foreground">
-          🍹 Gent Bar Order App
+          🍹 GentBar Order App
         </h1>
       </div>
       <p className="text-muted-text text-lg max-w-md mb-10">
@@ -112,7 +112,7 @@ export default function LandingPage() {
         {!isInstalled ? (
           <Button
             onClick={handleInstallClick}
-            aria-label="Installer l'application Drink Order"
+            aria-label="Installer l'application GentBar"
             className="btn-outline"
           >
             Installer l&apos;App

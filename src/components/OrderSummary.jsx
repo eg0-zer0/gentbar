@@ -6,6 +6,7 @@ import { Trash, Minus, Plus, Receipt, ChevronLeft, ChevronRight } from 'lucide-r
 import ShareButtons from './ShareButtons';
 import useMediaQuery from '../hooks/useMediaQuery';
 import { toast } from 'sonner';
+import { formatPrice } from '../lib/format';
 
 const OrderSummary = ({
   orders,
@@ -127,7 +128,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                 <li className="flex justify-between items-center border-b border-border-color py-1" key={order.drinkId}>
                   <div>
                     <p className="font-medium text-sm mb-0.5 text-card-foreground">{order.drinkName}</p>
-                    <p className="text-muted-text text-xs mb-0 text-card-foreground">{order.price.toFixed(2)} € / unité</p>
+                    <p className="text-muted-text text-xs mb-0 text-card-foreground">{formatPrice(order.price)} / unité</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <Button
@@ -163,7 +164,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-foreground font-semibold text-lg min-w-[120px]">
-              Total : {totalAmount.toFixed(2)} €
+              Total : {formatPrice(totalAmount)}
             </div>
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
               <Button variant="destructive" className="btn-destructive" onClick={() => setShowClearConfirm(true)}>

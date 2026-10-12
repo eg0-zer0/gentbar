@@ -68,7 +68,7 @@
 - [x] A-12 : `size="xs"` inexistant remplacé (3 occurrences dans `OrderSummary`)
 
 ### 8 ter-c — Cohérence et nettoyage
-- [ ] A-26 : « Drink » / « Drink Order » remplacés par GentBar ; montants affichés au format français (`3,00 €`) via un utilitaire unique
+- [x] A-26 : « Drink » / « Drink Order » remplacés par GentBar ; montants affichés au format français (`3,00 €`) via un utilitaire unique
 - [ ] A-27 : `navigator.storage.persist()` demandé au démarrage
 - [ ] A-09 : code mort du tri `'default'` retiré
 - [ ] A-25 : dépendances sans aucun usage retirées (`axios`, `zod`, `next-themes`, `date-fns` — revérifier avant)

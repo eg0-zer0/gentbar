@@ -21,6 +21,7 @@ import { Plus } from 'lucide-react';
 import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
 import { load, save, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf } from '../lib/storage';
+import { formatPrice } from '../lib/format';
 import '../App.css';
 
 const normalizeSortBy = normalizeOneOf(['name', 'popularity', 'price-asc', 'price-desc', 'default']);
@@ -200,7 +201,7 @@ const DrinkOrderApp = () => {
     setOrderHistory(prev => [newOrder, ...prev]);
     setOrders([]);
     setShowConfirmModal(false);
-    toast("Commande confirmée", { description: `Total: ${total.toFixed(2)} €` });
+    toast("Commande confirmée", { description: `Total : ${formatPrice(total)}` });
   };
 
   // ---- GESTION CATEGORIES/DRINKS ----
