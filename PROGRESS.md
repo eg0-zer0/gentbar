@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-a (Logique et données) · **Dernier commit** : a820a9c
+**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-b (Accessibilité et ergonomie) · **Dernier commit** : 2fa174c
 
 ---
 
@@ -97,6 +97,7 @@
 * 10/10/2026 — Étape 6 terminée : création de `PWAContext` (écouteur unique `beforeinstallprompt`, détection standalone, feedback toast lors de l'installation), suppression de la bannière redondante `InstallBanner`, fiabilisation du bouton « Vérifier les mises à jour » sur la landing (appel réel à `registration.update()` avec notification Sonner), mise à jour du `manifest.json` (`purpose: any maskable`, `start_url: /app`), création du `favicon.ico` et du lien favicon SVG, ajout de la page 404 (`NotFoundPage`) sur la route `path="*"` et consolidation du `<Toaster />` unique à la racine de l'application. `yarn build` validé avec succès.
 * 11/10/2026 — Étape 7 terminée : suppression de `package-lock.json` pour unifier le gestionnaire de paquets sur `yarn.lock` (`package.json`), suppression définitive des 5 composants orphelins (`AddFriendModal.jsx`, `FriendSelector.jsx`, `AddDrinkModal.jsx`, `InstallPrompt.jsx`, `ThemeToggle.jsx`). `yarn build` validé avec succès (138.8 kB JS, CSS allégé de 265 B).
 * 11/10/2026 — Étape 8 bis terminée (branche `roadmap-fix`) : validation des contrastes WCAG ≥ 4,5:1 sur tous les thèmes (clair, sombre, gentbar) et rétablissement du blanc pur pour le texte gentbar, sécurisation de la migration de carte avec backup `categories__backup` et dédoublonnage/élagage du panier, son désactivé par défaut et suppression de la notification répétitive à chaque ajout de boisson au panier, exclusion git des fichiers service worker dans `public/` tout en garantissant leur génération propre dans `build/`. `yarn build` validé avec succès.
+* 12/10/2026 — Étape 8 ter-a terminée (branche `roadmap-8ter`) : popularité calculée par `drinkId` avec repli nom (A-17), formulaires nettoyés avec `trim`, prix vide à l'ajout et extraction du `toast` de la fonction de mise à jour d'état `setCategories` (A-23), partage natif `navigator.share` prioritaire avec repli copier et suppression de Messenger (A-14), AudioContext partagé protégé par `try/catch` avec exécution de `onAdd` prioritaire (A-20). `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
