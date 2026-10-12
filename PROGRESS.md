@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-c (Cohérence et nettoyage)
+**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-c (Cohérence et nettoyage) · **Dernier commit** : 536be11
 
 ---
 
