@@ -90,7 +90,12 @@ const DrinkCard = ({
 
   const iconButtonClass = 'btn-icon absolute bottom-2 right-2';
 
-  const handleKeyDown = (e) => { if (e.key === 'Enter') handleClick(); };
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
 // --- VUE LARGE ---
 if (viewMode === 'large') {
