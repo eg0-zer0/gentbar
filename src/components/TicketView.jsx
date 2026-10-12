@@ -75,41 +75,9 @@ const TicketView = ({
   const [showUnlockHint, setShowUnlockHint] = useState(false);
   const lastTapRef = useRef(0);
   const hintTimeoutRef = useRef(null);
-  const wakeLockSentinelRef = useRef(null);
-
-  // Maintien actif de l'écran allumé au bar si supporté par le navigateur (Wake Lock API)
-  const requestWakeLock = async () => {
-    if ('wakeLock' in navigator && typeof navigator.wakeLock?.request === 'function') {
-      try {
-        if (!wakeLockSentinelRef.current || wakeLockSentinelRef.current.released) {
-          wakeLockSentinelRef.current = await navigator.wakeLock.request('screen');
-        }
-      } catch {
-        // Non bloquant : dépend des permissions et de la batterie du terminal
-      }
-    }
-  };
-
-  const releaseWakeLock = () => {
-    if (wakeLockSentinelRef.current) {
-      wakeLockSentinelRef.current.release().catch(() => {});
-      wakeLockSentinelRef.current = null;
-    }
-  };
-
+  // Nettoyage du timeout d'indication au démontage
   useEffect(() => {
-    requestWakeLock();
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        requestWakeLock();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      releaseWakeLock();
       if (hintTimeoutRef.current) {
         clearTimeout(hintTimeoutRef.current);
       }
@@ -136,13 +104,9 @@ const TicketView = ({
     };
   }, [isLocked]);
 
-  // Bascule du verrouillage (geste utilisateur qui renouvelle le wake lock)
+  // Bascule du verrouillage de l'écran
   const handleToggleLock = () => {
-    const nextLocked = !isLocked;
-    setIsLocked(nextLocked);
-    if (nextLocked) {
-      requestWakeLock();
-    }
+    setIsLocked(prev => !prev);
   };
 
   // Détection du double-tap n'importe où sur l'écran pour déverrouiller (E-9)
@@ -150,9 +114,6 @@ const TicketView = ({
     if (!isLocked) return;
     e.preventDefault();
     e.stopPropagation();
-
-    // Renouveler le wake lock sur tap utilisateur
-    requestWakeLock();
 
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 400; // ms
