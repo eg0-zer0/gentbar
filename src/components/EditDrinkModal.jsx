@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
@@ -28,15 +29,25 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
   const handleSubmit = (e) => {
     e.preventDefault();
     const trimmedName = formData.name.trim();
-    const parsedPrice = parseFloat(formData.price);
-    if (trimmedName && !isNaN(parsedPrice) && parsedPrice >= 0) {
-      onSave({
-        ...drink,
-        name: trimmedName,
-        price: parsedPrice,
-      });
-      onClose();
+    if (!trimmedName) {
+      toast.error('Veuillez saisir un nom de boisson.');
+      return;
     }
+    if (formData.price === '' || formData.price === null || formData.price === undefined) {
+      toast.error('Veuillez saisir un prix.');
+      return;
+    }
+    const parsedPrice = parseFloat(formData.price);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      toast.error('Veuillez saisir un prix valide.');
+      return;
+    }
+    onSave({
+      ...drink,
+      name: trimmedName,
+      price: parsedPrice,
+    });
+    onClose();
   };
 
   const isEditMode = mode === 'edit';
@@ -62,6 +73,7 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               type="text"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
+              onBlur={() => setFormData(prev => ({ ...prev, name: prev.name.trim() }))}
               placeholder="Ex: Red Bull"
               required
               className="w-full bg-background text-foreground"
@@ -100,7 +112,7 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               <Button variant="outline" type="button" onClick={onClose}>
                 Annuler
               </Button>
-              <Button type="submit">
+              <Button type="submit" className="btn-primary">
                 {isEditMode ? 'Modifier' : 'Ajouter'}
               </Button>
             </div>

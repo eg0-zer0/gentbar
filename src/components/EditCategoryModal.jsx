@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -31,15 +32,21 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
     e.preventDefault();
     const trimmedName = formData.name.trim();
     const trimmedIcon = formData.icon.trim();
-    if (trimmedName && trimmedIcon) {
-      onSave({
-        ...category,
-        name: trimmedName,
-        icon: trimmedIcon,
-      });
-      onClose();
-      setShowDeleteConfirm(false); // Assurer que confirmation est fermée à la sauvegarde aussi
+    if (!trimmedName) {
+      toast.error('Veuillez saisir un nom de catégorie.');
+      return;
     }
+    if (!trimmedIcon) {
+      toast.error('Veuillez saisir une icône pour la catégorie.');
+      return;
+    }
+    onSave({
+      ...category,
+      name: trimmedName,
+      icon: trimmedIcon,
+    });
+    onClose();
+    setShowDeleteConfirm(false); // Assurer que confirmation est fermée à la sauvegarde aussi
   };
 
   const bgClass = "bg-card";
@@ -66,6 +73,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 type="text"
                 value={formData.name}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
+                onBlur={() => setFormData(prev => ({ ...prev, name: prev.name.trim() }))}
                 placeholder="Ex: Boissons chaudes"
                 required
                 className="w-full bg-background text-foreground"
@@ -79,6 +87,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 type="text"
                 value={formData.icon}
                 onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                onBlur={() => setFormData(prev => ({ ...prev, icon: prev.icon.trim() }))}
                 placeholder="Ex: ☕"
                 required
                 maxLength={2}
@@ -102,7 +111,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 <Button variant="outline" type="button" onClick={() => { onClose(); setShowDeleteConfirm(false); }}>
                   Annuler
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="btn-primary">
                   {category?.id ? 'Modifier' : 'Ajouter'}
                 </Button>
               </div>
