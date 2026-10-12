@@ -208,12 +208,19 @@ const DrinkOrderApp = () => {
 
   // ---- GESTION VUE TICKET (E-4) ----
 
-  const handleOpenTicket = (orderToView) => {
-    setTicketViewData({ order: orderToView });
+  const handleOpenTicket = (orderToView, returnTo = 'menu') => {
+    if (returnTo === 'history') {
+      setShowHistory(false);
+    }
+    setTicketViewData({ order: orderToView, returnTo });
   };
 
   const handleCloseTicket = () => {
+    const returnTo = ticketViewData?.returnTo;
     setTicketViewData(null);
+    if (returnTo === 'history') {
+      setShowHistory(true);
+    }
   };
 
   const handleReorder = (orderToReorder) => {
@@ -384,7 +391,7 @@ const DrinkOrderApp = () => {
           isOpen={showHistory}
           categories={categories}
           onRemoveOrder={handleRemoveOrder}
-          onOpenTicket={(order) => handleOpenTicket(order)}
+          onOpenTicket={(order) => handleOpenTicket(order, 'history')}
         />
 
         <ConfirmOrderModal
@@ -445,7 +452,7 @@ const DrinkOrderApp = () => {
                 onClick={() => {
                   const confirmedOrder = orderSuccessModal.order;
                   setOrderSuccessModal({ isOpen: false, order: null });
-                  handleOpenTicket(confirmedOrder);
+                  handleOpenTicket(confirmedOrder, 'menu');
                 }}
               >
                 <Receipt className="w-4 h-4" />

@@ -11,11 +11,10 @@ import ShareButtons from './ShareButtons';
 
 /**
  * Vue Ticket (E-4) : Prise de commande au bar en mode compact et lisible.
- * - Conçu pour tenir entièrement sur un seul écran de smartphone (montrer au barman dans le bruit).
- * - Noms de boissons complets sans coupure (...).
- * - Groupement ordonné par famille (ordre du menu) sans bandeaux de catégories superflus.
+ * - Groupement distinct par catégorie de boissons (démarcation claire pour le barman).
+ * - Noms de boissons complets sans coupure.
  * - Mémorisation des cases cochées par commande.
- * - Fermeture explicite ramenant à l'écran d'origine.
+ * - Fermeture explicite ramenant à l'écran d'origine (historique ou menu).
  */
 const TicketView = ({
   order,
@@ -109,14 +108,15 @@ const TicketView = ({
     }
   };
 
-  // Liste ordonnée selon les familles du menu (bières fût, bouteilles, vins, softs...)
-  // sans nommer expressément les catégories (évite les gros cadres et le gaspillage d'espace)
-  const orderedItems = useMemo(() => {
-    const list = [];
+  // Groupement par catégorie avec ordre du menu officiel (démarcation nette et compacte)
+  const categoryGroups = useMemo(() => {
+    const groups = [];
     const assignedIndices = new Set();
 
     categories.forEach(category => {
       const categoryDrinks = category.drinks || [];
+      const matchingItems = [];
+
       items.forEach((item, index) => {
         const itemName = item.drinkName || item.name;
         const matches = categoryDrinks.some(
@@ -124,20 +124,36 @@ const TicketView = ({
         );
 
         if (matches && !assignedIndices.has(index)) {
-          list.push({ item, originalIndex: index, categoryId: category.id });
+          matchingItems.push({ item, originalIndex: index });
           assignedIndices.add(index);
         }
       });
-    });
 
-    // Boissons personnalisées ou orphelines
-    items.forEach((item, index) => {
-      if (!assignedIndices.has(index)) {
-        list.push({ item, originalIndex: index, categoryId: 'other' });
+      if (matchingItems.length > 0) {
+        groups.push({
+          id: category.id,
+          name: category.name,
+          icon: category.icon,
+          items: matchingItems
+        });
       }
     });
 
-    return list;
+    // Boissons personnalisées ou orphelines
+    const orphanItems = items
+      .map((item, index) => ({ item, originalIndex: index }))
+      .filter(({ originalIndex }) => !assignedIndices.has(originalIndex));
+
+    if (orphanItems.length > 0) {
+      groups.push({
+        id: 'other',
+        name: 'Autres boissons',
+        icon: '🍹',
+        items: orphanItems
+      });
+    }
+
+    return groups;
   }, [categories, items]);
 
   const isComplete = totalDrinksCount > 0 && servedDrinksCount === totalDrinksCount;
@@ -165,17 +181,17 @@ const TicketView = ({
       aria-modal="true"
       aria-label="Ticket de commande"
     >
-      {/* En-tête compact sans coupure de titre */}
-      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm px-4 py-2.5">
+      {/* En-tête compact */}
+      <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border shadow-sm px-3 sm:px-4 py-2">
         <div className="max-w-xl mx-auto flex items-center justify-between gap-2">
           {/* Titre et date */}
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0">
             <Receipt className="w-5 h-5 text-primary flex-shrink-0" />
             <h1 className="text-base sm:text-lg font-bold text-foreground whitespace-nowrap">
               Ticket
             </h1>
             {order?.date && (
-              <span className="text-xs text-muted-foreground whitespace-nowrap truncate">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
                 • {formatDate(order.date)}
               </span>
             )}
@@ -213,8 +229,8 @@ const TicketView = ({
         </div>
       </header>
 
-      {/* Corps du ticket : liste épurée type ticket de caisse, condensée pour tenir sur un écran */}
-      <main className="flex-1 max-w-xl w-full mx-auto px-3 sm:px-4 py-3 space-y-1.5 pb-24">
+      {/* Corps du ticket : groupement net par catégorie de boissons */}
+      <main className="flex-1 max-w-xl w-full mx-auto px-3 sm:px-4 py-3 space-y-3 pb-24">
         {/* Emplacement note libre (E-7) */}
         {order?.note ? (
           <div className="p-2.5 mb-2 rounded-lg bg-accent/15 border border-accent/30 text-foreground text-xs sm:text-sm">
@@ -230,70 +246,86 @@ const TicketView = ({
             Aucun article dans cette commande.
           </div>
         ) : (
-          <ul className="divide-y divide-border/60 bg-card border border-border rounded-xl shadow-sm overflow-hidden p-0 m-0 list-none">
-            {orderedItems.map(({ item, originalIndex, categoryId }, idx) => {
-              const key = item.drinkId || `${item.drinkName || item.name}-${originalIndex}`;
-              const isChecked = checkedIds.has(key);
-              const itemName = item.drinkName || item.name;
-              
-              // Séparation discrète entre deux familles de boissons différentes
-              const prevItem = orderedItems[idx - 1];
-              const isNewGroup = prevItem && prevItem.categoryId !== categoryId;
-
+          <div className="space-y-4">
+            {categoryGroups.map((group) => {
+              const groupDrinksCount = group.items.reduce((s, { item }) => s + (item.quantity || 1), 0);
               return (
-                <React.Fragment key={key}>
-                  {isNewGroup && (
-                    <li className="h-[1px] bg-border/80 border-t border-border/80 my-0 list-none" aria-hidden="true" />
-                  )}
-                  <li
-                    onClick={() => toggleItem(key)}
-                    className={`flex items-center justify-between gap-2.5 px-3 py-2.5 cursor-pointer select-none transition-colors ${
-                      isChecked 
-                        ? 'bg-muted/40 text-muted-foreground' 
-                        : 'bg-card hover:bg-accent/10 text-foreground'
-                    }`}
-                    role="checkbox"
-                    aria-checked={isChecked}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleItem(key);
-                      }
-                    }}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      {/* Case à cocher carrée */}
-                      <div 
-                        className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${
-                          isChecked 
-                            ? 'bg-green-600 border-green-600 text-white' 
-                            : 'border-muted-foreground/60 bg-transparent'
-                        }`}
-                      >
-                        {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                      </div>
-
-                      {/* Quantité bien lisible */}
-                      <span className={`text-lg font-bold min-w-[2rem] flex-shrink-0 ${isChecked ? 'line-through text-muted-foreground' : 'text-primary'}`}>
-                        {item.quantity}×
-                      </span>
-
-                      {/* Nom de la boisson EN ENTIER (sans troncature ni '...') */}
-                      <span className={`text-base font-semibold leading-tight break-words ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                        {itemName}
-                      </span>
+                <div 
+                  key={group.id} 
+                  className="bg-card border-2 border-border/80 rounded-xl overflow-hidden shadow-sm"
+                >
+                  {/* Bandeau de démarcation bien marqué de la catégorie */}
+                  <div className="bg-muted px-3.5 py-2 border-b-2 border-border/80 border-l-4 border-l-primary flex items-center justify-between text-xs font-bold uppercase tracking-wider text-primary">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-base" role="img" aria-hidden="true">{group.icon}</span>
+                      <span className="truncate">{group.name}</span>
                     </div>
-
-                    {/* Prix unitaire ou total de la ligne */}
-                    <span className={`text-sm font-semibold flex-shrink-0 whitespace-nowrap ml-2 ${isChecked ? 'line-through opacity-70' : 'text-foreground'}`}>
-                      {formatPrice(item.price * item.quantity)}
+                    <span className="text-[11px] font-semibold text-muted-foreground whitespace-nowrap ml-2 px-2 py-0.5 rounded-full bg-background/80 border border-border/60">
+                      {groupDrinksCount} verre{groupDrinksCount > 1 ? 's' : ''}
                     </span>
-                  </li>
-                </React.Fragment>
+                  </div>
+
+                  {/* Liste des verres de cette catégorie */}
+                  <ul className="divide-y divide-border/60 p-0 m-0 list-none">
+                    {group.items.map(({ item, originalIndex }) => {
+                      const key = item.drinkId || `${item.drinkName || item.name}-${originalIndex}`;
+                      const isChecked = checkedIds.has(key);
+                      const itemName = item.drinkName || item.name;
+
+                      return (
+                        <li
+                          key={key}
+                          onClick={() => toggleItem(key)}
+                          className={`flex items-center justify-between gap-2.5 px-3 py-2 cursor-pointer select-none transition-colors ${
+                            isChecked 
+                              ? 'bg-muted/40 text-muted-foreground' 
+                              : 'bg-card hover:bg-accent/10 text-foreground'
+                          }`}
+                          role="checkbox"
+                          aria-checked={isChecked}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              toggleItem(key);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            {/* Case à cocher carrée */}
+                            <div 
+                              className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${
+                                isChecked 
+                                  ? 'bg-green-600 border-green-600 text-white' 
+                                  : 'border-muted-foreground/60 bg-transparent'
+                              }`}
+                            >
+                              {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            </div>
+
+                            {/* Quantité bien lisible */}
+                            <span className={`text-lg font-bold min-w-[2rem] flex-shrink-0 ${isChecked ? 'line-through text-muted-foreground' : 'text-primary'}`}>
+                              {item.quantity}×
+                            </span>
+
+                            {/* Nom de la boisson EN ENTIER (sans coupure) */}
+                            <span className={`text-base font-semibold leading-tight break-words ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                              {itemName}
+                            </span>
+                          </div>
+
+                          {/* Prix */}
+                          <span className={`text-sm font-semibold flex-shrink-0 whitespace-nowrap ml-2 ${isChecked ? 'line-through opacity-70' : 'text-foreground'}`}>
+                            {formatPrice(item.price * item.quantity)}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
       </main>
 
