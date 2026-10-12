@@ -3,12 +3,11 @@ import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 
-import { Share2, Mail, MessageSquare, Phone, Check } from 'lucide-react';
+import { Share2, Mail, MessageSquare, Phone, Check, Copy } from 'lucide-react';
 
 import { toast } from 'sonner';
 
 const ShareButtons = ({ order, isCurrentOrder = false }) => {
-
   const [copied, setCopied] = useState(false);
 
   const formatOrderSummary = (orderData) => {
@@ -69,6 +68,24 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
     }
   };
 
+  const handleNativeShare = async () => {
+    const textToShare = getShareText();
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: "🍹 Commande GentBar",
+          text: textToShare,
+        });
+        return;
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          return;
+        }
+      }
+    }
+    await handleCopyToClipboard();
+  };
+
   const handleShare = (platform) => {
     const textToShare = getShareText();
     const encoded = encodeURIComponent(textToShare);
@@ -76,18 +93,14 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
       case 'email': {
         const subject = encodeURIComponent(`🍹 Commande de Boissons du ${new Date().toLocaleDateString('fr-FR')}`);
         const body = encoded;
-        window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+        window.location.href = `mailto:?subject=${subject}&body=${body}`;
         break;
       }
       case 'whatsapp':
-        window.open(`https://wa.me/?text=${encoded}`, '_blank');
+        window.open(`https://wa.me/?text=${encoded}`, '_blank', 'noopener,noreferrer');
         break;
       case 'sms':
-        window.open(`sms:?body=${encoded}`, '_blank');
-        break;
-      case 'messenger':
-        handleCopyToClipboard();
-        toast("Texte copié", { description: "Collez le texte dans Messenger." });
+        window.location.href = `sms:?body=${encoded}`;
         break;
       case 'copy':
         handleCopyToClipboard();
@@ -97,32 +110,44 @@ const ShareButtons = ({ order, isCurrentOrder = false }) => {
     }
   };
 
+  const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+
+  if (hasNativeShare) {
+    return (
+      <Button
+        className="btn-outline flex items-center justify-center gap-2 text-foreground border-border w-full"
+        onClick={handleNativeShare}
+        aria-label="Partager la commande"
+      >
+        <Share2 className="w-5 h-5" />
+        Partager
+      </Button>
+    );
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-    className="btn-outline flex items-center gap-2 text-foreground border-border-color"
-    aria-label="Partager la commande"
-  >
-    <Share2 className="w-5 h-5" />
-    Partager
-  </Button>
+          className="btn-outline flex items-center justify-center gap-2 text-foreground border-border w-full"
+          aria-label="Partager la commande"
+        >
+          <Share2 className="w-5 h-5" />
+          Partager
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-52 bg-card border border-border-color shadow-md">
-        <DropdownMenuItem onClick={() => handleShare('email')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
-          Email <Mail className="w-4 h-4" />
+      <DropdownMenuContent align="end" className="w-52 bg-card text-foreground border border-border shadow-md">
+        <DropdownMenuItem onClick={() => handleShare('copy')} className="flex items-center justify-between text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer">
+          Copier le texte {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+        <DropdownMenuItem onClick={() => handleShare('whatsapp')} className="flex items-center justify-between text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer">
           WhatsApp <Phone className="w-4 h-4" />
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('sms')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
+        <DropdownMenuItem onClick={() => handleShare('email')} className="flex items-center justify-between text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer">
+          Email <Mail className="w-4 h-4" />
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleShare('sms')} className="flex items-center justify-between text-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer">
           SMS <MessageSquare className="w-4 h-4" />
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('messenger')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
-          Messenger <MessageSquare className="w-4 h-4" />
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleShare('copy')} className="flex items-center justify-between text-foreground hover:bg-primary hover:text-white cursor-pointer">
-          Copier le texte {copied && <Check className="w-4 h-4 text-green-500" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
