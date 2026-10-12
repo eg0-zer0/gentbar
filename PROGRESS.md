@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 9.1 E-4 Vue Ticket · **Dernier commit** : edda02f
+**Branche de travail** : `feature-ticket` · **Prochaine étape** : 9.2 E-9 Verrouillage de l'écran du ticket · **Dernier commit** : e7f4d89
 
 ---
 
@@ -74,7 +74,7 @@
 - [x] A-25 : dépendances sans aucun usage retirées (`axios`, `zod`, `next-themes`, `date-fns` — revérifier avant)
 
 ## Étape 9 — Nouvelles fonctionnalités *(une par session, dans cet ordre)*
-- [ ] 9.1 E-4 Vue Ticket
+- [x] 9.1 E-4 Vue Ticket
 - [ ] 9.2 E-9 Verrouillage de l'écran du ticket
 - [ ] 9.3 E-8 Recommander la même tournée
 - [ ] 9.4 E-7 Note libre sur une commande
@@ -100,6 +100,7 @@
 * 12/10/2026 — Étape 8 ter-a terminée (branche `roadmap-8ter`) : popularité calculée par `drinkId` avec repli nom (A-17), formulaires nettoyés avec `trim`, prix vide à l'ajout et extraction du `toast` de la fonction de mise à jour d'état `setCategories` (A-23), partage natif `navigator.share` prioritaire avec repli copier et suppression de Messenger (A-14), AudioContext partagé protégé par `try/catch` avec exécution de `onAdd` prioritaire (A-20). `yarn build` validé avec succès.
 * 12/10/2026 — Étape 8 ter-b terminée (branche `roadmap-8ter`) : touche Espace sur les cartes de boissons (A-10), DialogDescription ajoutée aux 4 fenêtres et nettoyage rôles ARIA (A-21), safe areas iOS `env(safe-area-inset-*)` et `viewport-fit=cover` (A-07), transitions ciblées et respect de `prefers-reduced-motion` (A-18), remplacement de `size="xs"` (A-12). `yarn build` validé avec succès.
 * 12/10/2026 — Étape 8 ter-c terminée (branche `roadmap-8ter`) : harmonisation nom « GentBar » et formatage des montants francophone via utilitaire unique `formatPrice` dans `src/lib/format.js` (A-26), demande de stockage persistant `navigator.storage.persist()` au démarrage (A-27), retrait du code mort du tri `'default'` et des imports inutilisés (A-09), désinstallation des dépendances inutilisées `axios`, `zod`, `next-themes`, `date-fns` (A-25). `yarn build` validé avec succès (139.72 kB JS, 11.91 kB CSS).
+* 12/10/2026 — Étape 9.1 terminée (branche `feature-ticket`) : création de la Vue Ticket plein écran (`TicketView.jsx`, E-4) pour la commande au comptoir (gros caractères, groupement par catégorie dans l'ordre de la carte, cases « pris » non persistées avec compteur dynamique « X sur Y servis », total fixe via `formatPrice`, emplacement note libre E-7, bouton de fermeture ramenant à l'écran d'origine, et bouton « Recommander »). Boutons d'accès ajoutés dans `OrderSummary`, `ConfirmOrderModal` et `OrderHistory`, et écran de succès post-confirmation. `yarn build` validé avec succès (142.22 kB JS, 12.34 kB CSS).
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
