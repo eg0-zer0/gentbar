@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-b (Accessibilité et ergonomie) · **Dernier commit** : 4056a7c
+**Branche de travail** : `roadmap-8ter` · **Prochaine étape** : 8 ter-c (Cohérence et nettoyage)
 
 ---
 
@@ -65,7 +65,7 @@
 - [x] A-21 : `Badge` sans `role="status"`/`aria-live` global ; `DialogDescription` ajoutée aux 4 fenêtres (modification boisson, modification catégorie, historique, confirmation)
 - [x] A-07 : `viewport-fit=cover` + marges `env(safe-area-inset-*)` pour la barre flottante du panier et le haut de page (iPhone)
 - [x] A-18 : règle `prefers-reduced-motion`, transition globale limitée aux éléments concernés
-- [ ] A-12 : `size="xs"` inexistant remplacé (3 occurrences dans `OrderSummary`)
+- [x] A-12 : `size="xs"` inexistant remplacé (3 occurrences dans `OrderSummary`)
 
 ### 8 ter-c — Cohérence et nettoyage
 - [ ] A-26 : « Drink » / « Drink Order » remplacés par GentBar ; montants affichés au format français (`3,00 €`) via un utilitaire unique

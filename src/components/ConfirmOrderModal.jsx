@@ -56,7 +56,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                         <div className="flex items-center gap-1">
                           <Button
                             className="btn-primary p-1"
-                            size="xs"
+                            size="sm"
                             onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1)}
                           >
                             <Minus className="w-3 h-3" />
@@ -64,14 +64,14 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                           <span className="w-5 text-center text-foreground">{order.quantity}</span>
                           <Button
                             className="btn-primary p-1"
-                            size="xs"
+                            size="sm"
                             onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1)}
                           >
                             <Plus className="w-3 h-3" />
                           </Button>
                           <Button
                             className="btn-destructive p-1"
-                            size="xs"
+                            size="sm"
                             onClick={() => setItemToDelete(order)}
                             aria-label={`Supprimer ${order.drinkName} du panier`}
                           >

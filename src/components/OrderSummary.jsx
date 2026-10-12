@@ -132,7 +132,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                   <div className="flex items-center gap-1">
                     <Button
                       className="btn-primary min-w-0 w-7 h-5 p-0 flex justify-center items-center"
-                      size="xs"
+                      size="sm"
                       onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1)}
                       aria-label={`Diminuer la quantité de ${order.drinkName}`}
                     >
@@ -141,7 +141,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                     <span className="w-5 text-center text-sm">{order.quantity}</span>
                     <Button
                       className="btn-primary min-w-0 w-7 h-5 p-0 flex justify-center items-center"
-                      size="xs"
+                      size="sm"
                       onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1)}
                       aria-label={`Augmenter la quantité de ${order.drinkName}`}
                     >
@@ -149,7 +149,7 @@ const [showClearConfirm, setShowClearConfirm] = useState(false);
                     </Button>
                     <Button
                       className="btn-destructive min-w-0 w-7 h-5 p-0 flex justify-center items-center"
-                      size="xs"
+                      size="sm"
                       onClick={() => setItemToDelete(order)}
                       aria-label={`Supprimer ${order.drinkName} du panier`}
                     >
