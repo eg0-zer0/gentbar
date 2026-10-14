@@ -19,6 +19,7 @@ const normalizeName = (str) =>
  * 2. Nom et prix repris du menu ACTUEL.
  * 3. Boisson introuvable (par drinkId puis nom normalisé) ignorée et signalée : « X n'est plus au menu, non ajoutée ».
  * 4. Plus aucun crash / appel à generateDrinkId() sans argument.
+ * 5. Notifications séquencées sans superposition pour que l'avertissement et la confirmation soient lisibles successivement.
  *
  * @param {Object} options
  * @param {Object} options.order - La commande source (depuis l'historique, ticket ou modal succès).
@@ -79,12 +80,11 @@ export function reorderIntoCart({
     }
   });
 
-  // Avertissement pour les boissons supprimées du menu
-  missingDrinks.forEach(name => {
-    toast.warning(`« ${name} » n'est plus au menu, non ajoutée`);
-  });
-
+  // Si aucune boisson n'est disponible dans le menu actuel
   if (!addedItems.length) {
+    missingDrinks.forEach(name => {
+      toast.warning(`« ${name} » n'est plus au menu, non ajoutée`);
+    });
     toast.error("Aucune boisson n'a pu être ajoutée", {
       description: "Les boissons de cette commande ne figurent plus au menu actuel."
     });
@@ -118,10 +118,28 @@ export function reorderIntoCart({
     onOrdersUpdated(newOrders);
   }
 
-  const totalDrinksAdded = addedItems.reduce((sum, i) => sum + i.quantity, 0);
-  toast.success("Commande ajoutée au panier", {
-    description: `${totalDrinksAdded} boisson${totalDrinksAdded > 1 ? 's' : ''} (${addedItems.length} référence${addedItems.length > 1 ? 's' : ''}) ajoutée${totalDrinksAdded > 1 ? 's' : ''} au panier.`
-  });
+  // Notifications séquentielles pour éviter que les toasts ne se superposent et ne disparaissent en même temps
+  const showSuccessToast = () => {
+    const totalDrinksAdded = addedItems.reduce((sum, i) => sum + i.quantity, 0);
+    toast.success("Commande ajoutée au panier", {
+      description: `${totalDrinksAdded} boisson${totalDrinksAdded > 1 ? 's' : ''} (${addedItems.length} référence${addedItems.length > 1 ? 's' : ''}) ajoutée${totalDrinksAdded > 1 ? 's' : ''} au panier.`,
+      duration: 2500
+    });
+  };
+
+  if (missingDrinks.length > 0) {
+    // 1. Affichage prioritaire de la première notification d'avertissement
+    missingDrinks.forEach((name, idx) => {
+      setTimeout(() => {
+        toast.warning(`« ${name} » n'est plus au menu, non ajoutée`, { duration: 2500 });
+      }, idx * 2200);
+    });
+
+    // 2. Déclenchement de la confirmation après disparition de l'avertissement
+    setTimeout(showSuccessToast, missingDrinks.length * 2200);
+  } else {
+    showSuccessToast();
+  }
 
   return newOrders;
 }
