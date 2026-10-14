@@ -17,12 +17,13 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 // Icons etc.
-import { Plus, CheckCircle2, Receipt } from 'lucide-react';
+import { Plus, CheckCircle2, Receipt, RotateCcw } from 'lucide-react';
 
 // Data & utils
 import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
 import { load, save, removeTicketCheckmarks, purgeOrphanTicketCheckmarks, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf, requestPersistentStorage } from '../lib/storage';
+import { reorderIntoCart } from '../lib/reorder';
 import { formatPrice } from '../lib/format';
 import '../App.css';
 
@@ -227,27 +228,16 @@ const DrinkOrderApp = () => {
   };
 
   const handleReorder = (orderToReorder) => {
-    const itemsToReorder = orderToReorder?.items || [];
-    if (itemsToReorder.length === 0) return;
-
-    setOrders(itemsToReorder.map(item => {
-      const foundDrink = categories.flatMap(c => c.drinks).find(
-        d => d.id === item.drinkId || d.name.toLowerCase() === (item.drinkName || item.name || '').toLowerCase()
-      );
-      return {
-        drinkId: item.drinkId || foundDrink?.id || generateDrinkId(),
-        drinkName: item.drinkName || item.name || foundDrink?.name || 'Boisson',
-        price: typeof item.price === 'number' ? item.price : (foundDrink?.price || 0),
-        quantity: item.quantity || 1
-      };
-    }));
-
+    if (!orderToReorder) return;
+    reorderIntoCart({
+      order: orderToReorder,
+      currentOrders: orders,
+      categories,
+      onOrdersUpdated: setOrders
+    });
     setTicketViewData(null);
     setShowHistory(false);
     setOrderSuccessModal({ isOpen: false, order: null });
-    toast.success("Commande chargée dans le panier", {
-      description: `${itemsToReorder.length} article${itemsToReorder.length > 1 ? 's' : ''} ajouté${itemsToReorder.length > 1 ? 's' : ''} au panier.`
-    });
   };
 
   // ---- GESTION CATEGORIES/DRINKS ----
@@ -396,6 +386,7 @@ const DrinkOrderApp = () => {
           categories={categories}
           onRemoveOrder={handleRemoveOrder}
           onOpenTicket={(order) => handleOpenTicket(order, 'history')}
+          onReorder={handleReorder}
         />
 
         <ConfirmOrderModal
@@ -464,7 +455,17 @@ const DrinkOrderApp = () => {
               </Button>
               <Button
                 variant="outline"
-                className="btn-outline w-full py-2"
+                className="btn-outline w-full flex items-center justify-center gap-2 py-2"
+                onClick={() => {
+                  handleReorder(orderSuccessModal.order);
+                }}
+              >
+                <RotateCcw className="w-4 h-4" />
+                Recommander cette tournée
+              </Button>
+              <Button
+                variant="ghost"
+                className="w-full py-2 text-muted-foreground hover:text-foreground"
                 onClick={() => setOrderSuccessModal({ isOpen: false, order: null })}
               >
                 Retour au menu

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Trash, Trash2, History, Calendar, Receipt } from 'lucide-react';
+import { Trash, Trash2, History, Calendar, Receipt, RotateCcw } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import {
   Dialog,
@@ -16,7 +16,7 @@ import {
 } from './ui/dialog';
 import { formatPrice } from '../lib/format';
 
-const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder, onOpenTicket }) => {
+const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder, onOpenTicket, onReorder }) => {
   const [orderToDelete, setOrderToDelete] = useState(null);
 
   const formatDate = (dateString) => {
@@ -97,6 +97,18 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                   </div>
                 </CardContent>
                 <div className="flex justify-end items-center gap-2 pt-2 border-t border-border">
+                  {onReorder && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5"
+                      onClick={() => onReorder(order)}
+                      aria-label="Recommander cette commande"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Recommander
+                    </Button>
+                  )}
                   {onOpenTicket && (
                     <Button
                       variant="outline"
