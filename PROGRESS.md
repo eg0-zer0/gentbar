@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feature-note` · **Prochaine étape** : 9.5 E-3 Recherche dans le menu + E-10 Alerte de doublon · **Dernier commit** : 3741ada
+**Branche de travail** : `main` · **Prochaine étape** : 9.5 E-3 Recherche dans le menu + E-10 Alerte de doublon · **Dernier commit** : 86a685d
 
 ---
 
