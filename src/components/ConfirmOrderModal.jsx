@@ -138,7 +138,6 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                   onClearAll();
                   setShowClearConfirm(false);
                   onClose();
-                  toast('Panier vidé', { description: 'Toutes les boissons ont été retirées.' });
                 }}
                 title="Vider le panier"
                 description="Êtes-vous sûr de vouloir vider le panier ? Cette action est irréversible."

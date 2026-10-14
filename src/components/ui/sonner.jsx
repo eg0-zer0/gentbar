@@ -11,11 +11,11 @@ const Toaster = ({
     <Sonner
       theme={sonnerTheme}
       position="top-center"
-      duration={2200}
-      visibleToasts={2}
+      duration={2000}
+      visibleToasts={1}
       className="toaster group"
       toastOptions={{
-        duration: 2200,
+        duration: 2000,
         classNames: {
           toast:
             "group toast group-[.toaster]:bg-card group-[.toaster]:text-card-foreground group-[.toaster]:border-border-color group-[.toaster]:shadow-md group-[.toaster]:py-2 group-[.toaster]:px-3.5 group-[.toaster]:text-xs group-[.toaster]:rounded-lg",

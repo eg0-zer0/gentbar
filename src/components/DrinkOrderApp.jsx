@@ -181,7 +181,7 @@ const DrinkOrderApp = () => {
 
   const handleClearAll = () => {
     setOrders([]);
-    toast("Commande vidée", { description: "Toutes les commandes ont été supprimées" });
+    toast("Panier vidé", { description: "Toutes les boissons ont été retirées du panier." });
   };
 
   const handleConfirmOrderClick = () => {

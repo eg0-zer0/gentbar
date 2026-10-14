@@ -123,7 +123,7 @@ export function reorderIntoCart({
     const totalDrinksAdded = addedItems.reduce((sum, i) => sum + i.quantity, 0);
     toast.success("Commande ajoutée au panier", {
       description: `${totalDrinksAdded} boisson${totalDrinksAdded > 1 ? 's' : ''} (${addedItems.length} référence${addedItems.length > 1 ? 's' : ''}) ajoutée${totalDrinksAdded > 1 ? 's' : ''} au panier.`,
-      duration: 2500
+      duration: 2000
     });
   };
 
@@ -131,12 +131,12 @@ export function reorderIntoCart({
     // 1. Affichage prioritaire de la première notification d'avertissement
     missingDrinks.forEach((name, idx) => {
       setTimeout(() => {
-        toast.warning(`« ${name} » n'est plus au menu, non ajoutée`, { duration: 2500 });
-      }, idx * 2200);
+        toast.warning(`« ${name} » n'est plus au menu, non ajoutée`, { duration: 2000 });
+      }, idx * 2000);
     });
 
     // 2. Déclenchement de la confirmation après disparition de l'avertissement
-    setTimeout(showSuccessToast, missingDrinks.length * 2200);
+    setTimeout(showSuccessToast, missingDrinks.length * 2000);
   } else {
     showSuccessToast();
   }

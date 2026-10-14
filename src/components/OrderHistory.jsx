@@ -96,41 +96,41 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                     </span>
                   </div>
                 </CardContent>
-                <div className="flex justify-end items-center gap-2 pt-2 border-t border-border">
+                <div className="flex flex-wrap justify-end items-center gap-2 pt-2 border-t border-border">
                   {onReorder && (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5"
+                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-3 flex-shrink-0 whitespace-nowrap"
                       onClick={() => onReorder(order)}
                       aria-label="Recommander cette commande"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      Recommander
+                      <RotateCcw className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Recommander</span>
                     </Button>
                   )}
                   {onOpenTicket && (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5"
+                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5 flex-shrink-0 whitespace-nowrap"
                       onClick={() => onOpenTicket(order)}
                       aria-label="Voir le ticket de cette commande"
                     >
-                      <Receipt className="w-3.5 h-3.5" />
-                      Ticket
+                      <Receipt className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Ticket</span>
                     </Button>
                   )}
                   <ShareButtons 
                     order={order} 
                     isCurrentOrder={false} 
-                    className="w-auto h-8 px-2.5 text-xs"
+                    className="w-auto h-8 px-2.5 text-xs flex-shrink-0"
                     size="sm"
                   />
                   <button
                     aria-label="Supprimer cette commande"
                     onClick={() => setOrderToDelete(order)}
-                    className="btn-destructive p-2 rounded"
+                    className="btn-destructive p-2 rounded flex-shrink-0"
                   >
                     <Trash2 size={18} />
                   </button>
