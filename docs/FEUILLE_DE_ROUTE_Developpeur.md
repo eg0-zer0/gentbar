@@ -146,12 +146,12 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 | **9.2** | **E-9** Verrouillage | `TicketView.jsx` |
 | **9.3** | **E-8** Recommander | `OrderHistory.jsx`, `ConfirmOrderModal.jsx`, `DrinkOrderApp.jsx` |
 | **9.4** | **E-7** Note libre | `ConfirmOrderModal.jsx`, `DrinkOrderApp.jsx`, `OrderHistory.jsx`, `ShareButtons.jsx`, `TicketView.jsx` |
-| **9.5** | **E-3** Recherche + **E-10** Doublon | nouveau `MenuSearch.jsx`, nouveau `src/lib/search.js`, `DrinkOrderApp.jsx`, `CategorySection.jsx`, `EditDrinkModal.jsx` |
-| **9.6** | **E-5** Tri par popularité par défaut | `SortControls.jsx`, `DrinkOrderApp.jsx` |
-| **9.7** | **E-1** Récap. et partage équitable | nouveau `SplitBillModal.jsx`, nouveau `src/lib/split.js` (arrondi, réutilisé par E-2), `OrderHistory.jsx`, `DrinkOrderApp.jsx` |
-| **9.8** | **E-2** Cagnotte | nouveau `CagnotteContext.jsx` et `CagnotteModal.jsx`, `Header.jsx`, `ConfirmOrderModal.jsx`, `App.css` |
-| **9.9** | **E-11** Ajout en lot | nouveau `BulkAddDrinksModal.jsx`, nouveau `src/lib/parseDrinkList.js`, `CategorySection.jsx` |
-| **9.10** | **A-29** Multi-bars | sous-étapes : (a) modèle de données et sélecteur, (b) fusion A-04 en remplacement de MENU_VERSION, (c) partage par lien/QR, (d) commande sur deux bars |
+| **9.5** | **E-5** Tri par popularité par défaut | `SortControls.jsx`, `DrinkOrderApp.jsx` |
+| **9.6** | **E-3** Recherche + **E-10** Doublon | nouveau `MenuSearch.jsx`, nouveau `src/lib/search.js`, `DrinkOrderApp.jsx`, `CategorySection.jsx`, `EditDrinkModal.jsx` |
+| **9.7** | **A-29** Multi-bars | sous-étapes : (a) modèle de données et sélecteur, (b) fusion A-04 en remplacement de MENU_VERSION, (c) partage par lien/QR, (d) commande sur deux bars |
+| **9.8** | **E-11** Ajout en lot | nouveau `BulkAddDrinksModal.jsx`, nouveau `src/lib/parseDrinkList.js`, `CategorySection.jsx` |
+| **9.9** | **E-2** Cagnotte | nouveau `CagnotteContext.jsx` et `CagnotteModal.jsx`, `Header.jsx`, `ConfirmOrderModal.jsx`, `App.css` |
+| **9.10** | **E-1** Récap. et partage équitable | nouveau `SplitBillModal.jsx`, nouveau `src/lib/split.js` (arrondi, réutilisé par E-2), `OrderHistory.jsx`, `DrinkOrderApp.jsx` |
 
 ---
 

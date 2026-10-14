@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `main` · **Prochaine étape** : 9.5 E-3 Recherche dans le menu + E-10 Alerte de doublon · **Dernier commit** : 86a685d
+**Branche de travail** : `main` · **Prochaine étape** : 9.5 E-5 Tri par popularité par défaut · **Dernier commit** : 0f6a4fa
 
 ---
 
@@ -78,12 +78,12 @@
 - [x] 9.2 E-9 Verrouillage de l'écran du ticket
 - [x] 9.3 E-8 Recommander la même tournée
 - [x] 9.4 E-7 Note libre sur une commande
-- [ ] 9.5 E-3 Recherche dans le menu + E-10 Alerte de doublon
-- [ ] 9.6 E-5 Tri par popularité par défaut
-- [ ] 9.7 E-1 Récapitulatif de soirée et partage équitable
-- [ ] 9.8 E-2 Cagnotte
-- [ ] 9.9 E-11 Ajout en lot (texte collé)
-- [ ] 9.10 A-29 Multi-bars (en sous-étapes, après la fusion A-04)
+- [ ] 9.5 E-5 Tri par popularité par défaut
+- [ ] 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon
+- [ ] 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04)
+- [ ] 9.8 E-11 Ajout en lot (texte collé)
+- [ ] 9.9 E-2 Cagnotte
+- [ ] 9.10 E-1 Récapitulatif de soirée et partage équitable
 
 ---
 
