@@ -190,8 +190,9 @@ const DrinkOrderApp = () => {
 
   // ---- FINALISER LA COMMANDE ----
 
-  const finalizeOrder = () => {
+  const finalizeOrder = (note = '') => {
     const total = orders.reduce((sum, o) => sum + o.price * o.quantity, 0);
+    const trimmedNote = typeof note === 'string' ? note.trim() : '';
     const newOrder = {
       id: `order-${Date.now()}`,
       date: new Date().toISOString(),
@@ -201,7 +202,8 @@ const DrinkOrderApp = () => {
         quantity: o.quantity,
         price: o.price
       })),
-      total
+      total,
+      note: trimmedNote
     };
     setOrderHistory(prev => [newOrder, ...prev]);
     setOrders([]);

@@ -14,6 +14,17 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
   const [isExpanded, setIsExpanded] = useState(true);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [note, setNote] = useState('');
+
+  const handleClose = () => {
+    setNote('');
+    onClose();
+  };
+
+  const handleConfirm = () => {
+    onConfirm(note.trim());
+    setNote('');
+  };
 
   const totalAmount = orders.reduce((sum, o) => sum + o.price * o.quantity, 0);
   const totalItems = orders.reduce((sum, o) => sum + o.quantity, 0);
@@ -21,7 +32,7 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
   if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <DialogContent className="w-[92vw] max-w-md mx-auto rounded-lg p-0 overflow-hidden bg-card text-foreground border border-border shadow-xl">
         <DialogHeader className="p-4 border-b border-border bg-card">
           <DialogTitle className="flex items-center gap-2 text-foreground font-semibold">
@@ -89,8 +100,26 @@ const ConfirmOrderModal = ({ isOpen, onClose, orders, onUpdateQuantity, onRemove
                   <div className="text-lg font-semibold text-foreground">
                     Total : {formatPrice(totalAmount)}
                   </div>
+
+                  {/* Champ Note libre (E-7) */}
+                  <div className="flex flex-col gap-1.5 text-left">
+                    <label htmlFor="order-note-input" className="text-xs font-medium text-foreground flex items-center justify-between">
+                      <span>Note pour le barman <span className="text-muted-foreground font-normal">(optionnelle)</span></span>
+                      <span className="text-[10px] text-muted-foreground">{note.length}/100</span>
+                    </label>
+                    <input
+                      id="order-note-input"
+                      type="text"
+                      maxLength={100}
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      placeholder="Ex. : sans glaçons pour le mojito, bien frais..."
+                      className="w-full px-3 py-2 text-xs sm:text-sm rounded-md bg-background border border-border text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <Button className="btn-primary w-full sm:flex-1 order-1 sm:order-2" onClick={onConfirm}>
+                    <Button className="btn-primary w-full sm:flex-1 order-1 sm:order-2" onClick={handleConfirm}>
                       Confirmer la commande
                     </Button>
                     <Button

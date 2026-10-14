@@ -162,7 +162,7 @@ const isStr = (s) => typeof s === 'string';
 const isDrink = (d) => d && isStr(d.id) && isStr(d.name) && isNum(d.price);
 const isOrderLine = (o) => o && isStr(o.drinkId) && isStr(o.drinkName) && isNum(o.price) && isNum(o.quantity) && o.quantity > 0;
 const isHistoryItem = (i) => i && isStr(i.drinkName) && isNum(i.quantity) && isNum(i.price) && (i.drinkId === undefined || isStr(i.drinkId));
-const isHistoryOrder = (o) => o && isStr(o.id) && isNum(o.total) && Array.isArray(o.items) && o.items.every(isHistoryItem);
+const isHistoryOrder = (o) => o && isStr(o.id) && isNum(o.total) && Array.isArray(o.items) && o.items.every(isHistoryItem) && (o.note === undefined || isStr(o.note));
 
 const filterList = (v, isValid) => {
   if (!Array.isArray(v)) return null;

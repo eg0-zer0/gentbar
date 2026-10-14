@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Trash, Trash2, History, Calendar, Receipt, RotateCcw } from 'lucide-react';
+import { Trash, Trash2, History, Calendar, Receipt, RotateCcw, StickyNote } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import {
   Dialog,
@@ -86,6 +86,18 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
                       </div>
                     ))}
                   </div>
+
+                  {/* Note de la commande (E-7) */}
+                  {order.note && (
+                    <div className="mt-2.5 p-2 rounded-md bg-amber-500/10 border border-amber-500/25 text-xs text-foreground flex items-start gap-1.5">
+                      <StickyNote className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <span className="font-semibold text-amber-700 dark:text-amber-300">Note : </span>
+                        <span className="italic break-words">{order.note}</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Receipt className="w-3 h-3" />

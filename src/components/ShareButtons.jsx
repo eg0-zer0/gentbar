@@ -49,6 +49,11 @@ const ShareButtons = ({ order, isCurrentOrder = false, className = '', size, dis
       summary += `• ${quantity}x ${itemName} - ${formatPrice(itemTotal)}\n`;
     });
 
+    const note = !isArray && typeof orderData?.note === 'string' ? orderData.note.trim() : '';
+    if (note) {
+      summary += `\n📌 Note : ${note}\n`;
+    }
+
     summary += `\n💰 Total : ${formatPrice(total)}\n\n`;
     summary += `📱 Généré via GentBar Order App`;
 

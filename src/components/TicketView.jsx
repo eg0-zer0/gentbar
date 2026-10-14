@@ -6,7 +6,8 @@ import {
   RotateCcw, 
   Receipt,
   Lock,
-  Unlock
+  Unlock,
+  StickyNote
 } from 'lucide-react';
 import { formatPrice } from '../lib/format';
 import { load, save, remove } from '../lib/storage';
@@ -304,13 +305,14 @@ const TicketView = ({
       <main className="flex-1 max-w-xl w-full mx-auto px-3 sm:px-4 py-3 space-y-3 pb-24">
         {/* Emplacement note libre (E-7) */}
         {order?.note ? (
-          <div className="p-2.5 mb-2 rounded-lg bg-accent/15 border border-accent/30 text-foreground text-xs sm:text-sm">
-            <span className="font-semibold text-accent">Note : </span>
-            <span>{order.note}</span>
+          <div className="p-2.5 mb-2 rounded-lg bg-amber-500/15 border border-amber-500/30 text-foreground text-xs sm:text-sm flex items-start gap-2 shadow-sm">
+            <StickyNote className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <span className="font-semibold text-amber-700 dark:text-amber-300">Note barman : </span>
+              <span className="italic break-words">{order.note}</span>
+            </div>
           </div>
-        ) : (
-          <div id="ticket-note-container" className="hidden" aria-hidden="true" />
-        )}
+        ) : null}
 
         {items.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
