@@ -12,8 +12,8 @@ import {
 const SortControls = ({ sortBy, setSortBy }) => {
 
   const sortOptions = [
-    { value: 'name', label: 'Alphabétique', icon: ArrowDownAZ },
     { value: 'popularity', label: 'Popularité', icon: TrendingUp },
+    { value: 'name', label: 'Alphabétique', icon: ArrowDownAZ },
     { value: 'price-asc', label: 'Prix ↗', icon: DollarSign },
     { value: 'price-desc', label: 'Prix ↘', icon: DollarSign },
   ];
@@ -33,10 +33,10 @@ const SortControls = ({ sortBy, setSortBy }) => {
             id="sort-menu"
             className="btn-outline"
             aria-haspopup="listbox"
-            aria-label={`Trier les éléments, option actuelle: ${currentSort?.label || 'Alphabétique'}`}
+            aria-label={`Trier les éléments, option actuelle: ${currentSort?.label || 'Popularité'}`}
           >
             <ArrowUpDown className="mr-2 w-4 h-4" />
-            {currentSort?.label || 'name'}
+            {currentSort?.label || 'Popularité'}
           </Button>
         </DropdownMenuTrigger>
 

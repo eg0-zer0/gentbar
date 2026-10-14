@@ -71,7 +71,7 @@ const DrinkOrderApp = () => {
   const [orders, setOrders] = useState(() => load('orders', [], normalizeOrders));
   const [orderNote, setOrderNote] = useState(() => load('orderNote', ''));
   const [orderHistory, setOrderHistory] = useState(() => load('orderHistory', mockOrderHistory, normalizeOrderHistory));
-  const [sortBy, setSortBy] = useState(() => load('sortBy', 'name', normalizeSortBy));
+  const [sortBy, setSortBy] = useState(() => load('sortBy', 'popularity', normalizeSortBy));
   const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', false, normalizeBoolean));
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -135,7 +135,11 @@ const DrinkOrderApp = () => {
     const sorted = [...drinks];
     switch (sortBy) {
       case 'popularity':
-        return sorted.sort((a, b) => (drinkPopularity[b.id] || 0) - (drinkPopularity[a.id] || 0));
+        return sorted.sort((a, b) => {
+          const diff = (drinkPopularity[b.id] || 0) - (drinkPopularity[a.id] || 0);
+          if (diff !== 0) return diff;
+          return a.name.localeCompare(b.name);
+        });
       case 'price-asc':
         return sorted.sort((a, b) => a.price - b.price);
       case 'price-desc':
