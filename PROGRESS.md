@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `main` · **Prochaine étape** : 9.5 E-5 Tri par popularité par défaut · **Dernier commit** : 0f6a4fa
+**Branche de travail** : `feature-tri` · **Prochaine étape** : 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon · **Dernier commit** : e6cfd66
 
 ---
 
@@ -78,7 +78,7 @@
 - [x] 9.2 E-9 Verrouillage de l'écran du ticket
 - [x] 9.3 E-8 Recommander la même tournée
 - [x] 9.4 E-7 Note libre sur une commande
-- [ ] 9.5 E-5 Tri par popularité par défaut
+- [x] 9.5 E-5 Tri par popularité par défaut
 - [ ] 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon
 - [ ] 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04)
 - [ ] 9.8 E-11 Ajout en lot (texte collé)
@@ -104,6 +104,7 @@
 * 12/10/2026 — Étape 9.2 terminée (branche `feature-ticket`) : verrouillage de l'écran pendant la prise de commande (`TicketView.jsx`, E-9). Bouton cadenas dans l'en-tête (icône `Lock` / `Unlock`), neutralisation de toutes les actions et boutons lorsque verrouillé (cases à cocher, fermeture, commande, et bouton Partager via `ShareButtons.jsx`), calque protecteur transparent prévenant les appuis accidentels en marchant ou en poche, déverrouillage fluide par double-tap n'importe où avec badge visuel indicatif (« Double-tapez pour déverrouiller »), blocage strict du défilement et du pull-to-refresh du navigateur (`touch-action: none`, `overscroll-behavior: none`, `touchmove preventDefault`), et état non persisté (ouvert déverrouillé). `yarn build` validé avec succès (142.89 kB JS, 12.61 kB CSS).
 * 14/10/2026 — Étape 9.3 terminée (branche `feature-reorder`) : implémentation de la fonction partagée `reorderIntoCart` (`src/lib/reorder.js`, E-8). Résolution sécurisée des boissons par `drinkId` puis par nom normalisé (accents/casse), reprise stricte des prix et noms du menu actuel, omission sans plantage des boissons retirées de la carte avec avertissement toast (« X n'est plus au menu, non ajoutée »), cumul des quantités dans le panier en cours sans écrasement, accessibilité depuis l'historique des commandes (`OrderHistory.jsx`), la vue Ticket (`TicketView.jsx`) et l'écran de succès post-commande (`orderSuccessModal`), sécurisation et purge automatique des clés de stockage des coches orphelines/supprimées (`src/lib/storage.js`). `yarn build` validé avec succès (143.47 kB JS, 12.61 kB CSS).
 * 14/10/2026 — Étape 9.4 terminée (branche `feature-note`) : ajout de la note libre sur une commande (`E-7`). Champ texte optionnel dans la modale de confirmation (`ConfirmOrderModal.jsx`) sous le total avec compteur (limite 100 car.), persistance de la note en cours dans le panier (`orderNote` via `localStorage`) pour éviter sa perte en fermant/rouvrant la modale lors de la prise de commande progressive de plusieurs amis, vidage automatique de la note lors de la confirmation ou du vidage du panier, persistance de `order.note` dans `orderHistory` via `DrinkOrderApp.jsx`, normalisation sécurisée dans `src/lib/storage.js` (`isHistoryOrder`), affichage valorisé en tête de la vue Ticket (`TicketView.jsx`) avec icône `StickyNote` et contraste garanti, affichage sous la liste des consommations dans l'historique (`OrderHistory.jsx`), inclusion automatique de la mention « 📌 Note : ... » dans le texte copié/partagé (`ShareButtons.jsx`), et réimport intelligent de la note lors de la recommandation d'une tournée (`reorderIntoCart` dans `src/lib/reorder.js` avec conservation de note existante et notifications séquentielles). `yarn build` validé avec succès (144.1 kB JS, 12.68 kB CSS).
+* 14/10/2026 — Étape 9.5 terminée (branche `feature-tri`) : définition du tri par « Popularité » comme tri par défaut à l'ouverture de l'application (E-5) dans `DrinkOrderApp.jsx`. Ajout d'un tri secondaire alphabétique (`localeCompare`) dans `sortDrinks` en cas d'égalité de score de popularité ou de boissons sans commandes dans l'historique. Repositionnement de l'option « Popularité » en première position dans le menu déroulant de `SortControls.jsx` et correction du libellé par défaut du bouton de tri (`currentSort?.label || 'Popularité'`). Persistance du choix utilisateur dans `localStorage` (`storage.js`) intégralement préservée. `yarn build` validé avec succès.
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
@@ -125,5 +126,6 @@
 * Persistance de la note dans le panier en cours : taper une note dans la modale de confirmation, fermer la modale, continuer à ajouter des boissons, et rouvrir la modale : la note doit être toujours présente.
 * Recommander avec note reprise : recommander une tournée qui avait une note (alors que le panier n'a pas de note) : vérifier que la note est automatiquement reprise dans le panier et que la notification indique « Note reprise : "..." ».
 * Recommander avec conflit de note : si le panier a déjà une note saisie et qu'on recommande une commande ayant aussi une note : vérifier que la note actuelle du panier est conservée et qu'une notification informe que l'ancienne note n'a pas été importée.
+* Tri par popularité par défaut (E-5) : à l'ouverture de l'application (ou après effacement des données de navigation), le tri actif est automatiquement « Popularité » ; les boissons les plus commandées s'affichent en tête de chaque section, et celles à score égal sont rangées par ordre alphabétique. Si on change pour « Prix ↗ » ou « Alphabétique », ce choix reste persisté au rechargement.
 
 
