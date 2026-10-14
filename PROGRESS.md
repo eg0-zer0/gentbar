@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feature-reorder` · **Prochaine étape** : 9.4 E-7 Note libre sur une commande · **Dernier commit** : 74147de
+**Branche de travail** : `feature-reorder` · **Prochaine étape** : 9.4 E-7 Note libre sur une commande · **Dernier commit** : 1eaede7
 
 ---
 
