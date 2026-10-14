@@ -32,6 +32,7 @@ La branche `main` est déployée automatiquement sur Netlify à chaque push : c'
 - **Vue Ticket (E-4)** : `TicketView` reçoit une commande en paramètre (`order`), pour servir trois cas : le panier en cours (bouton « Voir le ticket »), la commande qui vient d'être confirmée (ouverture proposée dans l'écran de succès, avec « Recommander »), et une commande de l'historique. Prévoir dès maintenant un emplacement pour la note libre (E-7) en haut du ticket, vide pour l'instant. Les cases « pris » ne sont pas persistées.
 - **Montants** : toujours affichés au format français (`3,00 €`) via `src/lib/format.js` ; ne pas formater un prix à la main.
 - **Partage** : feuille de partage native en priorité, « copier » en repli.
+- **Note libre (E-7)** : saisie optionnelle dans `ConfirmOrderModal` (100 car. max). Persistée au niveau du panier (`orderNote`) tant qu'il n'est pas validé ou vidé. Affichée en tête de `TicketView` dans un encadré ambré avec icône `StickyNote`, sous la commande dans `OrderHistory`, et dans le texte partagé (`📌 Note : ...`). Lors de « Recommander », la note précédente est réimportée si le panier n'en a pas (avec mention dans la notification), ou conservée sans écrasement si le panier a déjà une note (avec toast d'information).
 
 ## Définition de « terminé » pour une étape
 
