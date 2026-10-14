@@ -69,6 +69,7 @@ const DrinkOrderApp = () => {
     return load('categories', mockCategories, normalizeCategories);
   });
   const [orders, setOrders] = useState(() => load('orders', [], normalizeOrders));
+  const [orderNote, setOrderNote] = useState(() => load('orderNote', ''));
   const [orderHistory, setOrderHistory] = useState(() => load('orderHistory', mockOrderHistory, normalizeOrderHistory));
   const [sortBy, setSortBy] = useState(() => load('sortBy', 'name', normalizeSortBy));
   const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', false, normalizeBoolean));
@@ -88,6 +89,7 @@ const DrinkOrderApp = () => {
 
   useEffect(() => { save('categories', categories); }, [categories]);
   useEffect(() => { save('orders', orders); }, [orders]);
+  useEffect(() => { save('orderNote', orderNote); }, [orderNote]);
   useEffect(() => { save('orderHistory', orderHistory); }, [orderHistory]);
   useEffect(() => { save('soundEnabled', soundEnabled); }, [soundEnabled]);
   useEffect(() => { save('sortBy', sortBy); }, [sortBy]);
@@ -181,6 +183,7 @@ const DrinkOrderApp = () => {
 
   const handleClearAll = () => {
     setOrders([]);
+    setOrderNote('');
     toast("Panier vidé", { description: "Toutes les boissons ont été retirées du panier." });
   };
 
@@ -190,9 +193,9 @@ const DrinkOrderApp = () => {
 
   // ---- FINALISER LA COMMANDE ----
 
-  const finalizeOrder = (note = '') => {
+  const finalizeOrder = () => {
     const total = orders.reduce((sum, o) => sum + o.price * o.quantity, 0);
-    const trimmedNote = typeof note === 'string' ? note.trim() : '';
+    const trimmedNote = typeof orderNote === 'string' ? orderNote.trim() : '';
     const newOrder = {
       id: `order-${Date.now()}`,
       date: new Date().toISOString(),
@@ -207,6 +210,7 @@ const DrinkOrderApp = () => {
     };
     setOrderHistory(prev => [newOrder, ...prev]);
     setOrders([]);
+    setOrderNote('');
     setShowConfirmModal(false);
     toast("Commande confirmée", { description: `Total : ${formatPrice(total)}` });
     setOrderSuccessModal({ isOpen: true, order: newOrder });
@@ -399,6 +403,8 @@ const DrinkOrderApp = () => {
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
           onConfirm={finalizeOrder}
+          note={orderNote}
+          onNoteChange={setOrderNote}
         />
 
         <EditDrinkModal
