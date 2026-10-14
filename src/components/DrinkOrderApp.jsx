@@ -239,7 +239,9 @@ const DrinkOrderApp = () => {
       order: orderToReorder,
       currentOrders: orders,
       categories,
-      onOrdersUpdated: setOrders
+      onOrdersUpdated: setOrders,
+      currentNote: orderNote,
+      onNoteUpdated: setOrderNote
     });
     setTicketViewData(null);
     setShowHistory(false);

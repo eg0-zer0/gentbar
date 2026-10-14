@@ -32,7 +32,9 @@ export function reorderIntoCart({
   order,
   currentOrders = [],
   categories = [],
-  onOrdersUpdated
+  onOrdersUpdated,
+  currentNote = '',
+  onNoteUpdated
 }) {
   const items = Array.isArray(order?.items)
     ? order.items
@@ -118,13 +120,47 @@ export function reorderIntoCart({
     onOrdersUpdated(newOrders);
   }
 
-  // Notifications séquentielles pour éviter que les toasts ne se superposent et ne disparaissent en même temps
+  // Gestion de la note lors de la recommandation
+  const orderNoteTrimmed = typeof order?.note === 'string' ? order.note.trim() : '';
+  const currentNoteTrimmed = typeof currentNote === 'string' ? currentNote.trim() : '';
+
+  let noteReimported = false;
+  let noteConflict = false;
+
+  if (orderNoteTrimmed) {
+    if (!currentNoteTrimmed) {
+      // Panier sans note : réimport automatique
+      if (typeof onNoteUpdated === 'function') {
+        onNoteUpdated(orderNoteTrimmed);
+      }
+      noteReimported = true;
+    } else {
+      // Panier avec note déjà présente : conservation et notification
+      noteConflict = true;
+    }
+  }
+
+  // Notifications séquentielles pour éviter la superposition
+  const totalDrinksAdded = addedItems.reduce((sum, i) => sum + i.quantity, 0);
+
   const showSuccessToast = () => {
-    const totalDrinksAdded = addedItems.reduce((sum, i) => sum + i.quantity, 0);
+    const desc = noteReimported
+      ? `${totalDrinksAdded} boisson${totalDrinksAdded > 1 ? 's' : ''} ajoutée${totalDrinksAdded > 1 ? 's' : ''} • Note reprise : « ${orderNoteTrimmed} »`
+      : `${totalDrinksAdded} boisson${totalDrinksAdded > 1 ? 's' : ''} (${addedItems.length} référence${addedItems.length > 1 ? 's' : ''}) ajoutée${totalDrinksAdded > 1 ? 's' : ''} au panier.`;
+
     toast.success("Commande ajoutée au panier", {
-      description: `${totalDrinksAdded} boisson${totalDrinksAdded > 1 ? 's' : ''} (${addedItems.length} référence${addedItems.length > 1 ? 's' : ''}) ajoutée${totalDrinksAdded > 1 ? 's' : ''} au panier.`,
+      description: desc,
       duration: 2000
     });
+
+    if (noteConflict) {
+      setTimeout(() => {
+        toast.info("Note précédente non importée", {
+          description: `Note de la tournée précédente : « ${orderNoteTrimmed} » non importée car une note existe déjà.`,
+          duration: 2500
+        });
+      }, 2000);
+    }
   };
 
   if (missingDrinks.length > 0) {
