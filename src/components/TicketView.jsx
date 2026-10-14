@@ -9,6 +9,7 @@ import {
   Unlock
 } from 'lucide-react';
 import { formatPrice } from '../lib/format';
+import { load, save, remove } from '../lib/storage';
 import ShareButtons from './ShareButtons';
 
 /**
@@ -31,13 +32,9 @@ const TicketView = ({
 
   // Initialisation des coches depuis le stockage ou ensemble vide
   const [checkedIds, setCheckedIds] = useState(() => {
-    if (typeof window !== 'undefined' && storageKey) {
-      try {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) return new Set(JSON.parse(saved));
-      } catch {
-        // En cas d'erreur de lecture localStorage, repli sur ensemble vide
-      }
+    if (storageKey) {
+      const saved = load(storageKey, null);
+      if (Array.isArray(saved)) return new Set(saved);
     }
     return new Set();
   });
@@ -145,10 +142,8 @@ const TicketView = ({
       } else {
         next.add(key);
       }
-      if (typeof window !== 'undefined' && storageKey) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify([...next]));
-        } catch {}
+      if (storageKey) {
+        save(storageKey, [...next]);
       }
       return next;
     });
@@ -160,19 +155,15 @@ const TicketView = ({
     if (checkedIds.size === items.length) {
       const emptySet = new Set();
       setCheckedIds(emptySet);
-      if (typeof window !== 'undefined' && storageKey) {
-        try {
-          localStorage.removeItem(storageKey);
-        } catch {}
+      if (storageKey) {
+        remove(storageKey);
       }
     } else {
       const allKeys = items.map((item, idx) => item.drinkId || `${item.drinkName || item.name}-${idx}`);
       const fullSet = new Set(allKeys);
       setCheckedIds(fullSet);
-      if (typeof window !== 'undefined' && storageKey) {
-        try {
-          localStorage.setItem(storageKey, JSON.stringify([...fullSet]));
-        } catch {}
+      if (storageKey) {
+        save(storageKey, [...fullSet]);
       }
     }
   };

@@ -22,7 +22,7 @@ import { Plus, CheckCircle2, Receipt } from 'lucide-react';
 // Data & utils
 import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
-import { load, save, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf, requestPersistentStorage } from '../lib/storage';
+import { load, save, removeTicketCheckmarks, purgeOrphanTicketCheckmarks, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf, requestPersistentStorage } from '../lib/storage';
 import { formatPrice } from '../lib/format';
 import '../App.css';
 
@@ -90,7 +90,10 @@ const DrinkOrderApp = () => {
   useEffect(() => { save('orderHistory', orderHistory); }, [orderHistory]);
   useEffect(() => { save('soundEnabled', soundEnabled); }, [soundEnabled]);
   useEffect(() => { save('sortBy', sortBy); }, [sortBy]);
-  useEffect(() => { requestPersistentStorage(); }, []);
+  useEffect(() => {
+    requestPersistentStorage();
+    purgeOrphanTicketCheckmarks(orderHistory);
+  }, []);
   // viewMode : déjà persisté (et validé) par ViewModeContext.
 
   // Remplacement de carte : prévenir si des articles ont été retirés du panier (une seule fois).
@@ -306,8 +309,9 @@ const DrinkOrderApp = () => {
   };
   
   const handleRemoveOrder = (orderId) => {
-  setOrderHistory(prev => prev.filter(order => order.id !== orderId));
-};
+    removeTicketCheckmarks(orderId);
+    setOrderHistory(prev => prev.filter(order => order.id !== orderId));
+  };
 
   const confirmDeleteCategory = () => {
     const cat = deleteDialog.item;

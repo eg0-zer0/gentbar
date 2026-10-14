@@ -39,6 +39,45 @@ export function saveRaw(key, value) {
   }
 }
 
+/** Supprime une clé du stockage. Renvoie true si la suppression a réussi. */
+export function remove(key) {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const TICKET_CHECKED_PREFIX = 'gentbar_ticket_checked_';
+
+/** Supprime les coches sauvegardées d'une commande spécifique (E-9 / E-4). */
+export function removeTicketCheckmarks(orderId) {
+  if (!orderId) return;
+  remove(`${TICKET_CHECKED_PREFIX}${orderId}`);
+}
+
+/** Nettoie toutes les coches de commandes supprimées ou orphelines. */
+export function purgeOrphanTicketCheckmarks(validOrders = []) {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    const validIds = new Set(validOrders.map(o => o?.id).filter(Boolean));
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(TICKET_CHECKED_PREFIX)) {
+        const orderId = key.substring(TICKET_CHECKED_PREFIX.length);
+        if (!validIds.has(orderId)) {
+          keysToRemove.push(key);
+        }
+      }
+    }
+    keysToRemove.forEach(k => remove(k));
+  } catch {
+    // Nettoyage en arrière-plan sans blocage
+  }
+}
+
 /**
  * Lit une valeur JSON.
  * @param {string} key
