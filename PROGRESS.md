@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feature-reorder` · **Prochaine étape** : 9.3 E-8 Recommander la même tournée · **Dernier commit** : 8efb6c2
+**Branche de travail** : `feature-reorder` · **Prochaine étape** : 9.4 E-7 Note libre sur une commande · **Dernier commit** : 5127b2a
 
 ---
 
@@ -76,7 +76,7 @@
 ## Étape 9 — Nouvelles fonctionnalités *(une par session, dans cet ordre)*
 - [x] 9.1 E-4 Vue Ticket
 - [x] 9.2 E-9 Verrouillage de l'écran du ticket
-- [ ] 9.3 E-8 Recommander la même tournée
+- [x] 9.3 E-8 Recommander la même tournée
 - [ ] 9.4 E-7 Note libre sur une commande
 - [ ] 9.5 E-3 Recherche dans le menu + E-10 Alerte de doublon
 - [ ] 9.6 E-5 Tri par popularité par défaut
@@ -102,11 +102,13 @@
 * 12/10/2026 — Étape 8 ter-c terminée (branche `roadmap-8ter`) : harmonisation nom « GentBar » et formatage des montants francophone via utilitaire unique `formatPrice` dans `src/lib/format.js` (A-26), demande de stockage persistant `navigator.storage.persist()` au démarrage (A-27), retrait du code mort du tri `'default'` et des imports inutilisés (A-09), désinstallation des dépendances inutilisées `axios`, `zod`, `next-themes`, `date-fns` (A-25). `yarn build` validé avec succès (139.72 kB JS, 11.91 kB CSS).
 * 12/10/2026 — Étape 9.1 terminée (branche `feature-ticket`) : création de la Vue Ticket plein écran (`TicketView.jsx`, E-4) pour la prise de commande au bar (design ultra-compact tenant sur un seul écran sans défilement, démarcation nette des familles de boissons par cartes indépendantes avec espacement léger et sans bandeaux/icônes superflus, noms complets sans troncature, cases « pris » mémorisées par commande avec compteur dynamique « X sur Y servis » et bouton tout cocher/décocher, retrait de la date/heure superflue en en-tête pour éviter tout chevauchement, total fixe via `formatPrice`, actions Partager/Recommander/Fermer sans chevauchement, retour garanti vers l'écran d'origine — historique ou carte —, bouton « Voir le ticket » réservé à l'écran de succès post-commande et à l'historique). `yarn build` validé avec succès (142.15 kB JS, 12.38 kB CSS).
 * 12/10/2026 — Étape 9.2 terminée (branche `feature-ticket`) : verrouillage de l'écran pendant la prise de commande (`TicketView.jsx`, E-9). Bouton cadenas dans l'en-tête (icône `Lock` / `Unlock`), neutralisation de toutes les actions et boutons lorsque verrouillé (cases à cocher, fermeture, commande, et bouton Partager via `ShareButtons.jsx`), calque protecteur transparent prévenant les appuis accidentels en marchant ou en poche, déverrouillage fluide par double-tap n'importe où avec badge visuel indicatif (« Double-tapez pour déverrouiller »), blocage strict du défilement et du pull-to-refresh du navigateur (`touch-action: none`, `overscroll-behavior: none`, `touchmove preventDefault`), et état non persisté (ouvert déverrouillé). `yarn build` validé avec succès (142.89 kB JS, 12.61 kB CSS).
+* 14/10/2026 — Étape 9.3 terminée (branche `feature-reorder`) : implémentation de la fonction partagée `reorderIntoCart` (`src/lib/reorder.js`, E-8). Résolution sécurisée des boissons par `drinkId` puis par nom normalisé (accents/casse), reprise stricte des prix et noms du menu actuel, omission sans plantage des boissons retirées de la carte avec avertissement toast (« X n'est plus au menu, non ajoutée »), cumul des quantités dans le panier en cours sans écrasement, accessibilité depuis l'historique des commandes (`OrderHistory.jsx`), la vue Ticket (`TicketView.jsx`) et l'écran de succès post-commande (`orderSuccessModal`), sécurisation et purge automatique des clés de stockage des coches orphelines/supprimées (`src/lib/storage.js`). `yarn build` validé avec succès (143.47 kB JS, 12.61 kB CSS).
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
 * Étape 8 bis exécutée sur la branche isolée `roadmap-fix` pour les points 1, 2, 4 et 6 de `docs/VERIFICATION_Etapes_1-8.md` sans impacter `main`.
 * Maintien actif de l'écran (Screen Wake Lock) : non indispensable pour l'étape 9.2 selon retour utilisateur, consigné pour d'éventuelles améliorations UX ultérieures selon le support des navigateurs mobiles.
+* Vue Ticket depuis le panier : restreinte aux commandes finalisées (écran de succès et historique) pour garantir l'intégrité de l'historique et des prix.
 
 ## À tester par le propriétaire sur appareil
 * Rendu visuel et lisibilité des textes sous le thème Gentbar (contraste texte blanc sur fond bleu nuit vérifié à plus de 14:1).
@@ -114,5 +116,8 @@
 * Persistance du tri : choisir un tri (ex. « Prix ↗ »), recharger la page ou naviguer vers la page d'accueil puis revenir sur l'application, vérifier que le tri reste conservé.
 * Robustesse : tester le bon chargement des données sans aucun écran blanc même en cas de données corrompues.
 * Verrouillage du ticket : bouton Partager bien inerte en mode verrouillé, double-tap fluide pour déverrouiller.
+* Recommander une tournée avec un panier déjà rempli : vérifier le cumul des quantités pour les boissons déjà présentes et l'ajout des nouvelles lignes sans écrasement du panier existant.
+* Recommander une ancienne commande contenant une boisson supprimée du menu : vérifier l'avertissement « X n'est plus au menu, non ajoutée » et l'absence de tout plantage (aucun écran d'erreur).
+* Points d'accès Recommander : tester depuis la carte de l'historique, depuis la vue Ticket et depuis l'écran de confirmation de commande (« Recommander cette tournée »).
 
 
