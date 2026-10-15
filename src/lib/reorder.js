@@ -1,16 +1,5 @@
 import { toast } from 'sonner';
-
-/**
- * Normalise une chaîne pour comparaison insensible aux accents, à la casse et aux espaces superflus.
- * @param {string} str
- * @returns {string}
- */
-const normalizeName = (str) =>
-  (str || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .toLowerCase();
+import { normalizeText } from './search';
 
 /**
  * Ajoute les boissons d'une commande passée dans le panier en cours (E-8).
@@ -66,8 +55,8 @@ export function reorderIntoCart({
 
     // 2. Repli par nom normalisé (anciennes commandes ou commandes migrées)
     if (!matchedDrink && rawName) {
-      const normalizedTarget = normalizeName(rawName);
-      matchedDrink = allCurrentDrinks.find(d => normalizeName(d.name) === normalizedTarget);
+      const normalizedTarget = normalizeText(rawName);
+      matchedDrink = allCurrentDrinks.find(d => normalizeText(d.name) === normalizedTarget);
     }
 
     if (matchedDrink) {
