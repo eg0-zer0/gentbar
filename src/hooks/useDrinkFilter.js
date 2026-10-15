@@ -18,26 +18,28 @@ export const useDrinkFilter = (categories = [], drinkPopularity = {}) => {
 
   // Fonction de tri des boissons
   const sortDrinks = (drinks, activeSort = sortBy) => {
+    if (!Array.isArray(drinks)) return [];
     const sorted = [...drinks];
     switch (activeSort) {
       case 'popularity':
         return sorted.sort((a, b) => {
-          const diff = (drinkPopularity[b.id] || 0) - (drinkPopularity[a.id] || 0);
+          const diff = (drinkPopularity?.[b.id] || 0) - (drinkPopularity?.[a.id] || 0);
           if (diff !== 0) return diff;
-          return a.name.localeCompare(b.name);
+          return (a.name || '').localeCompare(b.name || '');
         });
       case 'price-asc':
-        return sorted.sort((a, b) => a.price - b.price);
+        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
       case 'price-desc':
-        return sorted.sort((a, b) => b.price - a.price);
+        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
       case 'name':
       default:
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+        return sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     }
   };
 
   // Résultats de la recherche dans le menu (null si aucune recherche en cours)
   const searchResults = useMemo(() => {
+    if (!Array.isArray(categories)) return null;
     const results = searchDrinks(categories, searchQuery);
     if (!results) return null;
     return sortDrinks(results, sortBy);

@@ -11,7 +11,10 @@ import { load, save } from '../lib/storage';
  * @returns {[any, Function]} [state, setState]
  */
 export const useStoredState = (key, defaultValue, normalizer) => {
-  const [state, setState] = useState(() => load(key, defaultValue, normalizer));
+  const [state, setState] = useState(() => {
+    const fallback = typeof defaultValue === 'function' ? defaultValue() : defaultValue;
+    return load(key, fallback, normalizer);
+  });
 
   useEffect(() => {
     save(key, state);

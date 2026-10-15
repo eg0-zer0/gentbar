@@ -28,33 +28,42 @@ export const useOrderHistory = (categories = []) => {
   // Calcul mémoïsé de la popularité des boissons
   const drinkPopularity = useMemo(() => {
     const nameToId = new Map();
-    categories.forEach(c => {
-      c.drinks.forEach(d => {
-        if (!nameToId.has(d.name)) {
-          nameToId.set(d.name, d.id);
+    if (Array.isArray(categories)) {
+      categories.forEach(c => {
+        if (Array.isArray(c?.drinks)) {
+          c.drinks.forEach(d => {
+            if (d && d.name && !nameToId.has(d.name)) {
+              nameToId.set(d.name, d.id);
+            }
+          });
         }
       });
-    });
+    }
 
     const byId = {};
-    orderHistory.forEach(order => {
-      order.items?.forEach(item => {
-        const id = item.drinkId || nameToId.get(item.drinkName);
-        if (id) {
-          byId[id] = (byId[id] || 0) + item.quantity;
+    if (Array.isArray(orderHistory)) {
+      orderHistory.forEach(order => {
+        if (Array.isArray(order?.items)) {
+          order.items.forEach(item => {
+            const id = item?.drinkId || (item?.drinkName && nameToId.get(item.drinkName));
+            if (id) {
+              byId[id] = (byId[id] || 0) + (item.quantity || 0);
+            }
+          });
         }
       });
-    });
+    }
     return byId;
   }, [orderHistory, categories]);
 
   // Créer et enregistrer une nouvelle commande
-  const createOrder = ({ items, total, note = '', sessionId = null, paidFromPot = false }) => {
+  const createOrder = ({ items = [], total = 0, note = '', sessionId = null, paidFromPot = false }) => {
     const trimmedNote = typeof note === 'string' ? note.trim() : '';
+    const safeItems = Array.isArray(items) ? items : [];
     const newOrder = {
       id: `order-${Date.now()}`,
       date: new Date().toISOString(),
-      items: items.map(o => ({
+      items: safeItems.map(o => ({
         drinkId: o.drinkId,
         drinkName: o.drinkName,
         quantity: o.quantity,
@@ -65,7 +74,7 @@ export const useOrderHistory = (categories = []) => {
       ...(sessionId ? { sessionId, paidFromPot } : {})
     };
 
-    setOrderHistory(prev => [newOrder, ...prev]);
+    setOrderHistory(prev => [newOrder, ...(Array.isArray(prev) ? prev : [])]);
     toast("Commande confirmée", { description: `Total : ${formatPrice(total)}` });
     return newOrder;
   };
@@ -73,7 +82,7 @@ export const useOrderHistory = (categories = []) => {
   // Supprimer une commande de l'historique
   const removeOrder = (orderId) => {
     removeTicketCheckmarks(orderId);
-    setOrderHistory(prev => prev.filter(order => order.id !== orderId));
+    setOrderHistory(prev => (Array.isArray(prev) ? prev.filter(order => order.id !== orderId) : []));
   };
 
   return {

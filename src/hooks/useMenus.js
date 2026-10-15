@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { useStoredState } from './useStoredState';
 import { mockCategories, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
 import {
@@ -48,10 +47,14 @@ const migrateMenuIfNeeded = () => {
  * Prépare la transition vers le multi-bars (A-29).
  */
 export const useMenus = () => {
-  const [categories, setCategories] = useStoredState('categories', () => {
+  const [categories, setCategories] = useState(() => {
     migrateMenuIfNeeded();
-    return mockCategories;
-  }, normalizeCategories);
+    return load('categories', mockCategories, normalizeCategories);
+  });
+
+  useEffect(() => {
+    save('categories', categories);
+  }, [categories]);
 
   // Avertir si des articles ont été retirés lors de la migration
   useEffect(() => {
@@ -64,45 +67,48 @@ export const useMenus = () => {
   // Déplier / replier une catégorie
   const toggleCategory = (categoryId) => {
     setCategories(prev =>
-      prev.map(c => c.id === categoryId ? { ...c, isCollapsed: !c.isCollapsed } : c)
+      Array.isArray(prev) ? prev.map(c => c.id === categoryId ? { ...c, isCollapsed: !c.isCollapsed } : c) : []
     );
   };
 
   // Enregistrer (ajouter ou modifier) une catégorie
   const saveCategory = (cat) => {
-    const exists = categories.some(c => c.id === cat.id);
-    if (exists) {
-      setCategories(prev => prev.map(c => c.id === cat.id ? cat : c));
-      toast("Catégorie modifiée", { description: `${cat.name} mise à jour` });
-    } else {
-      setCategories(prev => [...prev, { ...cat, id: `cat-${Date.now()}`, drinks: [], isCollapsed: false }]);
-      toast("Catégorie ajoutée", { description: `${cat.name} créée` });
-    }
+    setCategories(prev => {
+      const list = Array.isArray(prev) ? prev : [];
+      const exists = list.some(c => c.id === cat.id);
+      if (exists) {
+        toast("Catégorie modifiée", { description: `${cat.name} mise à jour` });
+        return list.map(c => c.id === cat.id ? cat : c);
+      } else {
+        toast("Catégorie ajoutée", { description: `${cat.name} créée` });
+        return [...list, { ...cat, id: `cat-${Date.now()}`, drinks: [], isCollapsed: false }];
+      }
+    });
   };
 
   // Supprimer une catégorie et notifier pour synchroniser le panier
   const deleteCategory = (cat, onCategoryDeleted) => {
     const catDrinkIds = new Set(cat?.drinks?.map(d => d.id) || []);
-    setCategories(prev => prev.filter(c => c.id !== cat.id));
+    setCategories(prev => (Array.isArray(prev) ? prev.filter(c => c.id !== cat.id) : []));
     if (onCategoryDeleted) {
       onCategoryDeleted(catDrinkIds);
     }
-    toast("Catégorie supprimée", { description: `${cat.name} supprimée` });
+    toast("Catégorie supprimée", { description: `${cat?.name || 'Catégorie'} supprimée` });
   };
 
   // Enregistrer (ajouter ou modifier) une boisson
   const saveDrink = (updated, mode, categoryId, onDrinkUpdated) => {
     if (mode === 'add') {
-      setCategories(prev => prev.map(c =>
+      setCategories(prev => (Array.isArray(prev) ? prev : []).map(c =>
         c.id === categoryId
-          ? { ...c, drinks: [...c.drinks, { ...updated, id: generateDrinkId(updated.name, c.id) }] }
+          ? { ...c, drinks: [...(c.drinks || []), { ...updated, id: generateDrinkId(updated.name, c.id) }] }
           : c
       ));
       toast("Boisson ajoutée", { description: `${updated.name} ajoutée au menu` });
     } else {
-      setCategories(prev => prev.map(c => ({
+      setCategories(prev => (Array.isArray(prev) ? prev : []).map(c => ({
         ...c,
-        drinks: c.drinks.map(d => d.id === updated.id ? updated : d)
+        drinks: (c.drinks || []).map(d => d.id === updated.id ? updated : d)
       })));
       if (onDrinkUpdated) {
         onDrinkUpdated(updated.id, updated.name, updated.price);
@@ -113,13 +119,13 @@ export const useMenus = () => {
 
   // Supprimer une boisson et notifier pour synchroniser le panier
   const deleteDrink = (item, categoryId, onDrinkDeleted) => {
-    setCategories(prev => prev.map(c =>
-      c.id === categoryId ? { ...c, drinks: c.drinks.filter(d => d.id !== item.id) } : c
+    setCategories(prev => (Array.isArray(prev) ? prev : []).map(c =>
+      c.id === categoryId ? { ...c, drinks: (c.drinks || []).filter(d => d.id !== item.id) } : c
     ));
     if (onDrinkDeleted) {
       onDrinkDeleted(item.id);
     }
-    toast("Boisson supprimée", { description: `${item.name} a été retirée du menu` });
+    toast("Boisson supprimée", { description: `${item?.name || 'Boisson'} a été retirée du menu` });
   };
 
   return {

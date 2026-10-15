@@ -56,6 +56,7 @@ const DrinkOrderApp = () => {
     addDrink,
     updateQuantity,
     removeItem,
+    removeDrinkFromCart,
     clearCart,
     removeItemsByDrinkIds,
     updateItemDetails
@@ -108,7 +109,7 @@ const DrinkOrderApp = () => {
       total: totalAmount,
       note: orderNote
     });
-    clearCart();
+    clearCart(false);
     setShowConfirmModal(false);
     setOrderSuccessModal({ isOpen: true, order: newOrder });
   };
@@ -162,7 +163,7 @@ const DrinkOrderApp = () => {
 
   const confirmDeleteDrink = () => {
     const { item, categoryId } = deleteDialog;
-    deleteDrink(item, categoryId, removeItem);
+    deleteDrink(item, categoryId, removeDrinkFromCart);
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
   };
 
@@ -398,7 +399,7 @@ const DrinkOrderApp = () => {
             order={ticketViewData.order}
             categories={categories}
             onClose={handleCloseTicket}
-            onReorder={ticketViewData.order.isCurrentOrder ? null : handleReorder}
+            onReorder={ticketViewData.order?.isCurrentOrder ? null : handleReorder}
           />
         )}
       </div>

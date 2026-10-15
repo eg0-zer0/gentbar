@@ -86,13 +86,14 @@ export function purgeOrphanTicketCheckmarks(validOrders = []) {
  *        renvoie la valeur nettoyée (et le nombre d'éléments écartés), ou null si inutilisable
  */
 export function load(key, fallback, normalize) {
+  const getFallback = () => (typeof fallback === 'function' ? fallback() : fallback);
   let raw;
   try {
     raw = localStorage.getItem(key);
   } catch {
-    return fallback;
+    return getFallback();
   }
-  if (raw === null) return fallback;
+  if (raw === null) return getFallback();
 
   let parsed;
   try {
@@ -100,16 +101,16 @@ export function load(key, fallback, normalize) {
   } catch {
     console.warn(`[storage] JSON illisible pour « ${key} », valeur par défaut utilisée.`);
     backupRaw(key, raw);
-    return fallback;
+    return getFallback();
   }
-  if (parsed === null || parsed === undefined) return fallback;
+  if (parsed === null || parsed === undefined) return getFallback();
   if (!normalize) return parsed;
 
   const result = normalize(parsed);
   if (!result) {
     console.warn(`[storage] Donnée invalide pour « ${key} », valeur par défaut utilisée.`);
     backupRaw(key, raw);
-    return fallback;
+    return getFallback();
   }
   if (result.dropped > 0) {
     console.warn(`[storage] ${result.dropped} élément(s) invalide(s) écarté(s) dans « ${key} ».`);
@@ -194,6 +195,8 @@ export const normalizeOrders = (v) => filterList(v, isOrderLine);
 export const normalizeOrderHistory = (v) => filterList(v, isHistoryOrder);
 
 export const normalizeBoolean = (v) => (typeof v === 'boolean' ? { value: v, dropped: 0 } : null);
+
+export const normalizeString = (v) => (typeof v === 'string' ? { value: v, dropped: 0 } : null);
 
 export const normalizeOneOf = (allowed) => (v) => (allowed.includes(v) ? { value: v, dropped: 0 } : null);
 
