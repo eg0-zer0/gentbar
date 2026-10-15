@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `main` · **Prochaine étape** : 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon · **Dernier commit** : 53e3ed3
+**Branche de travail** : `feature-search` · **Prochaine étape** : 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04) · **Dernier commit** : a74df2f
 
 ---
 
@@ -79,7 +79,7 @@
 - [x] 9.3 E-8 Recommander la même tournée
 - [x] 9.4 E-7 Note libre sur une commande
 - [x] 9.5 E-5 Tri par popularité par défaut
-- [ ] 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon
+- [x] 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon
 - [ ] 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04)
 - [ ] 9.8 E-11 Ajout en lot (texte collé)
 - [ ] 9.9 E-2 Cagnotte
@@ -105,6 +105,7 @@
 * 14/10/2026 — Étape 9.3 terminée (branche `feature-reorder`) : implémentation de la fonction partagée `reorderIntoCart` (`src/lib/reorder.js`, E-8). Résolution sécurisée des boissons par `drinkId` puis par nom normalisé (accents/casse), reprise stricte des prix et noms du menu actuel, omission sans plantage des boissons retirées de la carte avec avertissement toast (« X n'est plus au menu, non ajoutée »), cumul des quantités dans le panier en cours sans écrasement, accessibilité depuis l'historique des commandes (`OrderHistory.jsx`), la vue Ticket (`TicketView.jsx`) et l'écran de succès post-commande (`orderSuccessModal`), sécurisation et purge automatique des clés de stockage des coches orphelines/supprimées (`src/lib/storage.js`). `yarn build` validé avec succès (143.47 kB JS, 12.61 kB CSS).
 * 14/10/2026 — Étape 9.4 terminée (branche `feature-note`) : ajout de la note libre sur une commande (`E-7`). Champ texte optionnel dans la modale de confirmation (`ConfirmOrderModal.jsx`) sous le total avec compteur (limite 100 car.), persistance de la note en cours dans le panier (`orderNote` via `localStorage`) pour éviter sa perte en fermant/rouvrant la modale lors de la prise de commande progressive de plusieurs amis, vidage automatique de la note lors de la confirmation ou du vidage du panier, persistance de `order.note` dans `orderHistory` via `DrinkOrderApp.jsx`, normalisation sécurisée dans `src/lib/storage.js` (`isHistoryOrder`), affichage valorisé en tête de la vue Ticket (`TicketView.jsx`) avec icône `StickyNote` et contraste garanti, affichage sous la liste des consommations dans l'historique (`OrderHistory.jsx`), inclusion automatique de la mention « 📌 Note : ... » dans le texte copié/partagé (`ShareButtons.jsx`), et réimport intelligent de la note lors de la recommandation d'une tournée (`reorderIntoCart` dans `src/lib/reorder.js` avec conservation de note existante et notifications séquentielles). `yarn build` validé avec succès (144.1 kB JS, 12.68 kB CSS).
 * 14/10/2026 — Étape 9.5 terminée (branche `feature-tri`) : définition du tri par « Popularité » comme tri par défaut à l'ouverture de l'application (E-5) dans `DrinkOrderApp.jsx`. Ajout d'un tri secondaire alphabétique (`localeCompare`) dans `sortDrinks` en cas d'égalité de score de popularité ou de boissons sans commandes dans l'historique. Repositionnement de l'option « Popularité » en première position dans le menu déroulant de `SortControls.jsx` et correction du libellé par défaut du bouton de tri (`currentSort?.label || 'Popularité'`). Persistance du choix utilisateur dans `localStorage` (`storage.js`) intégralement préservée. `yarn build` validé avec succès.
+* 15/10/2026 — Étape 9.6 terminée (branche `feature-search`) : implémentation de la recherche en direct dans le menu (E-3) et de l'alerte de doublon (E-10). Création du module partagé `src/lib/search.js` (`normalizeText` insensible aux accents/casse, recherche multi-catégories `searchDrinks`, détection de doublons `findDuplicateDrinkName`) avec harmonisation dans `reorder.js`. Création du composant `MenuSearch.jsx` avec effacement rapide et touche Échap. Affichage instantané des résultats à plat mémoïsé (`useMemo`) avec rappel de la catégorie d'origine via `DrinkCard.jsx` (dans les 3 modes de vue), message informatif en cas d'aucun résultat et restauration intégrale de l'état des catégories (plié/déplié) à l'effacement. Dans `EditDrinkModal.jsx`, détection automatique en temps réel des doublons de noms dans la même catégorie avec affichage d'un avertissement ambré non-bloquant. `yarn build` validé avec succès (145.37 kB JS, 12.79 kB CSS).
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
@@ -127,5 +128,7 @@
 * Recommander avec note reprise : recommander une tournée qui avait une note (alors que le panier n'a pas de note) : vérifier que la note est automatiquement reprise dans le panier et que la notification indique « Note reprise : "..." ».
 * Recommander avec conflit de note : si le panier a déjà une note saisie et qu'on recommande une commande ayant aussi une note : vérifier que la note actuelle du panier est conservée et qu'une notification informe que l'ancienne note n'a pas été importée.
 * Tri par popularité par défaut (E-5) : à l'ouverture de l'application (ou après effacement des données de navigation), le tri actif est automatiquement « Popularité » ; les boissons les plus commandées s'affichent en tête de chaque section, et celles à score égal sont rangées par ordre alphabétique. Si on change pour « Prix ↗ » ou « Alphabétique », ce choix reste persisté au rechargement.
+* Recherche en direct dans le menu (E-3) : saisir un mot (ex: « blanche », « coca », « jup ») dans la barre de recherche au-dessus du menu : les boissons correspondantes de toutes les catégories s'affichent instantanément à plat avec leur catégorie d'origine indiquée en petit. Vérifier que la recherche est insensible aux accents et à la casse (« leffe » trouve « Leffe Blonde »). Effacer la recherche (croix ou touche Échap) : les catégories reprennent exactement leur état précédent (plié/déplié). Saisir une chaîne inexistante (ex. « xyz ») : vérifier le message « Aucune boisson ne correspond à « xyz » » et le bouton d'effacement.
+* Alerte de doublon de nom (E-10) : ouvrir une catégorie (ex. Bières au fût), cliquer sur « + » pour ajouter une boisson, et taper le nom d'une bière déjà présente (ex. « Jupiler ») : un encadré d'avertissement ambré apparaît immédiatement sous le champ pour signaler que la boisson existe déjà dans cette catégorie. Vérifier que l'ajout reste possible en cliquant sur Ajouter (alerte informative non-bloquante). Tester également en modification de nom d'une boisson existante.
 
 
