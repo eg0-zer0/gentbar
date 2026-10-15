@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'sonner';
+import { AlertTriangle } from 'lucide-react';
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
@@ -7,8 +8,18 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 
 import { useTheme } from '../contexts/ThemeContext';
+import { findDuplicateDrinkName } from '../lib/search';
 
-const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) => {
+const EditDrink = ({
+  drink,
+  isOpen,
+  onClose,
+  onSave,
+  onDelete,
+  mode = 'edit',
+  categoryId,
+  categories = []
+}) => {
   const { theme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
@@ -25,6 +36,16 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
       setFormData({ name: '', price: '' });
     }
   }, [drink, mode]);
+
+  const categoryDrinks = useMemo(() => {
+    if (!categoryId || !categories.length) return [];
+    const cat = categories.find(c => c.id === categoryId);
+    return cat?.drinks || [];
+  }, [categoryId, categories]);
+
+  const duplicateDrink = useMemo(() => {
+    return findDuplicateDrinkName(categoryDrinks, formData.name, mode === 'edit' ? drink?.id : null);
+  }, [categoryDrinks, formData.name, drink, mode]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -81,6 +102,17 @@ const EditDrink = ({ drink, isOpen, onClose, onSave, onDelete, mode = 'edit' }) 
               required
               className="w-full bg-background text-foreground"
             />
+            {duplicateDrink && (
+              <p
+                role="alert"
+                className="mt-2 text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/30 rounded-md p-2"
+              >
+                <AlertTriangle size={15} className="flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                <span>
+                  Une boisson nommée « <strong className="font-semibold">{duplicateDrink.name}</strong> » existe déjà dans cette catégorie.
+                </span>
+              </p>
+            )}
           </div>
           <div>
             <Label htmlFor="drink-price" className={`${textClass} block mb-1`}>

@@ -13,6 +13,8 @@ import EditCategoryModal from './EditCategoryModal';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import SortControls from './SortControls';
 import TicketView from './TicketView';
+import DrinkCard from './DrinkCard';
+import MenuSearch from './MenuSearch';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
@@ -24,6 +26,7 @@ import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
 import { generateDrinkId } from '../utils/id';
 import { load, save, removeTicketCheckmarks, purgeOrphanTicketCheckmarks, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf, requestPersistentStorage } from '../lib/storage';
 import { reorderIntoCart } from '../lib/reorder';
+import { searchDrinks } from '../lib/search';
 import { formatPrice } from '../lib/format';
 import '../App.css';
 
@@ -73,6 +76,7 @@ const DrinkOrderApp = () => {
   const [orderHistory, setOrderHistory] = useState(() => load('orderHistory', mockOrderHistory, normalizeOrderHistory));
   const [sortBy, setSortBy] = useState(() => load('sortBy', 'popularity', normalizeSortBy));
   const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', false, normalizeBoolean));
+  const [searchQuery, setSearchQuery] = useState('');
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [ticketViewData, setTicketViewData] = useState(null);
@@ -149,6 +153,13 @@ const DrinkOrderApp = () => {
         return sorted.sort((a, b) => a.name.localeCompare(b.name));
     }
   };
+
+  // Résultats de la recherche dans le menu (E-3)
+  const searchResults = useMemo(() => {
+    const results = searchDrinks(categories, searchQuery);
+    if (!results) return null;
+    return sortDrinks(results, sortBy);
+  }, [categories, searchQuery, sortBy, drinkPopularity]);
 
   // ---- GESTION PANIER ----
 
@@ -356,26 +367,77 @@ const DrinkOrderApp = () => {
           </Button>
         </div>
 
+        <MenuSearch
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onClear={() => setSearchQuery('')}
+          className="mb-6"
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-            {categories.map(c => (
-              <CategorySection
-                key={c.id}
-                category={c}
-                onAddDrink={handleAddDrink}
-                onEditDrink={handleEditDrink}
-                onToggleCategory={handleToggleCategory}
-                onEditCategory={handleEditCategory}
-                onAddDrinkToCategory={handleAddDrinkToCategory}
-                onDeleteCategory={handleDeleteCategory}
-                onDeleteDrink={handleDeleteDrink}
-                sortedDrinks={sortDrinks(c.drinks, sortBy)}
-                drinkPopularity={drinkPopularity}
-                orders={orders}
-                soundEnabled={soundEnabled}
-                viewMode={viewMode}
-              />
-            ))}
+            {searchResults !== null ? (
+              <section aria-label="Résultats de recherche" className="mb-6">
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <h2 className="text-base font-semibold text-foreground">
+                    {searchResults.length === 0
+                      ? 'Aucun résultat'
+                      : `${searchResults.length} boisson${searchResults.length > 1 ? 's' : ''} trouvée${searchResults.length > 1 ? 's' : ''}`}
+                  </h2>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery('')}
+                    className="text-xs text-muted-foreground hover:text-foreground h-8"
+                  >
+                    Effacer la recherche
+                  </Button>
+                </div>
+
+                {searchResults.length === 0 ? (
+                  <div className="p-8 text-center rounded-lg border border-border bg-card/50 text-muted-foreground">
+                    <p className="text-sm">Aucune boisson ne correspond à « <span className="font-medium text-foreground">{searchQuery}</span> ».</p>
+                  </div>
+                ) : (
+                  <div className="category-grid" aria-label="Boissons trouvées">
+                    {searchResults.map((drink) => (
+                      <DrinkCard
+                        key={drink.id}
+                        drink={drink}
+                        onAdd={handleAddDrink}
+                        onEdit={handleEditDrink}
+                        onDelete={handleDeleteDrink}
+                        popularityScore={drinkPopularity[drink.id] ?? 0}
+                        quantityInOrder={orders.find(o => o.drinkId === drink.id)?.quantity || 0}
+                        soundEnabled={soundEnabled}
+                        categoryName={drink.categoryName}
+                        categoryIcon={drink.categoryIcon}
+                        className="drink-card"
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            ) : (
+              categories.map(c => (
+                <CategorySection
+                  key={c.id}
+                  category={c}
+                  onAddDrink={handleAddDrink}
+                  onEditDrink={handleEditDrink}
+                  onToggleCategory={handleToggleCategory}
+                  onEditCategory={handleEditCategory}
+                  onAddDrinkToCategory={handleAddDrinkToCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onDeleteDrink={handleDeleteDrink}
+                  sortedDrinks={sortDrinks(c.drinks, sortBy)}
+                  drinkPopularity={drinkPopularity}
+                  orders={orders}
+                  soundEnabled={soundEnabled}
+                  viewMode={viewMode}
+                />
+              ))
+            )}
           </div>
           <div className="lg:col-span-1 space-y-6">
             <OrderSummary
@@ -415,6 +477,7 @@ const DrinkOrderApp = () => {
 
         <EditDrinkModal
           {...editDrinkModal}
+          categories={categories}
           onClose={() => setEditDrinkModal({ isOpen: false, drink: null, categoryId: null, mode: 'edit' })}
           onSave={handleSaveDrink}
           onDelete={handleDeleteDrink}

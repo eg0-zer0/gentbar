@@ -47,7 +47,9 @@ const DrinkCard = ({
   onEdit,
   popularityScore = 0,
   quantityInOrder = 0,
-  soundEnabled = true
+  soundEnabled = true,
+  categoryName,
+  categoryIcon
 }) => {
   const [isAdded, setIsAdded] = useState(false);
   const [pulse, setPulse] = useState(false);
@@ -120,6 +122,13 @@ if (viewMode === 'large') {
           </Badge>
         )}
       </div>
+      {/* Catégorie d'origine (mode recherche) */}
+      {categoryName && (
+        <span className="text-[11px] text-muted-foreground font-normal mb-1 flex items-center justify-center gap-1 max-w-full truncate px-1">
+          {categoryIcon && <span aria-hidden="true">{categoryIcon}</span>}
+          <span className="truncate">{categoryName}</span>
+        </span>
+      )}
       {/* Ligne 2 : Nom boisson, centrée */}
       <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
       {/* Ligne 3 : Prix, centré */}
@@ -156,6 +165,13 @@ if (viewMode === 'compact') {
       aria-label={`Ajouter ${drink.name} à la commande`}
       style={{ minHeight: 98 }}
     >
+      {/* Catégorie d'origine (mode recherche) */}
+      {categoryName && (
+        <span className="text-[10px] text-muted-foreground font-normal mb-0.5 flex items-center justify-center gap-1 max-w-full truncate px-1">
+          {categoryIcon && <span aria-hidden="true">{categoryIcon}</span>}
+          <span className="truncate">{categoryName}</span>
+        </span>
+      )}
       {/* Nom boisson, centré */}
       <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
       {/* Bouton modifier, petit en bas à droite */}
@@ -189,6 +205,13 @@ return (
     aria-label={`Ajouter ${drink.name} à la commande`}
     style={{ minHeight: 78 }}
   >
+    {/* Catégorie d'origine (mode recherche) */}
+    {categoryName && (
+      <span className="text-[9px] text-muted-foreground font-normal mb-0.5 flex items-center justify-center gap-1 max-w-full truncate px-1">
+        {categoryIcon && <span aria-hidden="true">{categoryIcon}</span>}
+        <span className="truncate">{categoryName}</span>
+      </span>
+    )}
     {/* Nom boisson, centré */}
     <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
     {/* Bouton modifier en bas à droite */}
