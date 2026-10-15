@@ -1,6 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useViewMode } from '../contexts/ViewModeContext';
-import { toast } from 'sonner';
 
 // UI components
 import Header from './Header';
@@ -18,65 +17,72 @@ import MenuSearch from './MenuSearch';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
-// Icons etc.
-import { Plus, CheckCircle2, Receipt, RotateCcw } from 'lucide-react';
+// Icons
+import { CheckCircle2, Receipt, RotateCcw } from 'lucide-react';
+
+// Custom Hooks
+import { useStoredState } from '../hooks/useStoredState';
+import { useCart } from '../hooks/useCart';
+import { useMenus } from '../hooks/useMenus';
+import { useOrderHistory } from '../hooks/useOrderHistory';
+import { useDrinkFilter } from '../hooks/useDrinkFilter';
 
 // Data & utils
-import { mockCategories, mockOrderHistory, MENU_VERSION } from '../mock';
-import { generateDrinkId } from '../utils/id';
-import { load, save, removeTicketCheckmarks, purgeOrphanTicketCheckmarks, loadRaw, saveRaw, normalizeCategories, normalizeOrders, normalizeOrderHistory, normalizeBoolean, normalizeOneOf, requestPersistentStorage } from '../lib/storage';
+import { normalizeBoolean, requestPersistentStorage } from '../lib/storage';
 import { reorderIntoCart } from '../lib/reorder';
-import { searchDrinks } from '../lib/search';
 import { formatPrice } from '../lib/format';
 import '../App.css';
 
-const normalizeSortBy = normalizeOneOf(['name', 'popularity', 'price-asc', 'price-desc']);
-
-// Message à afficher une fois après un remplacement de carte ayant retiré des lignes du panier.
-let menuMigrationNotice = null;
-
-/**
- * Remplace la carte stockée quand MENU_VERSION change (8 bis) :
- *  1. l'ancienne carte est copiée telle quelle dans `categories__backup` (jamais perdue) ;
- *  2. la nouvelle carte est installée, puis le marqueur de version est écrit en dernier
- *     (une interruption en cours de route relance simplement la migration) ;
- *  3. les lignes du panier dont le drinkId n'existe plus dans la nouvelle carte sont retirées.
- * Idempotent : sans changement de version, ne fait rien.
- */
-const migrateMenuIfNeeded = () => {
-  if (loadRaw('menuVersion') === MENU_VERSION) return;
-
-  const previousRaw = loadRaw('categories');
-  if (previousRaw !== null) saveRaw('categories__backup', previousRaw);
-
-  save('categories', mockCategories);
-
-  const validIds = new Set(mockCategories.flatMap((c) => c.drinks.map((d) => d.id)));
-  const currentOrders = load('orders', [], normalizeOrders);
-  const keptOrders = currentOrders.filter((o) => validIds.has(o.drinkId));
-  const removedCount = currentOrders.length - keptOrders.length;
-  if (removedCount > 0) {
-    save('orders', keptOrders);
-    menuMigrationNotice = `${removedCount} article${removedCount > 1 ? 's' : ''} retiré${removedCount > 1 ? 's' : ''} du panier : absent${removedCount > 1 ? 's' : ''} de la nouvelle carte.`;
-  }
-
-  saveRaw('menuVersion', MENU_VERSION);
-};
-
 const DrinkOrderApp = () => {
-
   const { viewMode, setViewMode } = useViewMode();
 
-  const [categories, setCategories] = useState(() => {
-    migrateMenuIfNeeded();
-    return load('categories', mockCategories, normalizeCategories);
-  });
-  const [orders, setOrders] = useState(() => load('orders', [], normalizeOrders));
-  const [orderNote, setOrderNote] = useState(() => load('orderNote', ''));
-  const [orderHistory, setOrderHistory] = useState(() => load('orderHistory', mockOrderHistory, normalizeOrderHistory));
-  const [sortBy, setSortBy] = useState(() => load('sortBy', 'popularity', normalizeSortBy));
-  const [soundEnabled, setSoundEnabled] = useState(() => load('soundEnabled', false, normalizeBoolean));
-  const [searchQuery, setSearchQuery] = useState('');
+  // 1. Gestion des menus et catégories
+  const {
+    categories,
+    toggleCategory,
+    saveCategory,
+    deleteCategory,
+    saveDrink,
+    deleteDrink
+  } = useMenus();
+
+  // 2. Gestion du panier et de la note libre
+  const {
+    orders,
+    setOrders,
+    orderNote,
+    setOrderNote,
+    totalAmount,
+    addDrink,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    removeItemsByDrinkIds,
+    updateItemDetails
+  } = useCart();
+
+  // 3. Gestion de l'historique et popularité des boissons
+  const {
+    orderHistory,
+    drinkPopularity,
+    createOrder,
+    removeOrder
+  } = useOrderHistory(categories);
+
+  // 4. Filtrage, tri et recherche multi-catégories (E-3, E-5)
+  const {
+    sortBy,
+    setSortBy,
+    sortDrinks,
+    searchQuery,
+    setSearchQuery,
+    searchResults
+  } = useDrinkFilter(categories, drinkPopularity);
+
+  // 5. Préférences locales
+  const [soundEnabled, setSoundEnabled] = useStoredState('soundEnabled', false, normalizeBoolean);
+
+  // 6. États des fenêtres modales & dialogues
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [ticketViewData, setTicketViewData] = useState(null);
@@ -91,148 +97,27 @@ const DrinkOrderApp = () => {
   const [editCategoryModal, setEditCategoryModal] = useState({ isOpen: false, category: null });
   const [deleteDialog, setDeleteDialog] = useState({ isOpen: false, type: null, item: null, categoryId: null });
 
-  useEffect(() => { save('categories', categories); }, [categories]);
-  useEffect(() => { save('orders', orders); }, [orders]);
-  useEffect(() => { save('orderNote', orderNote); }, [orderNote]);
-  useEffect(() => { save('orderHistory', orderHistory); }, [orderHistory]);
-  useEffect(() => { save('soundEnabled', soundEnabled); }, [soundEnabled]);
-  useEffect(() => { save('sortBy', sortBy); }, [sortBy]);
   useEffect(() => {
     requestPersistentStorage();
-    purgeOrphanTicketCheckmarks(orderHistory);
-  }, []);
-  // viewMode : déjà persisté (et validé) par ViewModeContext.
-
-  // Remplacement de carte : prévenir si des articles ont été retirés du panier (une seule fois).
-  useEffect(() => {
-    if (menuMigrationNotice) {
-      toast(menuMigrationNotice);
-      menuMigrationNotice = null;
-    }
   }, []);
 
-  // Popularité des boissons (comptée par drinkId, avec repli sur le nom pour l'historique antérieur)
-  const drinkPopularity = useMemo(() => {
-    const nameToId = new Map();
-    categories.forEach(c => {
-      c.drinks.forEach(d => {
-        if (!nameToId.has(d.name)) {
-          nameToId.set(d.name, d.id);
-        }
-      });
+  // ---- FINALISER LA COMMANDE ----
+  const finalizeOrder = () => {
+    const newOrder = createOrder({
+      items: orders,
+      total: totalAmount,
+      note: orderNote
     });
-
-    const byId = {};
-    orderHistory.forEach(order => {
-      order.items.forEach(item => {
-        const id = item.drinkId || nameToId.get(item.drinkName);
-        if (id) {
-          byId[id] = (byId[id] || 0) + item.quantity;
-        }
-      });
-    });
-    return byId;
-  }, [orderHistory, categories]);
-
-  // Tri des boissons
-  const sortDrinks = (drinks, sortBy) => {
-    const sorted = [...drinks];
-    switch (sortBy) {
-      case 'popularity':
-        return sorted.sort((a, b) => {
-          const diff = (drinkPopularity[b.id] || 0) - (drinkPopularity[a.id] || 0);
-          if (diff !== 0) return diff;
-          return a.name.localeCompare(b.name);
-        });
-      case 'price-asc':
-        return sorted.sort((a, b) => a.price - b.price);
-      case 'price-desc':
-        return sorted.sort((a, b) => b.price - a.price);
-      case 'name':
-      default:
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-    }
-  };
-
-  // Résultats de la recherche dans le menu (E-3)
-  const searchResults = useMemo(() => {
-    const results = searchDrinks(categories, searchQuery);
-    if (!results) return null;
-    return sortDrinks(results, sortBy);
-  }, [categories, searchQuery, sortBy, drinkPopularity]);
-
-  // ---- GESTION PANIER ----
-
-  const handleAddDrink = (drink) => {
-    setOrders(prevOrders => {
-      const idx = prevOrders.findIndex(order => order.drinkId === drink.id);
-      if (idx >= 0) {
-        const updated = [...prevOrders];
-        updated[idx] = {
-          ...updated[idx],
-          drinkName: drink.name,
-          price: drink.price,
-          quantity: updated[idx].quantity + 1
-        };
-        return updated;
-      }
-      return [
-        ...prevOrders,
-        { drinkId: drink.id, drinkName: drink.name, price: drink.price, quantity: 1, addedAt: new Date().toISOString() }
-      ];
-    });
-  };
-
-  const handleUpdateQuantity = (id, qty) => {
-    if (qty <= 0) {
-      handleRemoveItem(id);
-    } else {
-      setOrders(prev => prev.map(i => i.drinkId === id ? { ...i, quantity: qty } : i));
-    }
-  };
-
-  const handleRemoveItem = (id) => {
-    setOrders(prev => prev.filter(i => i.drinkId !== id));
-    toast("Article supprimé", { description: "L'article a été retiré du panier" });
-  };
-
-  const handleClearAll = () => {
-    setOrders([]);
-    setOrderNote('');
-    toast("Panier vidé", { description: "Toutes les boissons ont été retirées du panier." });
+    clearCart();
+    setShowConfirmModal(false);
+    setOrderSuccessModal({ isOpen: true, order: newOrder });
   };
 
   const handleConfirmOrderClick = () => {
     if (orders.length) setShowConfirmModal(true);
   };
 
-  // ---- FINALISER LA COMMANDE ----
-
-  const finalizeOrder = () => {
-    const total = orders.reduce((sum, o) => sum + o.price * o.quantity, 0);
-    const trimmedNote = typeof orderNote === 'string' ? orderNote.trim() : '';
-    const newOrder = {
-      id: `order-${Date.now()}`,
-      date: new Date().toISOString(),
-      items: orders.map(o => ({
-        drinkId: o.drinkId,
-        drinkName: o.drinkName,
-        quantity: o.quantity,
-        price: o.price
-      })),
-      total,
-      note: trimmedNote
-    };
-    setOrderHistory(prev => [newOrder, ...prev]);
-    setOrders([]);
-    setOrderNote('');
-    setShowConfirmModal(false);
-    toast("Commande confirmée", { description: `Total : ${formatPrice(total)}` });
-    setOrderSuccessModal({ isOpen: true, order: newOrder });
-  };
-
   // ---- GESTION VUE TICKET (E-4) ----
-
   const handleOpenTicket = (orderToView, returnTo = 'menu') => {
     if (returnTo === 'history') {
       setShowHistory(false);
@@ -248,6 +133,7 @@ const DrinkOrderApp = () => {
     }
   };
 
+  // ---- RECOMMANDER UNE TOURNÉE (E-8) ----
   const handleReorder = (orderToReorder) => {
     if (!orderToReorder) return;
     reorderIntoCart({
@@ -263,12 +149,7 @@ const DrinkOrderApp = () => {
     setOrderSuccessModal({ isOpen: false, order: null });
   };
 
-  // ---- GESTION CATEGORIES/DRINKS ----
-
-  const handleToggleCategory = (id) => setCategories(prev =>
-    prev.map(c => c.id === id ? { ...c, isCollapsed: !c.isCollapsed } : c)
-  );
-
+  // ---- HANDLERS BOISSONS ET CATÉGORIES ----
   const handleEditDrink = (drink, mode = 'edit') => {
     const cat = categories.find(c => c.drinks.some(d => d.id === drink.id));
     setEditDrinkModal({ isOpen: true, drink, categoryId: cat?.id, mode });
@@ -281,34 +162,12 @@ const DrinkOrderApp = () => {
 
   const confirmDeleteDrink = () => {
     const { item, categoryId } = deleteDialog;
-    setCategories(prev => prev.map(c =>
-      c.id === categoryId ? { ...c, drinks: c.drinks.filter(d => d.id !== item.id) } : c
-    ));
-    setOrders(prev => prev.filter(o => o.drinkId !== item.id));
+    deleteDrink(item, categoryId, removeItem);
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
-    toast("Boisson supprimée", { description: `${item.name} a été retirée du menu` });
   };
 
   const handleSaveDrink = (updated) => {
-    if (editDrinkModal.mode === 'add') {
-      setCategories(prev => prev.map(c =>
-        c.id === editDrinkModal.categoryId
-          ? { ...c, drinks: [...c.drinks, { ...updated, id: generateDrinkId(updated.name, c.id) }] }
-          : c
-      ));
-      toast("Boisson ajoutée", { description: `${updated.name} ajoutée au menu` });
-    } else {
-      setCategories(prev => prev.map(c => ({
-        ...c,
-        drinks: c.drinks.map(d => d.id === updated.id ? updated : d)
-      })));
-      setOrders(prev => prev.map(o =>
-        o.drinkId === updated.id
-          ? { ...o, drinkName: updated.name, price: updated.price }
-          : o
-      ));
-      toast("Boisson modifiée", { description: `${updated.name} modifiée` });
-    }
+    saveDrink(updated, editDrinkModal.mode, editDrinkModal.categoryId, updateItemDetails);
   };
 
   const handleAddDrinkToCategory = (categoryId) => {
@@ -320,30 +179,15 @@ const DrinkOrderApp = () => {
   const handleDeleteCategory = (cat) => {
     setDeleteDialog({ isOpen: true, type: 'category', item: cat });
   };
-  
-  const handleRemoveOrder = (orderId) => {
-    removeTicketCheckmarks(orderId);
-    setOrderHistory(prev => prev.filter(order => order.id !== orderId));
-  };
 
   const confirmDeleteCategory = () => {
     const cat = deleteDialog.item;
-    const catDrinkIds = new Set(cat?.drinks?.map(d => d.id) || []);
-    setCategories(prev => prev.filter(c => c.id !== cat.id));
-    setOrders(prev => prev.filter(o => !catDrinkIds.has(o.drinkId)));
+    deleteCategory(cat, removeItemsByDrinkIds);
     setDeleteDialog({ isOpen: false, type: null, item: null, categoryId: null });
-    toast("Catégorie supprimée", { description: `${cat.name} supprimée` });
   };
 
   const handleSaveCategory = (cat) => {
-    const exists = categories.some(c => c.id === cat.id);
-    if (exists) {
-      setCategories(prev => prev.map(c => c.id === cat.id ? cat : c));
-      toast("Catégorie modifiée", { description: `${cat.name} mise à jour` });
-    } else {
-      setCategories(prev => [...prev, { ...cat, id: `cat-${Date.now()}`, drinks: [], isCollapsed: false }]);
-      toast("Catégorie ajoutée", { description: `${cat.name} créée` });
-    }
+    saveCategory(cat);
   };
 
   const handleAddCategory = () => setEditCategoryModal({ isOpen: true, category: { name: '', icon: '' } });
@@ -401,7 +245,7 @@ const DrinkOrderApp = () => {
                       <DrinkCard
                         key={drink.id}
                         drink={drink}
-                        onAdd={handleAddDrink}
+                        onAdd={addDrink}
                         onEdit={handleEditDrink}
                         onDelete={handleDeleteDrink}
                         popularityScore={drinkPopularity[drink.id] ?? 0}
@@ -420,9 +264,9 @@ const DrinkOrderApp = () => {
                 <CategorySection
                   key={c.id}
                   category={c}
-                  onAddDrink={handleAddDrink}
+                  onAddDrink={addDrink}
                   onEditDrink={handleEditDrink}
-                  onToggleCategory={handleToggleCategory}
+                  onToggleCategory={toggleCategory}
                   onEditCategory={handleEditCategory}
                   onAddDrinkToCategory={handleAddDrinkToCategory}
                   onDeleteCategory={handleDeleteCategory}
@@ -439,9 +283,9 @@ const DrinkOrderApp = () => {
           <div className="lg:col-span-1 space-y-6">
             <OrderSummary
               orders={orders}
-              onUpdateQuantity={handleUpdateQuantity}
-              onRemoveItem={handleRemoveItem}
-              onClearAll={handleClearAll}
+              onUpdateQuantity={updateQuantity}
+              onRemoveItem={removeItem}
+              onClearAll={clearCart}
               onConfirmOrder={handleConfirmOrderClick}
               isConfirmModalOpen={showConfirmModal}
               isTicketOpen={Boolean(ticketViewData)}
@@ -455,7 +299,7 @@ const DrinkOrderApp = () => {
           onClose={() => setShowHistory(false)}
           isOpen={showHistory}
           categories={categories}
-          onRemoveOrder={handleRemoveOrder}
+          onRemoveOrder={removeOrder}
           onOpenTicket={(order) => handleOpenTicket(order, 'history')}
           onReorder={handleReorder}
         />
@@ -464,9 +308,9 @@ const DrinkOrderApp = () => {
           isOpen={showConfirmModal}
           onClose={() => setShowConfirmModal(false)}
           orders={orders}
-          onUpdateQuantity={handleUpdateQuantity}
-          onRemoveItem={handleRemoveItem}
-          onClearAll={handleClearAll}
+          onUpdateQuantity={updateQuantity}
+          onRemoveItem={removeItem}
+          onClearAll={clearCart}
           onConfirm={finalizeOrder}
           note={orderNote}
           onNoteChange={setOrderNote}
