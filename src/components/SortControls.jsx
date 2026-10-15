@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from './ui/dropdown-menu';
 
-const SortControls = ({ sortBy, setSortBy }) => {
+const SortControls = ({ sortBy, setSortBy, className = '' }) => {
 
   const sortOptions = [
     { value: 'popularity', label: 'Popularité', icon: TrendingUp },
@@ -24,23 +24,24 @@ const SortControls = ({ sortBy, setSortBy }) => {
   const bgHoverClass = 'hover:bg-accent/80 hover:text-accent-foreground';
 
   return (
-    <div className="inline-block text-sm font-medium">
-      <label className="mr-2" htmlFor="sort-menu">Trier par:</label>
+    <div className={`inline-flex shrink-0 ${className}`}>
+      <label className="sr-only" htmlFor="sort-menu">Trier par</label>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
             id="sort-menu"
-            className="btn-outline"
+            variant="outline"
+            className="h-10 px-3 bg-card text-foreground border-border hover:bg-accent hover:text-accent-foreground text-xs sm:text-sm font-medium shrink-0 shadow-sm gap-1.5"
             aria-haspopup="listbox"
             aria-label={`Trier les éléments, option actuelle: ${currentSort?.label || 'Popularité'}`}
           >
-            <ArrowUpDown className="mr-2 w-4 h-4" />
-            {currentSort?.label || 'Popularité'}
+            <ArrowUpDown className="w-4 h-4 shrink-0 text-muted-foreground" />
+            <span className="truncate">{currentSort?.label || 'Popularité'}</span>
           </Button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="w-48 bg-popover text-popover-foreground border border-border shadow-md" align="start">
+        <DropdownMenuContent className="w-44 bg-popover text-popover-foreground border border-border shadow-md" align="end">
           {sortOptions.map((option) => {
             const Icon = option.icon;
             const selected = sortBy === option.value;

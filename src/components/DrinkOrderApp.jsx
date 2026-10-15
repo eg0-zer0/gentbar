@@ -351,28 +351,25 @@ const DrinkOrderApp = () => {
   // === RENDER ===
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground transition-colors duration-300">
-      <div className={`container mx-auto px-4 py-8 max-w-7xl content-container ${!showConfirmModal ? 'pb-20' : ''}`}>
+      <div className={`container mx-auto px-3 sm:px-4 pt-2 sm:pt-4 pb-8 max-w-7xl content-container ${!showConfirmModal ? 'pb-20' : ''}`}>
         <Header
           soundEnabled={soundEnabled}
           onToggleSound={() => setSoundEnabled(s => !s)}
           viewMode={viewMode}
           onChangeViewMode={setViewMode}
           onShowHistory={() => setShowHistory(true)}
+          onAddCategory={handleAddCategory}
         />
 
-        <div className="flex items-center justify-between mb-4 gap-2">
+        <div className="flex items-center gap-2 mb-5">
+          <MenuSearch
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onClear={() => setSearchQuery('')}
+            className="flex-1"
+          />
           <SortControls sortBy={sortBy} setSortBy={setSortBy} />
-          <Button onClick={handleAddCategory} variant="primary" size="sm">
-            Ajouter une catégorie
-          </Button>
         </div>
-
-        <MenuSearch
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onClear={() => setSearchQuery('')}
-          className="mb-6"
-        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
