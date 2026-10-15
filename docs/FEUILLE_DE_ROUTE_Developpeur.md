@@ -153,6 +153,13 @@ Document court, à lire en premier. Le détail technique complet de chaque point
 | **9.9** | **E-2** Cagnotte | nouveau `CagnotteContext.jsx` et `CagnotteModal.jsx`, `Header.jsx`, `ConfirmOrderModal.jsx`, `App.css` |
 | **9.10** | **E-1** Récap. et partage équitable | nouveau `SplitBillModal.jsx`, nouveau `src/lib/split.js` (arrondi, réutilisé par E-2), `OrderHistory.jsx`, `DrinkOrderApp.jsx` |
 
+## Étape 10 — Nettoyage et tests finaux de l'application
+
+| # | Tâche | Fichiers principaux |
+|---|---|---|
+| **10.1** | **Unification des thèmes** : suppression du double système (suppression du bloc RGB dans `App.css`), centralisation absolue dans `src/index.css` via variables HSL, composants 100% agnostiques (tokens sémantiques universels), suppression des classes `dark:` en dur et nettoyage de `tailwind.config.js`. | `src/index.css`, `src/App.css`, `tailwind.config.js`, `src/components/**/*.jsx` |
+| **10.2** | **Audit final Lighthouse & PWA** : validation sur build de production (`yarn build`), mesure de performance réelle (>90/100), accessibilité, PWA hors-ligne et installation. | `build/`, `workbox-config.js` |
+
 ---
 
 ## Pour chaque étape

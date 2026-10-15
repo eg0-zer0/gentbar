@@ -276,6 +276,15 @@ Cette lecture directe remplace les hypothèses faites jusqu'ici à partir du cod
 
 **Correction** : unifier sur **un seul** système. Le plus simple, puisque `DrinkCard`/`CategorySection` et le nouveau `App.css` fonctionnent déjà : migrer les composants restants vers les mêmes classes personnalisées (ou, au choix, faire pointer les variables Tailwind historiques de `index.css` sur les nouvelles variables RGB). Dans tous les cas, **retirer un des deux systèmes** pour éviter que ce décalage ne revienne à la prochaine modification. Vérifier ensuite le contraste dans les 3 thèmes sur **tous** les écrans, pas seulement le menu.
 
+**Diagnostic complémentaire (Analyse Étape 10 — Décision propriétaire)** :
+- **Problème de cohabitation actuelle** : deux systèmes coexistent encore en parallèle (`src/index.css` avec variables HSL pour Tailwind/shadcn, et `src/App.css` avec variables RGB et surcharges de classes manuelles). De plus, les classes manuelles écrites avec le préfixe Tailwind `dark:` (ex. `dark:text-amber-400`, `dark:bg-green-950`) ignorent la classe `html.gentbar` car Tailwind n'active `dark:` que sur `.dark`.
+- **Architecture cible unifiée (Étape 10.1)** :
+  1. *Zéro logique de thème dans les composants React* : les composants ne connaissent ni clair, ni sombre, ni gentbar. Ils utilisent uniquement les tokens sémantiques universels (`bg-background`, `text-foreground`, `bg-card`, `bg-primary`, `hover:bg-accent`, `text-muted-foreground`). C'est le thème qui « habille » l'élément.
+  2. *Source unique de vérité (`src/index.css`)* : centralisation de tous les thèmes dans `index.css` via les variables HSL pour `:root`, `html.dark` et `html.gentbar`.
+  3. *Éradication du système doublon* : suppression du bloc RGB et des surcharges manuelles de `src/App.css`.
+  4. *Nettoyage de `tailwind.config.js`* : suppression du plugin mort `data-theme` et simplification des tokens.
+- **Planification** : Cette refonte est actée pour l'**Étape 10.1 (Unification des thèmes)**, suivie de l'**Étape 10.2 (Audit final Lighthouse & PWA)**.
+
 ---
 
 ### A-02 — Aucune notification affichée — P1

@@ -93,6 +93,10 @@
 - [ ] 9.9d Clôture, restitution, partage du résumé
 - [ ] 9.10 Récapitulatif classique (sélection de tickets) — optionnel
 
+## Étape 10 — Nettoyage et tests finaux de l'application
+- [ ] 10.1 Unification et simplification absolue des thèmes (zéro logique de thème dans les composants, source unique index.css via variables HSL, suppression du doublon RGB de App.css, suppression des préfixes dark: en dur)
+- [ ] 10.2 Audit final Lighthouse & PWA (build de production, mesure performance réelle >90/100, accessibilité, PWA hors-ligne)
+
 ---
 
 ## Journal
@@ -122,6 +126,7 @@
 * Étape 8 bis exécutée sur la branche isolée `roadmap-fix` pour les points 1, 2, 4 et 6 de `docs/VERIFICATION_Etapes_1-8.md` sans impacter `main`.
 * Maintien actif de l'écran (Screen Wake Lock) : non indispensable pour l'étape 9.2 selon retour utilisateur, consigné pour d'éventuelles améliorations UX ultérieures selon le support des navigateurs mobiles.
 * Vue Ticket depuis le panier : restreinte aux commandes finalisées (écran de succès et historique) pour garantir l'intégrité de l'historique et des prix.
+* Thèmes & architecture cible (Étape 10) : décision actée de supprimer le double système CSS (RGB dans App.css vs HSL dans index.css) et de rendre tous les composants totalement agnostiques aux thèmes (zéro conditionnel dans le code, usage exclusif des tokens sémantiques universels). Exécution en fin de parcours en étape 10.1 suivie de l'audit Lighthouse 10.2.
 
 ## À tester par le propriétaire sur appareil
 * Rendu visuel et lisibilité des textes sous le thème Gentbar (contraste texte blanc sur fond bleu nuit vérifié à plus de 14:1).
