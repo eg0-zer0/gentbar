@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feature-search` · **Prochaine étape** : 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04) · **Dernier commit** : a74df2f
+**Branche de travail** : `main` · **Prochaine étape** : 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04) · **Dernier commit** : 6fd7f2d
 
 ---
 
