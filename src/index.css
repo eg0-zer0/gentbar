@@ -57,7 +57,6 @@ code {
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-
     --primary: 254 83% 53%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96.1%;
@@ -75,14 +74,13 @@ code {
   }
 
   /* Thème Sombre */
-html.dark {
+  html.dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-
     --primary: 263 83% 58%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 14.9%;
@@ -99,14 +97,13 @@ html.dark {
   }
 
   /* Thème Gentbar personnalisé */
-html.gentbar {
+  html.gentbar {
     --background: 218 80% 15%;
     --foreground: 0 0% 100%;
     --card: 218 64% 18%;
     --card-foreground: 0 0% 100%;
     --popover: 218 80% 15%;
     --popover-foreground: 328 100% 60%;
-
     --primary: 204 22% 45%;
     --primary-foreground: 0 0% 100%;
     --secondary: 218 80% 15%;

@@ -4,11 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { useTheme } from '../contexts/ThemeContext';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
-  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     icon: '',

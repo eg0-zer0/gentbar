@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Badge } from './ui/badge';
 import { useViewMode } from '../contexts/ViewModeContext';
-import { Edit, Trash2, TrendingUp } from 'lucide-react';
+import { Edit, TrendingUp } from 'lucide-react';
 import { formatPrice } from '../lib/format';
 
 let sharedAudioCtx = null;

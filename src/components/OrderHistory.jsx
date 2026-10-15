@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Trash, Trash2, History, Calendar, Receipt, RotateCcw, StickyNote } from 'lucide-react';
+import { Trash2, History, Calendar, Receipt, RotateCcw, StickyNote } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import {
   Dialog,

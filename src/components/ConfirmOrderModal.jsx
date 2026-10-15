@@ -5,7 +5,6 @@ import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Trash2, Minus, Plus, Receipt } from 'lucide-react';
 import ShareButtons from './ShareButtons';
-import { useTheme } from '../contexts/ThemeContext';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/format';
 
@@ -20,7 +19,6 @@ const ConfirmOrderModal = ({
   note = '',
   onNoteChange
 }) => {
-  const { theme } = useTheme();
   const [isExpanded, setIsExpanded] = useState(true);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);

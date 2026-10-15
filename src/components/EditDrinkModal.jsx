@@ -7,7 +7,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 
-import { useTheme } from '../contexts/ThemeContext';
 import { findDuplicateDrinkName } from '../lib/search';
 
 const EditDrink = ({
@@ -20,7 +19,6 @@ const EditDrink = ({
   categoryId,
   categories = []
 }) => {
-  const { theme } = useTheme();
   const [formData, setFormData] = useState({
     name: '',
     price: '',

@@ -1,12 +1,8 @@
 import React from 'react';
 
 import DrinkCard from './DrinkCard';
-
-import { Badge } from './ui/badge';
-
 import { Button } from './ui/button';
-
-import { ChevronDown, ChevronRight, Edit, Plus, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit, Plus } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -14,8 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from './ui/dropdown-menu';
-
-import { useViewMode } from '../contexts/ViewModeContext';
 
 const CategorySection = ({
   category,
@@ -31,7 +25,6 @@ const CategorySection = ({
   orders = [],
   soundEnabled = true,
 }) => {
-  const { viewMode } = useViewMode();
 
   // Choix des boissons à afficher : tri personnalisé ou d'origine
   const drinksToShow = sortedDrinks.length > 0 ? sortedDrinks : category.drinks;

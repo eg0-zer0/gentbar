@@ -201,7 +201,7 @@ export const normalizeString = (v) => (typeof v === 'string' ? { value: v, dropp
 export const normalizeOneOf = (allowed) => (v) => (allowed.includes(v) ? { value: v, dropped: 0 } : null);
 
 // Clés de données de l'application (réinitialisation).
-export const APP_DATA_KEYS = ['categories', 'orders', 'orderHistory', 'menuVersion', 'sortBy', 'soundEnabled'];
+export const APP_DATA_KEYS = ['categories', 'orders', 'orderNote', 'orderHistory', 'menuVersion', 'sortBy', 'soundEnabled'];
 
 /**
  * Demande au navigateur la persistance du stockage (A-27) pour éviter l'éviction automatique

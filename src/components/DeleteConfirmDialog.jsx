@@ -11,8 +11,6 @@ import {
   AlertDialogTitle,
 } from './ui/alert-dialog';
 
-import { useTheme } from '../contexts/ThemeContext';
-
 const DeleteConfirmDialog = ({
   isOpen,
   onClose,
