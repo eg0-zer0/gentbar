@@ -1,6 +1,6 @@
 # Conception — Multi-bars et Mode Soirée
 
-*Version de travail du 14/10/2026. Base : `main` au commit `4965a1a`. Complète les fiches `A-29`, `E-1`, `E-2` et `E-11` de l'audit ; en cas de contradiction, **ce document prime**.*
+*Version du 15/10/2026. Base : `main` au commit `7b69713`. Complète les fiches `A-29`, `E-1`, `E-2` et `E-11` de l'audit ; en cas de contradiction, **ce document prime**.*
 
 ---
 
@@ -392,7 +392,7 @@ Chaque ligne = une session de l'agent. Les fonctions pures (fusion, migration, p
 ## 9. À coller dans `PROGRESS.md` (remplace les lignes 9.6 à 9.10)
 
 ```markdown
-- [ ] 9.6 E-3 Recherche + E-10 Alerte de doublon (fonctions prenant les catégories en paramètre)
+- [x] 9.6 E-3 Recherche + E-10 Alerte de doublon (fonctions prenant les catégories en paramètre)
 - [ ] 9.7a Extraction des états de DrinkOrderApp en hooks (sans changement visible)
 - [ ] 9.7b Modèle multi-bars + migration (un seul bar visible)
 - [ ] 9.7c Moteur de fusion mergeMenus (remplace MENU_VERSION)

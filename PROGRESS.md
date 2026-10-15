@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `main` · **Prochaine étape** : 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04) · **Dernier commit** : 6fd7f2d
+**Branche de travail** : `main` · **Prochaine étape** : 9.7a Extraction des états de DrinkOrderApp en hooks (sans changement visible) · **Dernier commit** : 7b69713
 
 ---
 
@@ -79,11 +79,19 @@
 - [x] 9.3 E-8 Recommander la même tournée
 - [x] 9.4 E-7 Note libre sur une commande
 - [x] 9.5 E-5 Tri par popularité par défaut
-- [x] 9.6 E-3 Recherche dans le menu + E-10 Alerte de doublon
-- [ ] 9.7 A-29 Multi-bars (en sous-étapes, après la fusion A-04)
+- [x] 9.6 E-3 Recherche + E-10 Alerte de doublon (fonctions prenant les catégories en paramètre)
+- [ ] 9.7a Extraction des états de DrinkOrderApp en hooks (sans changement visible)
+- [ ] 9.7b Modèle multi-bars + migration (un seul bar visible)
+- [ ] 9.7c Moteur de fusion mergeMenus (remplace MENU_VERSION)
+- [ ] 9.7d Bouton du bar actif, Mes bars, ajout vide/copie, renommer/dupliquer/supprimer/restaurer
+- [ ] 9.7e Partage et réception (lien, QR, fichier)
+- [ ] 9.7f Commande sur deux bars
 - [ ] 9.8 E-11 Ajout en lot (texte collé)
-- [ ] 9.9 E-2 Cagnotte
-- [ ] 9.10 E-1 Récapitulatif de soirée et partage équitable
+- [ ] 9.9a Socle Soirée (centimes, arrondis, contexte, données)
+- [ ] 9.9b Parcours Soirée sans cagnotte
+- [ ] 9.9c Cagnotte
+- [ ] 9.9d Clôture, restitution, partage du résumé
+- [ ] 9.10 Récapitulatif classique (sélection de tickets) — optionnel
 
 ---
 
