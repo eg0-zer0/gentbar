@@ -7,9 +7,10 @@ import { Label } from './ui/label';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 
 const CATEGORY_ICONS = [
-  '🍺', '🍻', '🍷', '🥂', '🍾', '🍹', '🍸', '🥃',
-  '🥤', '💧', '🧃', '☕', '🫖', '🚫',
-  '🥨', '🍟', '🍔', '🍕', '🌭', '🥪', '🧀', '🍰',
+  '🍺', '🍻', '🍷', '🥂', '🍾', '🍹',
+  '🍸', '🥃', '🥤', '💧', '🧃', '☕',
+  '🫖', '🚫', '🥨', '🍟', '🍔', '🍕',
+  '🌭', '🥪', '🧀', '🍰', '🍦', '🍽️',
 ];
 
 const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
@@ -88,7 +89,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <Label htmlFor="category-icon" className={textClass}>Icône (emoji)</Label>
                 <Input
                   id="category-icon"
@@ -100,21 +101,22 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                   required
                   maxLength={4}
                   aria-label="Saisir un emoji personnalisé"
-                  className="w-16 h-9 text-center text-lg bg-background text-foreground px-2"
+                  className="w-16 h-10 text-center text-lg bg-background text-foreground px-2"
                 />
               </div>
-              <div className="grid grid-cols-8 gap-1.5 pt-1">
+              <div className="flex flex-wrap gap-1.5 pt-1">
                 {CATEGORY_ICONS.map((emoji) => (
                   <button
                     key={emoji}
                     type="button"
                     onClick={() => setFormData((prev) => ({ ...prev, icon: emoji }))}
-                    className={`h-9 rounded-md text-lg flex items-center justify-center border transition-colors ${
+                    className={`w-10 h-10 rounded-md text-lg flex items-center justify-center border transition-colors ${
                       formData.icon === emoji
                         ? 'border-primary bg-primary/15 ring-1 ring-primary'
                         : 'border-border bg-background hover:bg-accent'
                     }`}
                     aria-label={`Choisir l'icône ${emoji}`}
+                    aria-pressed={formData.icon === emoji}
                   >
                     {emoji}
                   </button>
