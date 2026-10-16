@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Card, CardContent } from './ui/card';
@@ -7,11 +7,13 @@ import { Trash2, Minus, Plus, Receipt } from 'lucide-react';
 import ShareButtons from './ShareButtons';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/format';
+import { groupOrderItemsByBar, getOrderItemKey } from '../lib/menus';
 
 const ConfirmOrderModal = ({
   isOpen,
   onClose,
   orders,
+  menus = [],
   onUpdateQuantity,
   onRemoveItem,
   onClearAll,
@@ -23,8 +25,9 @@ const ConfirmOrderModal = ({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
-  const totalAmount = orders.reduce((sum, o) => sum + o.price * o.quantity, 0);
-  const totalItems = orders.reduce((sum, o) => sum + o.quantity, 0);
+  const grouped = useMemo(() => groupOrderItemsByBar(orders, menus), [orders, menus]);
+  const totalAmount = grouped.totalAmount;
+  const totalItems = grouped.totalItems;
 
   if (!isOpen) return null;
 
@@ -32,9 +35,16 @@ const ConfirmOrderModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[92vw] max-w-md mx-auto rounded-lg p-0 overflow-hidden bg-card text-foreground border border-border shadow-xl">
         <DialogHeader className="p-4 border-b border-border bg-card">
-          <DialogTitle className="flex items-center gap-2 text-foreground font-semibold">
-            <Receipt className="w-5 h-5 text-primary" />
-            Résumé de la commande
+          <DialogTitle className="flex items-center justify-between text-foreground font-semibold">
+            <span className="flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
+              <span>Résumé de la commande</span>
+            </span>
+            {grouped.isMultiBar && (
+              <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">
+                {grouped.barsCount} bars
+              </span>
+            )}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Vérifiez le contenu de votre commande avant de la valider.
@@ -45,7 +55,7 @@ const ConfirmOrderModal = ({
           <CardContent className="p-5 flex flex-col">
             {/* Bouton de toggle d'affichage */}
             <Button
-              className="btn-primary mb-4"
+              className="btn-primary mb-3"
               onClick={() => setIsExpanded(e => !e)}
             >
               {isExpanded ? 'Réduire' : 'Voir'} ({totalItems} article{totalItems > 1 ? 's' : ''})
@@ -54,48 +64,109 @@ const ConfirmOrderModal = ({
             {isExpanded && (
               <>
                 {/* LISTE AVEC SCROLL */}
-                <div className="order-summary-list-scroll mb-4" style={{ maxHeight: '308px', overflowY: 'auto' }}>
-                  <ul className="space-y-2 p-1 m-0 list-none">
-                    {orders.map(order => (
-                      <li key={order.drinkId} className="flex justify-between items-center border-b border-border py-2">
-                        <div>
-                          <p className="font-medium text-foreground">{order.drinkName}</p>
-                          <p className="text-xs text-muted-text">{formatPrice(order.price)} / unité</p>
+                <div className="order-summary-list-scroll mb-4" style={{ maxHeight: '320px', overflowY: 'auto' }}>
+                  {grouped.isMultiBar ? (
+                    <div className="space-y-3 p-1">
+                      {grouped.groups.map((group) => (
+                        <div key={group.barId} className="rounded-xl border border-border/80 bg-background/50 overflow-hidden">
+                          <div className="flex items-center justify-between px-3 py-1.5 bg-muted/40 border-b border-border/60 text-xs font-semibold text-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <span>{group.barIcon}</span>
+                              <span>{group.barName}</span>
+                              {group.isDeletedBar && (
+                                <span className="text-[10px] text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">supprimé</span>
+                              )}
+                            </span>
+                            <span className="text-primary font-bold">{formatPrice(group.subtotal)}</span>
+                          </div>
+                          <ul className="divide-y divide-border/40 px-3 py-0.5 m-0 list-none">
+                            {group.items.map((order) => {
+                              const itemKey = getOrderItemKey(order);
+                              return (
+                                <li key={itemKey} className="flex justify-between items-center py-2 text-xs">
+                                  <div className="min-w-0 flex-1 pr-2">
+                                    <p className="font-medium truncate text-foreground">{order.drinkName}</p>
+                                    <p className="text-[11px] text-muted-foreground">{formatPrice(order.price)} / unité</p>
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <Button
+                                      className="btn-primary p-1 h-6 w-6 flex items-center justify-center"
+                                      size="sm"
+                                      onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1, order.barId)}
+                                    >
+                                      <Minus className="w-3 h-3" />
+                                    </Button>
+                                    <span className="w-5 text-center text-foreground font-semibold">{order.quantity}</span>
+                                    <Button
+                                      className="btn-primary p-1 h-6 w-6 flex items-center justify-center"
+                                      size="sm"
+                                      onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1, order.barId)}
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </Button>
+                                    <Button
+                                      className="btn-destructive p-1 h-6 w-6 flex items-center justify-center"
+                                      size="sm"
+                                      onClick={() => setItemToDelete(order)}
+                                      aria-label={`Supprimer ${order.drinkName} du panier`}
+                                    >
+                                      <Trash2 className="w-3 h-3 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </li>
+                              );
+                            })}
+                          </ul>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            className="btn-primary p-1"
-                            size="sm"
-                            onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1)}
-                          >
-                            <Minus className="w-3 h-3" />
-                          </Button>
-                          <span className="w-5 text-center text-foreground">{order.quantity}</span>
-                          <Button
-                            className="btn-primary p-1"
-                            size="sm"
-                            onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1)}
-                          >
-                            <Plus className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            className="btn-destructive p-1"
-                            size="sm"
-                            onClick={() => setItemToDelete(order)}
-                            aria-label={`Supprimer ${order.drinkName} du panier`}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="space-y-2 p-1 m-0 list-none">
+                      {orders.map(order => {
+                        const itemKey = getOrderItemKey(order);
+                        return (
+                          <li key={itemKey} className="flex justify-between items-center border-b border-border py-2">
+                            <div>
+                              <p className="font-medium text-foreground">{order.drinkName}</p>
+                              <p className="text-xs text-muted-text">{formatPrice(order.price)} / unité</p>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                className="btn-primary p-1"
+                                size="sm"
+                                onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1, order.barId)}
+                              >
+                                <Minus className="w-3 h-3" />
+                              </Button>
+                              <span className="w-5 text-center text-foreground">{order.quantity}</span>
+                              <Button
+                                className="btn-primary p-1"
+                                size="sm"
+                                onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1, order.barId)}
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                className="btn-destructive p-1"
+                                size="sm"
+                                onClick={() => setItemToDelete(order)}
+                                aria-label={`Supprimer ${order.drinkName} du panier`}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </div>
 
                 {/* FOOTER */}
                 <div className="border-t border-border pt-4 flex flex-col gap-3">
-                  <div className="text-lg font-semibold text-foreground">
-                    Total : {formatPrice(totalAmount)}
+                  <div className="text-lg font-semibold text-foreground flex items-center justify-between">
+                    <span>Total</span>
+                    <span className="text-primary font-bold">{formatPrice(totalAmount)}</span>
                   </div>
 
                   {/* Champ Note libre (E-7) */}
@@ -127,7 +198,7 @@ const ConfirmOrderModal = ({
                       Vider le panier
                     </Button>
                   </div>
-                  <ShareButtons order={orders} isCurrentOrder={true} />
+                  <ShareButtons order={orders} menus={menus} isCurrentOrder={true} />
                 </div>
               </>
             )}
@@ -138,8 +209,8 @@ const ConfirmOrderModal = ({
                 isOpen={!!itemToDelete}
                 onClose={() => setItemToDelete(null)}
                 onConfirm={() => {
-                  onRemoveItem(itemToDelete.drinkId);
-                  const remaining = orders.filter(o => o.drinkId !== itemToDelete.drinkId);
+                  onRemoveItem(itemToDelete.drinkId, itemToDelete.barId);
+                  const remaining = orders.filter(o => getOrderItemKey(o) !== getOrderItemKey(itemToDelete));
                   setItemToDelete(null);
                   if (remaining.length === 0) {
                     onClose();

@@ -151,6 +151,7 @@ const DrinkOrderApp = () => {
       order: orderToReorder,
       currentOrders: orders,
       categories,
+      menus,
       onOrdersUpdated: setOrders,
       currentNote: orderNote,
       onNoteUpdated: setOrderNote
@@ -351,6 +352,7 @@ const DrinkOrderApp = () => {
           <div className="lg:col-span-1 space-y-6">
             <OrderSummary
               orders={orders}
+              menus={menus}
               onUpdateQuantity={updateQuantity}
               onRemoveItem={removeItem}
               onClearAll={clearCart}
@@ -367,6 +369,7 @@ const DrinkOrderApp = () => {
           onClose={() => setShowHistory(false)}
           isOpen={showHistory}
           categories={categories}
+          menus={menus}
           onRemoveOrder={removeOrder}
           onOpenTicket={(order) => handleOpenTicket(order, 'history')}
           onReorder={handleReorder}
@@ -376,6 +379,7 @@ const DrinkOrderApp = () => {
           isOpen={showConfirmModal}
           onClose={() => setShowConfirmModal(false)}
           orders={orders}
+          menus={menus}
           onUpdateQuantity={updateQuantity}
           onRemoveItem={removeItem}
           onClearAll={clearCart}
@@ -465,6 +469,7 @@ const DrinkOrderApp = () => {
           <TicketView
             order={ticketViewData.order}
             categories={categories}
+            menus={menus}
             onClose={handleCloseTicket}
             onReorder={ticketViewData.order?.isCurrentOrder ? null : handleReorder}
           />
