@@ -12,7 +12,13 @@ import {
 } from './barShare';
 import { generateQrMatrix, buildQrSvgPath } from './qrcode';
 import { mockCategories, mockGentBarCategories, MENU_VERSION } from '../mock';
-import { buildBaseBar, buildGentBar, createCustomBar } from './menus';
+import {
+  buildBaseBar,
+  buildGentBar,
+  createCustomBar,
+  prepareImportedBar,
+  applyMergedBarToMenus
+} from './menus';
 
 describe('barShare — Partage et réception de carte (Étape 9.7e)', () => {
   const sampleBar = createCustomBar({
@@ -227,5 +233,45 @@ describe('barShare — Partage et réception de carte (Étape 9.7e)', () => {
     const hockeyBar = buildBaseBar(mockCategories, MENU_VERSION);
     const hockeyShare = await encodeBarToShareLink(hockeyBar);
     expect(hockeyShare.length > QR_WARN_LENGTH).toBe(hockeyShare.isLargeForQr);
+  });
+
+  test('6. Conservation du sourceId lors de l’import et de la fusion (§ 4.4)', () => {
+    // A. Import en tant que nouveau bar : conserve le sourceId reçu pour lier les futurs partages
+    const incomingFriendBar = {
+      id: 'foreign-id-999',
+      sourceId: 'gentbar-friend-source-42',
+      name: 'Chez Mimi',
+      icon: '🍻',
+      categories: []
+    };
+    const imported = prepareImportedBar(incomingFriendBar);
+    expect(imported.id).not.toBe('foreign-id-999');
+    expect(imported.sourceId).toBe('gentbar-friend-source-42');
+    expect(imported.name).toBe('Chez Mimi');
+    expect(imported.origin).toBe('custom');
+
+    // B. Fusion dans un bar local custom : conserve nom et icône locaux, et retient le sourceId reçu
+    const localCustomBar = createCustomBar({
+      id: 'my-local-bar',
+      name: 'Mon Bar Local',
+      icon: '🏠',
+      categories: []
+    });
+    const menus = [localCustomBar];
+
+    const mergedCategories = [{ id: 'c1', name: 'Bières', icon: '🍺', drinks: [] }];
+    const fakeMergedResult = { ...localCustomBar, categories: mergedCategories };
+
+    const updatedMenus = applyMergedBarToMenus(
+      menus,
+      'my-local-bar',
+      incomingFriendBar,
+      fakeMergedResult
+    );
+
+    expect(updatedMenus[0].name).toBe('Mon Bar Local'); // nom local préservé (§ 4.4)
+    expect(updatedMenus[0].icon).toBe('🏠');
+    expect(updatedMenus[0].id).toBe('my-local-bar');
+    expect(updatedMenus[0].sourceId).toBe('gentbar-friend-source-42'); // sourceId retenu (§ 4.4)
   });
 });

@@ -478,3 +478,49 @@ export function removeBar(menus, barId, activeMenuId = BASE_BAR_ID) {
   };
 }
 
+/**
+ * Prépare une carte reçue (lien ou fichier) pour son ajout comme nouveau bar personnalisé,
+ * en conservant son `sourceId` d'origine afin de permettre les mises à jour futures (§ 4.4).
+ */
+export function prepareImportedBar(incomingBar) {
+  const newId = generateBarId();
+  const preservedSourceId = isNonEmptyString(incomingBar?.sourceId)
+    ? incomingBar.sourceId.trim()
+    : `gentbar-${newId}`;
+
+  return createBar({
+    id: newId,
+    sourceId: preservedSourceId,
+    name: isNonEmptyString(incomingBar?.name) ? incomingBar.name.trim() : 'Carte importée',
+    icon: isNonEmptyString(incomingBar?.icon) ? incomingBar.icon.trim() : '🍺',
+    origin: 'custom',
+    baseVersion: null,
+    categories: Array.isArray(incomingBar?.categories) ? incomingBar.categories : []
+  });
+}
+
+/**
+ * Applique le résultat d'une fusion (`mergedBar`) sur un bar cible dans `menus` :
+ *  - conserve le `name` et l'`icon` locaux du bar cible (§ 4.4 : « le nom local ne change pas ») ;
+ *  - retient le `sourceId` de la carte reçue sur une carte personnalisée pour lier les partages suivants (§ 4.4).
+ */
+export function applyMergedBarToMenus(menus, targetBarId, incomingBar, mergedBar) {
+  if (!Array.isArray(menus)) return [];
+  const incomingSourceId = isNonEmptyString(incomingBar?.sourceId)
+    ? incomingBar.sourceId.trim()
+    : null;
+
+  return menus.map((bar) => {
+    if (!bar || bar.id !== targetBarId) return bar;
+    const retainSourceId = !isBaseBar(bar) && incomingSourceId ? incomingSourceId : bar.sourceId;
+    return {
+      ...mergedBar,
+      id: bar.id,
+      name: bar.name,
+      icon: bar.icon,
+      origin: bar.origin,
+      sourceId: retainSourceId
+    };
+  });
+}
+

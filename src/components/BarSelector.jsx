@@ -66,6 +66,7 @@ export const AddBarModal = ({
   initialMode = 'menu',
   initialSourceBarId = null
 }) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(initialMode); // 'menu' | 'empty' | 'copy'
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('🍺');
@@ -213,14 +214,13 @@ export const AddBarModal = ({
 
             <button
               type="button"
-              onClick={() =>
-                toast('Bientôt disponible', {
-                  description: 'La réception par lien, QR code ou fichier arrive à l’étape 9.7e.'
-                })
-              }
-              className="flex flex-col items-start gap-2 p-4 rounded-lg border border-border/60 bg-background/50 opacity-75 hover:opacity-100 text-left transition-opacity"
+              onClick={() => {
+                onClose();
+                navigate('/recevoir');
+              }}
+              className="flex flex-col items-start gap-2 p-4 rounded-lg border border-border/60 bg-background hover:bg-muted/50 text-left transition-colors"
             >
-              <div className="w-9 h-9 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
                 <QrCode className="w-5 h-5" />
               </div>
               <div>

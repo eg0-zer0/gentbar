@@ -19,8 +19,11 @@ import {
   createCustomBar,
   duplicateBar,
   renameBar,
-  removeBar
+  removeBar,
+  prepareImportedBar,
+  applyMergedBarToMenus
 } from '../lib/menus';
+import { mergeMenus, summarizeReport } from '../lib/menuMerge';
 import {
   load,
   save,
@@ -520,6 +523,64 @@ export const useMenus = () => {
     [activeMenuId]
   );
 
+  // Importer une nouvelle carte (reçue par lien ou fichier) en retenant son sourceId (§ 4.4)
+  const importNewBar = useCallback(
+    (incomingBar, { activate = true } = {}) => {
+      if (!incomingBar) return null;
+      const newBar = prepareImportedBar(incomingBar);
+      setMenus((prev) => [...(Array.isArray(prev) ? prev : []), newBar]);
+      if (activate) {
+        setActiveMenuId(newBar.id);
+      }
+      toast('Carte ajoutée', {
+        description: `${newBar.icon} ${newBar.name} a été enregistrée.`
+      });
+      return newBar;
+    },
+    []
+  );
+
+  // Fusionner une carte reçue dans un bar cible existant (§ 4.4, § 4.5)
+  const mergeIncomingBar = useCallback(
+    (targetBarId, incomingBar, { activate = true, overwriteModified = false } = {}) => {
+      const targetBar = Array.isArray(menus) ? menus.find((b) => b && b.id === targetBarId) : null;
+      if (!targetBar || !incomingBar) return null;
+
+      // 1. Sauvegarde préalable de précaution (§ 2.2)
+      const previousMenusRaw = loadRaw('menus');
+      if (previousMenusRaw !== null) {
+        saveRaw('menus__backup', previousMenusRaw);
+      }
+
+      // 2. Fusion par couple nom/catégorie (mode 'name')
+      const { bar: merged, report } = mergeMenus(targetBar, incomingBar, {
+        matchBy: 'name',
+        overwriteModified
+      });
+
+      // 3. Application en préservant id, nom, icône locaux et en retenant sourceId entrant
+      const nextMenus = applyMergedBarToMenus(menus, targetBarId, incomingBar, merged);
+      setMenus(nextMenus);
+
+      if (activate) {
+        setActiveMenuId(targetBarId);
+      }
+
+      // 4. Synchronisation des lignes du panier
+      const currentOrders = load('orders', [], normalizeOrders);
+      if (currentOrders.length > 0) {
+        save('orders', syncOrdersWithBar(currentOrders, merged));
+      }
+
+      toast('Carte mise à jour', {
+        description: `${targetBar.name} : ${summarizeReport(report)}`
+      });
+
+      return { bar: merged, report };
+    },
+    [menus]
+  );
+
   return {
     menus,
     activeMenuId,
@@ -536,7 +597,9 @@ export const useMenus = () => {
     deleteCategory,
     saveDrink,
     deleteDrink,
-    restoreBaseBar
+    restoreBaseBar,
+    importNewBar,
+    mergeIncomingBar
   };
 };
 

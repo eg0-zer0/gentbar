@@ -8,6 +8,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import LandingPage from "./components/LandingPage";
 import DrinkOrderApp from "./components/DrinkOrderApp";
 import MyBarsScreen from "./components/MyBarsScreen";
+import ReceiveBarPage from "./components/ReceiveBarPage";
 import NotFoundPage from "./components/NotFoundPage";
 import { Toaster } from "./components/ui/sonner";
 
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/app" element={<DrinkOrderApp />} />
                 <Route path="/bars" element={<MyBarsScreen />} />
+                <Route path="/recevoir" element={<ReceiveBarPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
               <Toaster />

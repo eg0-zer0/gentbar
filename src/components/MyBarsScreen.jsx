@@ -11,7 +11,8 @@ import {
   RotateCcw,
   Trash2,
   Share2,
-  ShoppingBag
+  ShoppingBag,
+  QrCode
 } from 'lucide-react';
 import { Button } from './ui/button';
 import {
@@ -24,6 +25,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import { AddBarModal, RenameBarModal } from './BarSelector';
+import ShareBarModal from './ShareBarModal';
 import { useMenus } from '../hooks/useMenus';
 import { useCart } from '../hooks/useCart';
 import { countBarDrinks, isBaseBar } from '../lib/menus';
@@ -52,6 +54,7 @@ const MyBarsScreen = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [restoreTarget, setRestoreTarget] = useState(null);
   const [pendingSwitchBar, setPendingSwitchBar] = useState(null);
+  const [shareTarget, setShareTarget] = useState(null);
 
   const handleUseBar = (bar) => {
     if (!bar) return;
@@ -102,15 +105,27 @@ const MyBarsScreen = () => {
             <h1 className="text-lg sm:text-xl font-bold text-foreground">Mes bars</h1>
           </div>
 
-          <Button
-            type="button"
-            size="sm"
-            className="btn-primary flex items-center gap-1.5"
-            onClick={() => setAddModalState({ isOpen: true, mode: 'menu', sourceBarId: null })}
-          >
-            <Plus className="w-4 h-4" />
-            <span>Ajouter un bar</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1.5 h-9 px-3"
+              onClick={() => navigate('/recevoir')}
+            >
+              <QrCode className="w-4 h-4" />
+              <span className="hidden sm:inline">Recevoir</span>
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              className="btn-primary flex items-center gap-1.5 h-9"
+              onClick={() => setAddModalState({ isOpen: true, mode: 'menu', sourceBarId: null })}
+            >
+              <Plus className="w-4 h-4" />
+              <span>Ajouter un bar</span>
+            </Button>
+          </div>
         </header>
 
         {/* Liste des bars */}
@@ -198,6 +213,24 @@ const MyBarsScreen = () => {
                         Dupliquer
                       </DropdownMenuItem>
 
+                      <DropdownMenuItem
+                        className="dropdown-menu-item"
+                        onClick={() => setShareTarget(bar)}
+                      >
+                        <Share2 className="mr-2 w-4 h-4" />
+                        Partager
+                      </DropdownMenuItem>
+
+                      {!official && bar.sourceId && (
+                        <DropdownMenuItem
+                          className="dropdown-menu-item"
+                          onClick={() => navigate('/recevoir')}
+                        >
+                          <QrCode className="mr-2 w-4 h-4" />
+                          Mettre à jour la carte
+                        </DropdownMenuItem>
+                      )}
+
                       {official ? (
                         <>
                           <DropdownMenuSeparator />
@@ -241,11 +274,7 @@ const MyBarsScreen = () => {
                     size="sm"
                     variant="outline"
                     className="flex items-center gap-1.5 flex-1 sm:flex-initial"
-                    onClick={() =>
-                      toast('Bientôt disponible', {
-                        description: 'Le partage par lien, QR code et fichier arrive à l’étape 9.7e.'
-                      })
-                    }
+                    onClick={() => setShareTarget(bar)}
                   >
                     <Share2 className="w-3.5 h-3.5" />
                     Partager
@@ -395,6 +424,13 @@ const MyBarsScreen = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Fenêtre de partage (QR code, lien, fichier) */}
+      <ShareBarModal
+        bar={shareTarget}
+        isOpen={Boolean(shareTarget)}
+        onClose={() => setShareTarget(null)}
+      />
     </div>
   );
 };
