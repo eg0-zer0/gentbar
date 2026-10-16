@@ -242,11 +242,25 @@ export const normalizeMenus = (v) => {
     }
 
     dropped += catResult.dropped;
-    value.push(
+    const normalizedBar =
       catResult.value === bar.categories
-        ? bar
-        : { ...bar, categories: catResult.value }
-    );
+        ? { ...bar }
+        : { ...bar, categories: catResult.value };
+
+    if (Array.isArray(bar.deletedIds)) {
+      const seen = new Set();
+      const cleanDeleted = [];
+      bar.deletedIds.forEach((id) => {
+        if (isStr(id) && id.trim().length > 0 && !seen.has(id)) {
+          seen.add(id);
+          cleanDeleted.push(id);
+        }
+      });
+      normalizedBar.deletedIds =
+        cleanDeleted.length > 500 ? cleanDeleted.slice(cleanDeleted.length - 500) : cleanDeleted;
+    }
+
+    value.push(normalizedBar);
   });
 
   if (dropped > 0 || value.length === 0) {
