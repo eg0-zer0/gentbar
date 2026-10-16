@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { usePWA } from '../hooks/usePWA';
 
-import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, FolderPlus } from 'lucide-react';
+import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, FolderPlus, Store, ChevronDown } from 'lucide-react';
 
 import { Button } from './ui/button';
 
@@ -26,7 +26,9 @@ const Header = ({
   onShowHistory, 
   onAddCategory,
   activeBarName = 'Club de hockey',
-  activeBarIcon = '🏒'
+  activeBarIcon = '🏒',
+  barsCount = 2,
+  onOpenBarSelector
 }) => {
   const { isInstallable, isInstalled, installApp } = usePWA();
   const { theme, cycleTheme } = useTheme();
@@ -65,14 +67,28 @@ const Header = ({
         <span className="font-bold text-base sm:text-lg tracking-tight select-none flex items-center gap-1.5 text-foreground shrink-0">
           <span className="text-xl" role="img" aria-label="Cocktail">🍹</span> GentBar
         </span>
-        {/* Pilule du bar actif (préparation multi-bars A-29) */}
-        <div 
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted/80 text-foreground border border-border/60 max-w-[170px] sm:max-w-[260px] truncate select-none shadow-xs"
-          title={`Carte active : ${activeBarName}`}
-        >
-          <span className="text-sm shrink-0" role="img" aria-label="Icône du bar">{activeBarIcon}</span>
-          <span className="truncate">{activeBarName}</span>
-        </div>
+        {/* Bouton du bar actif (§ 4.2 : cliquable dès qu'il y a au moins 2 bars) */}
+        {barsCount >= 2 && onOpenBarSelector ? (
+          <button
+            type="button"
+            onClick={onOpenBarSelector}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted/80 hover:bg-muted text-foreground border border-border/60 max-w-[185px] sm:max-w-[270px] truncate transition-colors shadow-xs cursor-pointer"
+            title={`Carte active : ${activeBarName} — toucher pour changer de bar`}
+            aria-label={`Carte active : ${activeBarName}. Changer de bar`}
+          >
+            <span className="text-sm shrink-0" role="img" aria-label="Icône du bar">{activeBarIcon}</span>
+            <span className="truncate">{activeBarName}</span>
+            <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-75" />
+          </button>
+        ) : (
+          <div 
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted/80 text-foreground border border-border/60 max-w-[170px] sm:max-w-[260px] truncate select-none shadow-xs"
+            title={`Carte active : ${activeBarName}`}
+          >
+            <span className="text-sm shrink-0" role="img" aria-label="Icône du bar">{activeBarIcon}</span>
+            <span className="truncate">{activeBarName}</span>
+          </div>
+        )}
       </div>
 
       {/* Burger menu à droite */}
@@ -87,6 +103,10 @@ const Header = ({
             <DropdownMenuItem className="dropdown-menu-item" onClick={() => { navigate('/?manual=true', { state: { fromMenu: true } }); setMenuOpen(false); }}>
               <Home className="mr-2 w-4 h-4 text-foreground" />
               Accueil
+            </DropdownMenuItem>
+            <DropdownMenuItem className="dropdown-menu-item" onClick={() => { navigate('/bars'); setMenuOpen(false); }}>
+              <Store className="mr-2 w-4 h-4 text-foreground" />
+              Mes bars
             </DropdownMenuItem>
             {onAddCategory && (
               <DropdownMenuItem className="dropdown-menu-item" onClick={() => { onAddCategory(); setMenuOpen(false); }}>
