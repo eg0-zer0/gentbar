@@ -1,27 +1,31 @@
 import { toast } from 'sonner';
 import { normalizeText } from './search';
-import { BASE_BAR_ID } from './menus';
+import { BASE_BAR_ID, getOrderItemKey } from './menus';
 
 /**
- * Ajoute les boissons d'une commande passée dans le panier en cours (E-8).
+ * Ajoute les boissons d'une commande passée dans le panier en cours (E-8, § 4.6).
  * Règles strictes :
- * 1. Cumul avec le panier existant (incrémente les quantités si déjà présent, ajoute sinon) - jamais de remplacement.
- * 2. Nom et prix repris du menu ACTUEL.
- * 3. Boisson introuvable (par drinkId puis nom normalisé) ignorée et signalée : « X n'est plus au menu, non ajoutée ».
- * 4. Plus aucun crash / appel à generateDrinkId() sans argument.
+ * 1. Cumul avec le panier existant par couple (drinkId, barId) — jamais de remplacement.
+ * 2. Nom et prix repris du menu ACTUEL du bar concerné.
+ * 3. Si un bar a été supprimé, avertissement clair : « X n'est plus disponible (bar supprimé) ».
+ * 4. Boisson introuvable au menu du bar ignorée et signalée : « X n'est plus au menu, non ajoutée ».
  * 5. Notifications séquencées sans superposition pour que l'avertissement et la confirmation soient lisibles successivement.
  *
  * @param {Object} options
  * @param {Object} options.order - La commande source (depuis l'historique, ticket ou modal succès).
  * @param {Array} options.currentOrders - Le panier actuel.
- * @param {Array} options.categories - Les catégories du menu actuel.
+ * @param {Array} [options.categories] - Les catégories du menu actuel (repli mono-bar).
+ * @param {Array} [options.menus] - La liste complète des bars enregistrés (multi-bars § 4.6).
  * @param {Function} options.onOrdersUpdated - Callback recevant le nouveau panier.
+ * @param {string} [options.currentNote] - La note actuelle du panier.
+ * @param {Function} [options.onNoteUpdated] - Callback pour mettre à jour la note.
  * @returns {Array} Le nouveau panier.
  */
 export function reorderIntoCart({
   order,
   currentOrders = [],
   categories = [],
+  menus = [],
   onOrdersUpdated,
   currentNote = '',
   onNoteUpdated
@@ -39,45 +43,80 @@ export function reorderIntoCart({
     return currentOrders;
   }
 
-  // Liste plate de toutes les boissons actuelles du menu
-  const allCurrentDrinks = (categories || []).flatMap(c => c.drinks || []);
+  const hasMenus = Array.isArray(menus) && menus.length > 0;
+  // Fallback liste plate des boissons du menu actif si menus non fourni
+  const fallbackDrinks = (categories || []).flatMap(c => c.drinks || []);
 
   const addedItems = [];
   const missingDrinks = [];
 
   items.forEach(item => {
     const rawName = item.drinkName || item.name || 'Boisson';
+    const targetBarId = item.barId || order?.barId || BASE_BAR_ID;
     let matchedDrink = null;
 
-    // 1. Recherche prioritaire par identifiant
-    if (item.drinkId) {
-      matchedDrink = allCurrentDrinks.find(d => d.id === item.drinkId);
-    }
+    if (hasMenus) {
+      const targetBar = menus.find(m => m.id === targetBarId);
+      if (!targetBar) {
+        // Le bar d'origine a été supprimé
+        missingDrinks.push({ name: rawName, reason: 'bar_deleted' });
+        return;
+      }
 
-    // 2. Repli par nom normalisé (anciennes commandes ou commandes migrées)
-    if (!matchedDrink && rawName) {
-      const normalizedTarget = normalizeText(rawName);
-      matchedDrink = allCurrentDrinks.find(d => normalizeText(d.name) === normalizedTarget);
-    }
+      const barDrinks = (targetBar.categories || []).flatMap(c => c.drinks || []);
 
-    if (matchedDrink) {
-      const itemBarId = item.barId || order?.barId || BASE_BAR_ID;
-      addedItems.push({
-        drinkId: matchedDrink.id,
-        drinkName: matchedDrink.name,
-        price: matchedDrink.price,
-        quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1,
-        barId: itemBarId
-      });
+      // 1. Recherche par drinkId dans ce bar
+      if (item.drinkId) {
+        matchedDrink = barDrinks.find(d => d.id === item.drinkId);
+      }
+      // 2. Repli par nom normalisé dans ce bar
+      if (!matchedDrink && rawName) {
+        const normalizedTarget = normalizeText(rawName);
+        matchedDrink = barDrinks.find(d => normalizeText(d.name) === normalizedTarget);
+      }
+
+      if (matchedDrink) {
+        addedItems.push({
+          drinkId: matchedDrink.id,
+          drinkName: matchedDrink.name,
+          price: matchedDrink.price,
+          quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1,
+          barId: targetBar.id
+        });
+      } else {
+        missingDrinks.push({ name: rawName, reason: 'not_on_menu' });
+      }
     } else {
-      missingDrinks.push(rawName);
+      // Repli mono-bar avec catégories fournies
+      if (item.drinkId) {
+        matchedDrink = fallbackDrinks.find(d => d.id === item.drinkId);
+      }
+      if (!matchedDrink && rawName) {
+        const normalizedTarget = normalizeText(rawName);
+        matchedDrink = fallbackDrinks.find(d => normalizeText(d.name) === normalizedTarget);
+      }
+
+      if (matchedDrink) {
+        addedItems.push({
+          drinkId: matchedDrink.id,
+          drinkName: matchedDrink.name,
+          price: matchedDrink.price,
+          quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1,
+          barId: targetBarId
+        });
+      } else {
+        missingDrinks.push({ name: rawName, reason: 'not_on_menu' });
+      }
     }
   });
 
-  // Si aucune boisson n'est disponible dans le menu actuel
+  // Si aucune boisson n'est disponible
   if (!addedItems.length) {
-    missingDrinks.forEach(name => {
-      toast.warning(`« ${name} » n'est plus au menu, non ajoutée`);
+    missingDrinks.forEach(missing => {
+      const msg = missing.reason === 'bar_deleted'
+        ? `« ${missing.name} » n'est plus disponible (bar supprimé)`
+        : `« ${missing.name} » n'est plus au menu, non ajoutée`;
+      toast.warning(msg);
     });
     toast.error("Aucune boisson n'a pu être ajoutée", {
       description: "Les boissons de cette commande ne figurent plus au menu actuel."
@@ -85,17 +124,18 @@ export function reorderIntoCart({
     return currentOrders;
   }
 
-  // Fusion cumulative dans le panier existant
+  // Fusion cumulative dans le panier existant (recherche par clé barId:drinkId)
   const newOrders = [...currentOrders];
 
   addedItems.forEach(itemToAdd => {
-    const existingIndex = newOrders.findIndex(o => o.drinkId === itemToAdd.drinkId);
+    const itemKeyToAdd = getOrderItemKey(itemToAdd);
+    const existingIndex = newOrders.findIndex(o => getOrderItemKey(o) === itemKeyToAdd);
     if (existingIndex !== -1) {
       newOrders[existingIndex] = {
         ...newOrders[existingIndex],
         drinkName: itemToAdd.drinkName,
         price: itemToAdd.price,
-        barId: newOrders[existingIndex].barId || itemToAdd.barId || BASE_BAR_ID,
+        barId: itemToAdd.barId,
         quantity: newOrders[existingIndex].quantity + itemToAdd.quantity
       };
     } else {
@@ -104,7 +144,7 @@ export function reorderIntoCart({
         drinkName: itemToAdd.drinkName,
         price: itemToAdd.price,
         quantity: itemToAdd.quantity,
-        barId: itemToAdd.barId || BASE_BAR_ID,
+        barId: itemToAdd.barId,
         addedAt: new Date().toISOString()
       });
     }
@@ -159,9 +199,12 @@ export function reorderIntoCart({
 
   if (missingDrinks.length > 0) {
     // 1. Affichage prioritaire de la première notification d'avertissement
-    missingDrinks.forEach((name, idx) => {
+    missingDrinks.forEach((missing, idx) => {
+      const msg = missing?.reason === 'bar_deleted'
+        ? `« ${missing.name} » n'est plus disponible (bar supprimé)`
+        : `« ${missing?.name || missing} » n'est plus au menu, non ajoutée`;
       setTimeout(() => {
-        toast.warning(`« ${name} » n'est plus au menu, non ajoutée`, { duration: 2000 });
+        toast.warning(msg, { duration: 2000 });
       }, idx * 2000);
     });
 
