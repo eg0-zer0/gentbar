@@ -7,6 +7,7 @@ import { PWAProvider } from "./contexts/PWAContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LandingPage from "./components/LandingPage";
 import DrinkOrderApp from "./components/DrinkOrderApp";
+import MyBarsScreen from "./components/MyBarsScreen";
 import NotFoundPage from "./components/NotFoundPage";
 import { Toaster } from "./components/ui/sonner";
 
@@ -23,6 +24,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/app" element={<DrinkOrderApp />} />
+                <Route path="/bars" element={<MyBarsScreen />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
               <Toaster />

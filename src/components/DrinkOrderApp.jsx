@@ -3,6 +3,7 @@ import { useViewMode } from '../contexts/ViewModeContext';
 
 // UI components
 import Header from './Header';
+import BarSelector from './BarSelector';
 import CategorySection from './CategorySection';
 import OrderSummary from './OrderSummary';
 import OrderHistory from './OrderHistory';
@@ -18,7 +19,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 // Icons
-import { CheckCircle2, Receipt, RotateCcw } from 'lucide-react';
+import { CheckCircle2, Receipt, RotateCcw, FolderPlus } from 'lucide-react';
 
 // Custom Hooks
 import { useStoredState } from '../hooks/useStoredState';
@@ -36,8 +37,14 @@ import '../App.css';
 const DrinkOrderApp = () => {
   const { viewMode, setViewMode } = useViewMode();
 
-  // 1. Gestion des menus et catégories
+  // 1. Gestion des menus et catégories (multi-bars)
   const {
+    menus,
+    activeMenuId,
+    activeMenu,
+    selectBar,
+    addEmptyBar,
+    duplicateExistingBar,
     categories,
     toggleCategory,
     saveCategory,
@@ -53,6 +60,7 @@ const DrinkOrderApp = () => {
     orderNote,
     setOrderNote,
     totalAmount,
+    totalItems,
     addDrink,
     updateQuantity,
     removeItem,
@@ -60,7 +68,7 @@ const DrinkOrderApp = () => {
     clearCart,
     removeItemsByDrinkIds,
     updateItemDetails
-  } = useCart();
+  } = useCart(activeMenuId);
 
   // 3. Gestion de l'historique et popularité des boissons
   const {
@@ -84,6 +92,7 @@ const DrinkOrderApp = () => {
   const [soundEnabled, setSoundEnabled] = useStoredState('soundEnabled', false, normalizeBoolean);
 
   // 6. États des fenêtres modales & dialogues
+  const [showBarSelector, setShowBarSelector] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [ticketViewData, setTicketViewData] = useState(null);
@@ -107,7 +116,8 @@ const DrinkOrderApp = () => {
     const newOrder = createOrder({
       items: orders,
       total: totalAmount,
-      note: orderNote
+      note: orderNote,
+      barId: activeMenuId
     });
     clearCart(false);
     setShowConfirmModal(false);
@@ -204,6 +214,31 @@ const DrinkOrderApp = () => {
           onChangeViewMode={setViewMode}
           onShowHistory={() => setShowHistory(true)}
           onAddCategory={handleAddCategory}
+          activeBarName={activeMenu?.name || 'Club de hockey'}
+          activeBarIcon={activeMenu?.icon || '🏒'}
+          barsCount={Array.isArray(menus) ? menus.length : 1}
+          onOpenBarSelector={() => setShowBarSelector(true)}
+        />
+
+        <BarSelector
+          isOpen={showBarSelector}
+          onClose={() => setShowBarSelector(false)}
+          menus={menus}
+          activeMenuId={activeMenuId}
+          onSelectBar={(barId) => {
+            setSearchQuery('');
+            selectBar(barId);
+          }}
+          onCreateEmptyBar={(params) => {
+            setSearchQuery('');
+            addEmptyBar({ ...params, activate: true });
+          }}
+          onDuplicateBar={(srcId, params) => {
+            setSearchQuery('');
+            duplicateExistingBar(srcId, { ...params, activate: true });
+          }}
+          cartItemsCount={totalItems}
+          onClearCart={clearCart}
         />
 
         <div className="flex items-center gap-2 mb-5">
@@ -260,6 +295,26 @@ const DrinkOrderApp = () => {
                   </div>
                 )}
               </section>
+            ) : categories.length === 0 ? (
+              <div className="p-8 text-center rounded-lg border border-dashed border-border bg-card/60 text-foreground space-y-3">
+                <div className="text-3xl select-none">{activeMenu?.icon || '🍺'}</div>
+                <h2 className="text-base font-semibold">
+                  La carte « {activeMenu?.name} » est vide
+                </h2>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Ajoutez une première catégorie (ex. Bières, Cocktails, Softs) pour commencer à enregistrer vos boissons.
+                </p>
+                <div className="pt-1">
+                  <Button
+                    type="button"
+                    className="btn-primary inline-flex items-center gap-2"
+                    onClick={handleAddCategory}
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                    Ajouter une catégorie
+                  </Button>
+                </div>
+              </div>
             ) : (
               categories.map(c => (
                 <CategorySection
