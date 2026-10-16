@@ -566,7 +566,15 @@ const BarSelector = ({
       </Dialog>
 
       {/* Dialogue à 3 choix si le panier n'est pas vide (§ 4.2) */}
-      <Dialog open={Boolean(pendingBar)} onOpenChange={(open) => !open && setPendingBar(null)}>
+      <Dialog
+        open={Boolean(pendingBar)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingBar(null);
+            onClose();
+          }
+        }}
+      >
         <DialogContent className="bg-card text-foreground w-[92vw] max-w-md mx-auto rounded-lg p-5 sm:p-6 border border-border shadow-xl">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">
@@ -603,7 +611,10 @@ const BarSelector = ({
               type="button"
               variant="ghost"
               className="w-full py-2 text-muted-foreground hover:text-foreground"
-              onClick={() => setPendingBar(null)}
+              onClick={() => {
+                setPendingBar(null);
+                onClose();
+              }}
             >
               Annuler
             </Button>
