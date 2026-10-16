@@ -1,12 +1,44 @@
-// Modèle de données et fonctions pures pour la gestion multi-bars (A-29 / Étape 9.7b).
+// Modèle de données et fonctions pures pour la gestion multi-bars (A-29 / Étapes 9.7b & 9.7c).
 // Aucun accès direct au stockage (localStorage) dans ce module.
 
 export const BASE_BAR_ID = 'rllhc';
 export const BASE_SOURCE_ID = 'gentbar-rllhc';
+export const GENTBAR_BAR_ID = 'gentbar';
+export const GENTBAR_SOURCE_ID = 'gentbar-base';
+export const BASE_BAR_IDS = [BASE_BAR_ID, GENTBAR_BAR_ID];
 export const SCHEMA_VERSION = 2;
+export const MAX_DELETED_IDS = 500;
 
 const isFiniteNumber = (n) => typeof n === 'number' && Number.isFinite(n);
 const isNonEmptyString = (s) => typeof s === 'string' && s.trim().length > 0;
+
+/**
+ * Normalise et plafonne une liste d'identifiants supprimés (sans doublon, max 500).
+ */
+export function normalizeDeletedIds(ids) {
+  if (!Array.isArray(ids)) return [];
+  const unique = [];
+  const seen = new Set();
+  for (let i = 0; i < ids.length; i += 1) {
+    const id = ids[i];
+    if (isNonEmptyString(id) && !seen.has(id)) {
+      seen.add(id);
+      unique.push(id);
+    }
+  }
+  if (unique.length > MAX_DELETED_IDS) {
+    return unique.slice(unique.length - MAX_DELETED_IDS);
+  }
+  return unique;
+}
+
+/**
+ * Ajoute un ou plusieurs identifiants à la liste `deletedIds` d'un bar (sans doublon, plafonné à 500).
+ */
+export function appendDeletedIds(existingIds = [], newIds = []) {
+  const incoming = Array.isArray(newIds) ? newIds : [newIds];
+  return normalizeDeletedIds([...(Array.isArray(existingIds) ? existingIds : []), ...incoming]);
+}
 
 /**
  * Crée un objet Bar normalisé.
@@ -18,6 +50,7 @@ export function createBar({
   icon = '🏒',
   origin = 'custom',
   baseVersion = null,
+  deletedIds,
   categories = []
 } = {}) {
   const safeId = isNonEmptyString(id) ? id : BASE_BAR_ID;
@@ -25,9 +58,11 @@ export function createBar({
     ? sourceId
     : safeId === BASE_BAR_ID
       ? BASE_SOURCE_ID
-      : `gentbar-${safeId}`;
+      : safeId === GENTBAR_BAR_ID
+        ? GENTBAR_SOURCE_ID
+        : `gentbar-${safeId}`;
 
-  return {
+  const bar = {
     id: safeId,
     sourceId: safeSourceId,
     name: isNonEmptyString(name) ? name : 'Bar',
@@ -36,15 +71,17 @@ export function createBar({
     baseVersion: baseVersion ?? null,
     categories: Array.isArray(categories) ? categories : []
   };
+
+  if (Array.isArray(deletedIds)) {
+    bar.deletedIds = normalizeDeletedIds(deletedIds);
+  }
+
+  return bar;
 }
 
-/**
- * Construit le bar de base « Club de hockey » à partir de mockCategories et MENU_VERSION.
- * Toutes les catégories et boissons portent `modified: false`.
- */
-export function buildBaseBar(mockCategories = [], menuVersion = null) {
-  const safeCategories = Array.isArray(mockCategories)
-    ? mockCategories
+const sanitizeBaseCategories = (categories = []) =>
+  Array.isArray(categories)
+    ? categories
         .filter((cat) => cat && isNonEmptyString(cat.id) && isNonEmptyString(cat.name))
         .map((cat) => ({
           ...cat,
@@ -60,6 +97,11 @@ export function buildBaseBar(mockCategories = [], menuVersion = null) {
         }))
     : [];
 
+/**
+ * Construit le bar de base principal « Club de hockey » à partir de mockCategories et MENU_VERSION.
+ * Toutes les catégories et boissons portent `modified: false`.
+ */
+export function buildBaseBar(mockCategories = [], menuVersion = null) {
   return createBar({
     id: BASE_BAR_ID,
     sourceId: BASE_SOURCE_ID,
@@ -67,8 +109,34 @@ export function buildBaseBar(mockCategories = [], menuVersion = null) {
     icon: '🏒',
     origin: 'base',
     baseVersion: menuVersion,
-    categories: safeCategories
+    categories: sanitizeBaseCategories(mockCategories)
   });
+}
+
+/**
+ * Construit le second bar de base officiel « GentBar » à partir de mockGentBarCategories et MENU_VERSION.
+ * Toutes les catégories et boissons portent `modified: false`.
+ */
+export function buildGentBar(gentBarCategories = [], menuVersion = null) {
+  return createBar({
+    id: GENTBAR_BAR_ID,
+    sourceId: GENTBAR_SOURCE_ID,
+    name: 'GentBar',
+    icon: '🍹',
+    origin: 'base',
+    baseVersion: menuVersion,
+    categories: sanitizeBaseCategories(gentBarCategories)
+  });
+}
+
+/**
+ * Construit les deux bars de base officiels de l'application (« Club de hockey » et « GentBar »).
+ */
+export function buildDefaultBaseBars(hockeyCategories = [], gentBarCategories = [], menuVersion = null) {
+  return [
+    buildBaseBar(hockeyCategories, menuVersion),
+    buildGentBar(gentBarCategories, menuVersion)
+  ];
 }
 
 /**
@@ -222,5 +290,43 @@ export function withBarId(lines, barId = BASE_BAR_ID) {
     }
 
     return nextLine;
+  });
+}
+
+/**
+ * Rafraîchit le nom et le prix des lignes du panier dont le `drinkId` existe dans `bar`,
+ * sans modifier les lignes inconnues ni toucher à leur `barId`.
+ * Fonction pure qui ne mute aucun de ses arguments.
+ */
+export function syncOrdersWithBar(orders, bar) {
+  if (!Array.isArray(orders)) return [];
+  const categories = Array.isArray(bar?.categories)
+    ? bar.categories
+    : Array.isArray(bar)
+      ? bar
+      : [];
+
+  const drinkById = new Map();
+  categories.forEach((cat) => {
+    if (cat && Array.isArray(cat.drinks)) {
+      cat.drinks.forEach((drink) => {
+        if (drink && isNonEmptyString(drink.id) && isNonEmptyString(drink.name) && isFiniteNumber(drink.price)) {
+          drinkById.set(drink.id, drink);
+        }
+      });
+    }
+  });
+
+  return orders.map((line) => {
+    if (!line || typeof line !== 'object') return line;
+    const matched = drinkById.get(line.drinkId);
+    if (!matched) {
+      return { ...line };
+    }
+    return {
+      ...line,
+      drinkName: matched.name,
+      price: matched.price
+    };
   });
 }

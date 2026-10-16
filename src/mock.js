@@ -204,6 +204,59 @@ export const mockCategories = [
   }
 ];
 
+export const mockGentBarCategories = [
+  {
+    id: 'gb-cocktails',
+    name: 'Cocktails',
+    icon: '🍹',
+    color: 'bg-pink-100 text-pink-800',
+    isCollapsed: false,
+    drinks: [
+      { id: 'gb-cocktails-aperolspritz', name: 'Aperol Spritz', price: 5.00 },
+      { id: 'gb-cocktails-gintonic', name: 'Gin Tonic', price: 5.00 },
+      { id: 'gb-cocktails-cubalibre', name: 'Cuba Libre', price: 5.00 },
+      { id: 'gb-cocktails-ricard', name: 'Ricard', price: 4.00 },
+    ]
+  },
+  {
+    id: 'gb-bieres',
+    name: 'Bières',
+    icon: '🍺',
+    color: 'bg-yellow-100 text-yellow-800',
+    isCollapsed: false,
+    drinks: [
+      { id: 'gb-bieres-desperados', name: 'Desperados', price: 2.50 },
+      { id: 'gb-bieres-corona', name: 'Corona', price: 2.50 },
+    ]
+  },
+  {
+    id: 'gb-vins',
+    name: 'Vins',
+    icon: '🍷',
+    color: 'bg-red-100 text-red-800',
+    isCollapsed: false,
+    drinks: [
+      { id: 'gb-vins-roseverre', name: 'Vin Rosé (verre)', price: 3.00 },
+      { id: 'gb-vins-blancverre', name: 'Vin Blanc (verre)', price: 3.00 },
+      { id: 'gb-vins-cavaverre', name: 'Cava (verre)', price: 3.00 },
+      { id: 'gb-vins-cavabouteille', name: 'Cava (bouteille)', price: 15.00 },
+    ]
+  },
+  {
+    id: 'gb-softs',
+    name: 'Softs',
+    icon: '💧',
+    color: 'bg-blue-100 text-blue-800',
+    isCollapsed: false,
+    drinks: [
+      { id: 'gb-softs-coca', name: 'Coca', price: 2.50 },
+      { id: 'gb-softs-cocazero', name: 'Coca Zéro', price: 2.50 },
+      { id: 'gb-softs-eauplate', name: 'Eau Plate', price: 2.00 },
+      { id: 'gb-softs-eaupetillante', name: 'Eau Pétillante', price: 2.00 },
+    ]
+  }
+];
+
 export const mockOrderHistory = [];
 
 export const mockOrders = [];
