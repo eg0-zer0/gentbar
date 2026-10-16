@@ -15,8 +15,18 @@ import {
   DialogDescription
 } from './ui/dialog';
 import { formatPrice } from '../lib/format';
+import { groupOrderItemsByBar, getOrderItemKey } from '../lib/menus';
 
-const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrder, onOpenTicket, onReorder }) => {
+const OrderHistory = ({
+  orderHistory = [],
+  isOpen = false,
+  onClose,
+  onRemoveOrder,
+  onOpenTicket,
+  onReorder,
+  categories = [],
+  menus = []
+}) => {
   const [orderToDelete, setOrderToDelete] = useState(null);
 
   const formatDate = (dateString) => {
@@ -49,106 +59,147 @@ const OrderHistory = ({ orderHistory = [], isOpen = false, onClose, onRemoveOrde
           </p>
         ) : (
           <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-            {orderHistory.map((order) => (
-              <Card
-                key={order.id}
-                className="border border-border rounded-lg p-3 bg-card text-foreground"
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {formatDate(order.date)}
+            {orderHistory.map((order) => {
+              const grouped = groupOrderItemsByBar(order.items, menus);
+              return (
+                <Card
+                  key={order.id}
+                  className="border border-border rounded-lg p-3 bg-card text-foreground"
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {formatDate(order.date)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {grouped.isMultiBar && (
+                          <Badge
+                            variant="outline"
+                            className="bg-primary/10 text-primary border-primary/30 text-xs font-semibold"
+                          >
+                            {grouped.barsCount} bars
+                          </Badge>
+                        )}
+                        <Badge
+                          variant="secondary"
+                          className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
+                        >
+                          {formatPrice(order.total)}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {grouped.isMultiBar ? (
+                      <div className="space-y-2">
+                        {grouped.groups.map((group) => (
+                          <div key={group.barId} className="rounded-md border border-border/60 bg-muted/20 overflow-hidden text-xs">
+                            <div className="flex items-center justify-between px-2.5 py-1 bg-muted/40 font-semibold border-b border-border/50">
+                              <span className="flex items-center gap-1">
+                                <span>{group.barIcon}</span>
+                                <span>{group.barName}</span>
+                                {group.isDeletedBar && (
+                                  <span className="text-[10px] text-destructive bg-destructive/10 px-1 py-0.5 rounded">supprimé</span>
+                                )}
+                              </span>
+                              <span className="text-primary font-bold">{formatPrice(group.subtotal)}</span>
+                            </div>
+                            <div className="px-2.5 py-1 space-y-0.5">
+                              {group.items.map((item, index) => (
+                                <div key={getOrderItemKey(item) || index} className="flex justify-between items-center text-xs py-0.5">
+                                  <span className="text-foreground">{item.quantity}× {item.drinkName || item.name}</span>
+                                  <span className="text-muted-foreground">{formatPrice(item.quantity * item.price)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        {order.items.map((item, index) => (
+                          <div
+                            key={index}
+                            className="flex justify-between items-center text-sm"
+                          >
+                            <span className="text-foreground">
+                              {item.quantity}x {item.drinkName}
+                            </span>
+                            <span className="text-muted-foreground">
+                              {formatPrice(item.quantity * item.price)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Note de la commande (E-7) */}
+                    {order.note && (
+                      <div className="mt-2.5 p-2 rounded-md bg-amber-500/10 border border-amber-500/25 text-xs text-foreground flex items-start gap-1.5">
+                        <StickyNote className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                          <span className="font-semibold text-amber-700 dark:text-amber-300">Note : </span>
+                          <span className="italic break-words">{order.note}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Receipt className="w-3 h-3" />
+                        {order.items.reduce((sum, item) => sum + item.quantity, 0)} articles
+                      </div>
+                      <span className="font-semibold text-sm text-foreground">
+                        Total : {formatPrice(order.total)}
                       </span>
                     </div>
-                    <Badge
-                      variant="secondary"
-                      className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
-                    >
-                      {formatPrice(order.total)}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-1">
-                    {order.items.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center text-sm"
+                  </CardContent>
+                  <div className="flex flex-wrap justify-end items-center gap-2 pt-2 border-t border-border">
+                    {onReorder && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="btn-outline flex items-center gap-1.5 text-xs h-8 px-3 flex-shrink-0 whitespace-nowrap"
+                        onClick={() => onReorder(order)}
+                        aria-label="Recommander cette commande"
                       >
-                        <span className="text-foreground">
-                          {item.quantity}x {item.drinkName}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {formatPrice(item.quantity * item.price)}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Note de la commande (E-7) */}
-                  {order.note && (
-                    <div className="mt-2.5 p-2 rounded-md bg-amber-500/10 border border-amber-500/25 text-xs text-foreground flex items-start gap-1.5">
-                      <StickyNote className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-                      <div className="min-w-0 flex-1">
-                        <span className="font-semibold text-amber-700 dark:text-amber-300">Note : </span>
-                        <span className="italic break-words">{order.note}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-border">
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Receipt className="w-3 h-3" />
-                      {order.items.reduce((sum, item) => sum + item.quantity, 0)} articles
-                    </div>
-                    <span className="font-semibold text-sm text-foreground">
-                      Total : {formatPrice(order.total)}
-                    </span>
-                  </div>
-                </CardContent>
-                <div className="flex flex-wrap justify-end items-center gap-2 pt-2 border-t border-border">
-                  {onReorder && (
-                    <Button
-                      variant="outline"
+                        <RotateCcw className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>Recommander</span>
+                      </Button>
+                    )}
+                    {onOpenTicket && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5 flex-shrink-0 whitespace-nowrap"
+                        onClick={() => onOpenTicket(order)}
+                        aria-label="Voir le ticket de cette commande"
+                      >
+                        <Receipt className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span>Ticket</span>
+                      </Button>
+                    )}
+                    <ShareButtons 
+                      order={order} 
+                      menus={menus}
+                      isCurrentOrder={false} 
+                      className="w-auto h-8 px-2.5 text-xs flex-shrink-0"
                       size="sm"
-                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-3 flex-shrink-0 whitespace-nowrap"
-                      onClick={() => onReorder(order)}
-                      aria-label="Recommander cette commande"
+                    />
+                    <button
+                      aria-label="Supprimer cette commande"
+                      onClick={() => setOrderToDelete(order)}
+                      className="btn-destructive p-2 rounded flex-shrink-0"
                     >
-                      <RotateCcw className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>Recommander</span>
-                    </Button>
-                  )}
-                  {onOpenTicket && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="btn-outline flex items-center gap-1.5 text-xs h-8 px-2.5 flex-shrink-0 whitespace-nowrap"
-                      onClick={() => onOpenTicket(order)}
-                      aria-label="Voir le ticket de cette commande"
-                    >
-                      <Receipt className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>Ticket</span>
-                    </Button>
-                  )}
-                  <ShareButtons 
-                    order={order} 
-                    isCurrentOrder={false} 
-                    className="w-auto h-8 px-2.5 text-xs flex-shrink-0"
-                    size="sm"
-                  />
-                  <button
-                    aria-label="Supprimer cette commande"
-                    onClick={() => setOrderToDelete(order)}
-                    className="btn-destructive p-2 rounded flex-shrink-0"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </Card>
-            ))}
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         )}
 

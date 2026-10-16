@@ -7,60 +7,75 @@ import { Share2, Mail, MessageSquare, Phone, Check, Copy } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/format';
+import { groupOrderItemsByBar } from '../lib/menus';
 
-const ShareButtons = ({ order, isCurrentOrder = false, className = '', size, disabled = false }) => {
-  const [copied, setCopied] = useState(false);
+export const formatOrderSummary = (orderData, menus = []) => {
+  if (!orderData) return "Aucune commande à partager.";
 
-  const formatOrderSummary = (orderData) => {
-    if (!orderData) return "Aucune commande à partager.";
+  const isArray = Array.isArray(orderData);
+  const items = isArray
+    ? orderData
+    : Array.isArray(orderData.items)
+    ? orderData.items
+    : [];
 
-    const isArray = Array.isArray(orderData);
-    const items = isArray
-      ? orderData
-      : Array.isArray(orderData.items)
-      ? orderData.items
-      : [];
+  const total = isArray
+    ? orderData.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    : orderData.total ?? 0;
 
-    const total = isArray
-      ? orderData.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-      : orderData.total ?? 0;
+  const date = isArray
+    ? new Date().toLocaleDateString('fr-FR')
+    : orderData.date
+    ? new Date(orderData.date).toLocaleDateString('fr-FR')
+    : new Date().toLocaleDateString('fr-FR');
 
-    const date = isArray
-      ? new Date().toLocaleDateString('fr-FR')
-      : orderData.date
-      ? new Date(orderData.date).toLocaleDateString('fr-FR')
-      : new Date().toLocaleDateString('fr-FR');
+  const time = isArray
+    ? new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    : orderData.date
+    ? new Date(orderData.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    : new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
-    const time = isArray
-      ? new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      : orderData.date
-      ? new Date(orderData.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      : new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const grouped = groupOrderItemsByBar(items, menus);
 
-    let summary = `🍹 Commande GentBar\n`;
-    summary += `📅 ${date} à ${time}\n\n`;
+  let summary = `🍹 Commande GentBar\n`;
+  summary += `📅 ${date} à ${time}\n\n`;
+
+  if (grouped.isMultiBar) {
+    summary += `Commande · ${grouped.barsCount} bars\n`;
+    grouped.groups.forEach((group) => {
+      summary += `── ${group.barIcon} ${group.barName} ──────── ${formatPrice(group.subtotal)}\n`;
+      group.items.forEach((item) => {
+        const itemName = item.drinkName || item.name;
+        summary += ` ${item.quantity}× ${itemName}\n`;
+      });
+    });
+    summary += `Total ─────────────────────── ${formatPrice(total)}\n`;
+  } else {
     summary += `📝 Détail de la commande :\n`;
-
     items.forEach((item) => {
-      const itemName = item.drinkName;
+      const itemName = item.drinkName || item.name;
       const quantity = item.quantity;
       const price = item.price;
       const itemTotal = quantity * price;
       summary += `• ${quantity}x ${itemName} - ${formatPrice(itemTotal)}\n`;
     });
+    summary += `\n💰 Total : ${formatPrice(total)}\n`;
+  }
 
-    const note = !isArray && typeof orderData?.note === 'string' ? orderData.note.trim() : '';
-    if (note) {
-      summary += `\n📌 Note : ${note}\n`;
-    }
+  const note = !isArray && typeof orderData?.note === 'string' ? orderData.note.trim() : '';
+  if (note) {
+    summary += `\n📌 Note : ${note}\n`;
+  }
 
-    summary += `\n💰 Total : ${formatPrice(total)}\n\n`;
-    summary += `📱 Généré via GentBar Order App`;
+  summary += `\n📱 Généré via GentBar Order App`;
 
-    return summary;
-  };
+  return summary;
+};
 
-  const getShareText = () => formatOrderSummary(order);
+const ShareButtons = ({ order, menus = [], isCurrentOrder = false, className = '', size, disabled = false }) => {
+  const [copied, setCopied] = useState(false);
+
+  const getShareText = () => formatOrderSummary(order, menus);
 
   const handleCopyToClipboard = async () => {
     const textToShare = getShareText();
