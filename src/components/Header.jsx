@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { usePWA } from '../hooks/usePWA';
 
-import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, FolderPlus, Store, ChevronDown } from 'lucide-react';
+import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, Store, ChevronDown } from 'lucide-react';
 
 import { Button } from './ui/button';
 
@@ -24,7 +24,6 @@ const Header = ({
   soundEnabled, 
   onToggleSound, 
   onShowHistory, 
-  onAddCategory,
   activeBarName = 'Club de hockey',
   activeBarIcon = '🏒',
   barsCount = 2,
@@ -108,12 +107,6 @@ const Header = ({
               <Store className="mr-2 w-4 h-4 text-foreground" />
               Mes bars
             </DropdownMenuItem>
-            {onAddCategory && (
-              <DropdownMenuItem className="dropdown-menu-item" onClick={() => { onAddCategory(); setMenuOpen(false); }}>
-                <FolderPlus className="mr-2 w-4 h-4 text-foreground" />
-                Ajouter une catégorie
-              </DropdownMenuItem>
-            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => { cycleTheme(); setMenuOpen(false); }}>
               {renderNextThemeIcon()}

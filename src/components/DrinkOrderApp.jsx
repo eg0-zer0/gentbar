@@ -213,7 +213,6 @@ const DrinkOrderApp = () => {
           viewMode={viewMode}
           onChangeViewMode={setViewMode}
           onShowHistory={() => setShowHistory(true)}
-          onAddCategory={handleAddCategory}
           activeBarName={activeMenu?.name || 'Club de hockey'}
           activeBarIcon={activeMenu?.icon || '🏒'}
           barsCount={Array.isArray(menus) ? menus.length : 1}
@@ -316,24 +315,37 @@ const DrinkOrderApp = () => {
                 </div>
               </div>
             ) : (
-              categories.map(c => (
-                <CategorySection
-                  key={c.id}
-                  category={c}
-                  onAddDrink={addDrink}
-                  onEditDrink={handleEditDrink}
-                  onToggleCategory={toggleCategory}
-                  onEditCategory={handleEditCategory}
-                  onAddDrinkToCategory={handleAddDrinkToCategory}
-                  onDeleteCategory={handleDeleteCategory}
-                  onDeleteDrink={handleDeleteDrink}
-                  sortedDrinks={sortDrinks(c.drinks, sortBy)}
-                  drinkPopularity={drinkPopularity}
-                  orders={orders}
-                  soundEnabled={soundEnabled}
-                  viewMode={viewMode}
-                />
-              ))
+              <>
+                {categories.map(c => (
+                  <CategorySection
+                    key={c.id}
+                    category={c}
+                    onAddDrink={addDrink}
+                    onEditDrink={handleEditDrink}
+                    onToggleCategory={toggleCategory}
+                    onEditCategory={handleEditCategory}
+                    onAddDrinkToCategory={handleAddDrinkToCategory}
+                    onDeleteCategory={handleDeleteCategory}
+                    onDeleteDrink={handleDeleteDrink}
+                    sortedDrinks={sortDrinks(c.drinks, sortBy)}
+                    drinkPopularity={drinkPopularity}
+                    orders={orders}
+                    soundEnabled={soundEnabled}
+                    viewMode={viewMode}
+                  />
+                ))}
+                <div className="pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddCategory}
+                    className="w-full py-3 border-dashed text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                    <span>Ajouter une catégorie</span>
+                  </Button>
+                </div>
+              </>
             )}
           </div>
           <div className="lg:col-span-1 space-y-6">
