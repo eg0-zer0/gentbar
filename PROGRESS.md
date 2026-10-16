@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feat-multi` · **Prochaine étape** : 9.7b Modèle multi-bars + migration (un seul bar visible) · **Dernier commit** : f826ddc
+**Branche de travail** : `feat-9-7b` · **Prochaine étape** : 9.7c Moteur de fusion mergeMenus (remplace MENU_VERSION) · **Dernier commit** : a03b5f3
 
 ---
 
@@ -81,7 +81,7 @@
 - [x] 9.5 E-5 Tri par popularité par défaut
 - [x] 9.6 E-3 Recherche + E-10 Alerte de doublon (fonctions prenant les catégories en paramètre)
 - [x] 9.7a Extraction des états de DrinkOrderApp en hooks (sans changement visible)
-- [ ] 9.7b Modèle multi-bars + migration (un seul bar visible)
+- [x] 9.7b Modèle multi-bars + migration (un seul bar visible)
 - [ ] 9.7c Moteur de fusion mergeMenus (remplace MENU_VERSION)
 - [ ] 9.7d Bouton du bar actif, Mes bars, ajout vide/copie, renommer/dupliquer/supprimer/restaurer
 - [ ] 9.7e Partage et réception (lien, QR, fichier)
@@ -120,6 +120,7 @@
 * 15/10/2026 — Étape 9.6 terminée (branche `feature-search`) : implémentation de la recherche en direct dans le menu (E-3) et de l'alerte de doublon (E-10). Création du module partagé `src/lib/search.js` (`normalizeText` insensible aux accents/casse, recherche multi-catégories `searchDrinks`, détection de doublons `findDuplicateDrinkName`) avec harmonisation dans `reorder.js`. Création du composant `MenuSearch.jsx` avec effacement rapide et touche Échap. Affichage instantané des résultats à plat mémoïsé (`useMemo`) avec rappel de la catégorie d'origine via `DrinkCard.jsx` (dans les 3 modes de vue), message informatif en cas d'aucun résultat et restauration intégrale de l'état des catégories (plié/déplié) à l'effacement. Dans `EditDrinkModal.jsx`, détection automatique en temps réel des doublons de noms dans la même catégorie avec affichage d'un avertissement ambré non-bloquant. `yarn build` validé avec succès (145.37 kB JS, 12.79 kB CSS).
 * 15/10/2026 — Ergonomie en-tête & barre d'actions (branche `feature-search`) : allègement drastique de l'en-tête sur mobile (Proposition 1). Remplacement du slogan verbeux par l'identité concise « 🍹 GentBar » accompagnée du badge du bar actif « 🏒 Club de hockey » (préparant le multi-bars A-29). Déplacement de l'action « Ajouter une catégorie » hors du haut de page et intégration exclusive dans le menu burger ☰ avec l'icône `FolderPlus`. Fusion sur une seule ligne réactive de la recherche `MenuSearch` et du bouton de tri `SortControls` (avec label visuel épuré et alignement à droite du menu). Réduction des marges supérieures de la page, divisant par deux la hauteur occupée et rendant immédiatement visibles les boissons sur smartphone sans défilement.
 * 15/10/2026 — Étape 9.7a terminée (branche `feat-multi`) : extraction modulaire des états et de la logique métier de `DrinkOrderApp.jsx` en 5 custom hooks dédiés (`useStoredState`, `useCart`, `useMenus`, `useOrderHistory`, `useDrinkFilter`) ainsi que du verrouillage d'écran TicketView dans `useTicketLock`. Allègement massif de `DrinkOrderApp.jsx` (-156 lignes) sans aucune modification fonctionnelle ni visuelle. Préparation des ancrages `sessionId` et `paidFromPot` pour le mode Soirée. Sécurisation défensive contre les données corrompues et initialisation robuste de `categories` via `storage.js` et `useMenus.js`. `yarn build` validé avec succès (146.51 kB JS, 12.86 kB CSS).
+* 16/10/2026 — Étape 9.7b terminée (branche `feat-9-7b`) : création du module de fonctions pures `src/lib/menus.js` (`BASE_BAR_ID`, `BASE_SOURCE_ID`, `SCHEMA_VERSION`, `createBar`, `buildBaseBar`, `migrateLegacyToMenus`, `getActiveBar`, `updateBarCategories`, `withBarId`). Ajout de `normalizeMenus` dans `src/lib/storage.js` avec sauvegarde automatique et repli sûr, prise en charge de `barId` dans les normaliseurs, et sauvegarde `menus__backup_reset` avant réinitialisation (`ErrorBoundary.jsx` et `removeKeys`). Évolution de `src/hooks/useMenus.js` pour persister `menus`, `activeMenuId` et `schemaVersion`, exécuter la migration en 5 étapes strictes et interruptibles (`MENU_VERSION` → `categories__pre_multibars` → `menus`/`activeMenuId` → `barId: 'rllhc'` sur `orders`/`orderHistory` → `schemaVersion = 2`), marquer `modified: true` sur les ajouts/modifications, et sortir l'appel `toast` de l'updater `saveCategory`. Propagation de `barId` dans `useCart.js`, `useOrderHistory.js` et `src/lib/reorder.js`. Ajout et validation des 8 tests unitaires Jest dans `src/lib/menus.test.js` (`8 passed`) et `yarn build` validé sans avertissement (147.92 kB JS, 12.86 kB CSS).
 
 ## Écarts et décisions en cours
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
@@ -147,6 +148,7 @@
 * Alerte de doublon de nom (E-10) : ouvrir une catégorie (ex. Bières au fût), cliquer sur « + » pour ajouter une boisson, et taper le nom d'une bière déjà présente (ex. « Jupiler ») : un encadré d'avertissement ambré apparaît immédiatement sous le champ pour signaler que la boisson existe déjà dans cette catégorie. Vérifier que l'ajout reste possible en cliquant sur Ajouter (alerte informative non-bloquante). Tester également en modification de nom d'une boisson existante.
 * En-tête compact et barre d'actions (Proposition 1) : vérifier que l'en-tête affiche de façon sobre « 🍹 GentBar » et la pilule « 🏒 Club de hockey » sans le slogan verbeux. Vérifier que la barre de recherche et le sélecteur de tri sont côte à côte sur la même ligne. Vérifier que l'option « Ajouter une catégorie » est présente et fonctionnelle dans le menu burger ☰ et qu'elle n'encombre plus l'écran principal. Vérifier que les premières catégories et boissons sont immédiatement visibles sans avoir besoin de faire défiler la page.
 * Non-régression complète suite au découpage en hooks (9.7a) : vérifier que l'ensemble du cycle de commande fonctionne de manière strictement identique (ajout au panier avec bouton +/-, ouverture du panier, saisie de note, confirmation, ouverture du ticket, verrouillage par cadenas/double-tap, historique, recommandation de tournée, recherche et tri).
+* Migration transparente multi-bars (9.7b) : ouvrir l'application avec des données existantes, vérifier qu'aucun changement visuel n'apparaît, que les boissons/catégories personnalisées et le panier sont intégralement conservés, que l'ajout/modification d'une boisson ou catégorie persiste après rechargement, et que la commande/recommandation fonctionne normalement.
 
 
 
