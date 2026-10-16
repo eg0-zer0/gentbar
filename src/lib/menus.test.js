@@ -335,11 +335,35 @@ describe('Modèle multi-bars et migration (Étapes 9.7b & 9.7d)', () => {
     expect(result.groups[1].subtotal).toBe(14);
     expect(result.groups[1].totalItems).toBe(2);
 
-    // Groupe 3 : Bar supprimé
+    // Groupe 3 : Bar supprimé sans nom préservé
     expect(result.groups[2].barId).toBe('bar-supprime');
     expect(result.groups[2].barName).toBe('Bar supprimé');
+    expect(result.groups[2].barIcon).toBe('🏪');
     expect(result.groups[2].isDeletedBar).toBe(true);
     expect(result.groups[2].subtotal).toBe(5);
+  });
+
+  test('13. groupOrderItemsByBar conserve le nom et l\'icône d\'origine d\'un bar supprimé', () => {
+    const menus = [buildBaseBar(mockCategories, MENU_VERSION)];
+    const items = [
+      {
+        drinkId: 'c-1',
+        drinkName: 'Pinte Spéciale',
+        price: 6.0,
+        quantity: 2,
+        barId: 'bar-chez-mimi',
+        barName: 'Chez Mimi',
+        barIcon: '🍻'
+      }
+    ];
+
+    const result = groupOrderItemsByBar(items, menus);
+    expect(result.barsCount).toBe(1);
+    expect(result.groups[0].barId).toBe('bar-chez-mimi');
+    expect(result.groups[0].barName).toBe('Chez Mimi');
+    expect(result.groups[0].barIcon).toBe('🍻');
+    expect(result.groups[0].isDeletedBar).toBe(true);
+    expect(result.groups[0].subtotal).toBe(12.0);
   });
 });
 

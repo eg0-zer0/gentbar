@@ -43,9 +43,20 @@ export const useCart = (activeBarId = BASE_BAR_ID) => {
   };
 
   // Ajouter une boisson ou incrémenter sa quantité
-  const addDrink = (drink, barId = activeBarId) => {
+  const addDrink = (drink, barId = activeBarId, barMeta = {}) => {
     if (!drink || !drink.id) return;
     const resolvedBarId = drink.barId || barId || BASE_BAR_ID;
+    const resolvedBarName =
+      (typeof drink.barName === 'string' && drink.barName.trim()) ||
+      (typeof barMeta?.name === 'string' && barMeta.name.trim()) ||
+      (typeof barMeta?.barName === 'string' && barMeta.barName.trim()) ||
+      '';
+    const resolvedBarIcon =
+      (typeof drink.barIcon === 'string' && drink.barIcon.trim()) ||
+      (typeof barMeta?.icon === 'string' && barMeta.icon.trim()) ||
+      (typeof barMeta?.barIcon === 'string' && barMeta.barIcon.trim()) ||
+      '';
+
     setOrders(prevOrders => {
       const list = Array.isArray(prevOrders) ? prevOrders : [];
       // Match strict par couple (drinkId, barId) pour isoler les articles de chaque bar (§ 4.6)
@@ -59,6 +70,8 @@ export const useCart = (activeBarId = BASE_BAR_ID) => {
           drinkName: drink.name,
           price: drink.price,
           barId: updated[idx].barId || resolvedBarId,
+          ...(resolvedBarName ? { barName: updated[idx].barName || resolvedBarName } : {}),
+          ...(resolvedBarIcon ? { barIcon: updated[idx].barIcon || resolvedBarIcon } : {}),
           quantity: updated[idx].quantity + 1
         };
         return updated;
@@ -71,6 +84,8 @@ export const useCart = (activeBarId = BASE_BAR_ID) => {
           price: drink.price,
           quantity: 1,
           barId: resolvedBarId,
+          ...(resolvedBarName ? { barName: resolvedBarName } : {}),
+          ...(resolvedBarIcon ? { barIcon: resolvedBarIcon } : {}),
           addedAt: new Date().toISOString()
         }
       ];

@@ -174,14 +174,18 @@ const isOrderLine = (o) =>
   isNum(o.price) &&
   isNum(o.quantity) &&
   o.quantity > 0 &&
-  (o.barId === undefined || isStr(o.barId));
+  (o.barId === undefined || isStr(o.barId)) &&
+  (o.barName === undefined || isStr(o.barName)) &&
+  (o.barIcon === undefined || isStr(o.barIcon));
 const isHistoryItem = (i) =>
   i &&
   isStr(i.drinkName) &&
   isNum(i.quantity) &&
   isNum(i.price) &&
   (i.drinkId === undefined || isStr(i.drinkId)) &&
-  (i.barId === undefined || isStr(i.barId));
+  (i.barId === undefined || isStr(i.barId)) &&
+  (i.barName === undefined || isStr(i.barName)) &&
+  (i.barIcon === undefined || isStr(i.barIcon));
 const isHistoryOrder = (o) =>
   o &&
   isStr(o.id) &&

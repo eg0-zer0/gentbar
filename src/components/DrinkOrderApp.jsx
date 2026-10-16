@@ -111,13 +111,19 @@ const DrinkOrderApp = () => {
     requestPersistentStorage();
   }, []);
 
+  // ---- AJOUT D'UNE BOISSON AVEC MÉTADONNÉES DU BAR ----
+  const handleAddDrink = (drink) => {
+    addDrink(drink, activeMenuId, { name: activeMenu?.name, icon: activeMenu?.icon });
+  };
+
   // ---- FINALISER LA COMMANDE ----
   const finalizeOrder = () => {
     const newOrder = createOrder({
       items: orders,
       total: totalAmount,
       note: orderNote,
-      barId: activeMenuId
+      barId: activeMenuId,
+      menus
     });
     clearCart(false);
     setShowConfirmModal(false);
@@ -321,7 +327,7 @@ const DrinkOrderApp = () => {
                   <CategorySection
                     key={c.id}
                     category={c}
-                    onAddDrink={addDrink}
+                    onAddDrink={handleAddDrink}
                     onEditDrink={handleEditDrink}
                     onToggleCategory={toggleCategory}
                     onEditCategory={handleEditCategory}

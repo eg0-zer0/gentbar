@@ -570,16 +570,25 @@ export function groupOrderItemsByBar(items, menus = []) {
     let group = groupsMap.get(barId);
     if (!group) {
       const knownBar = menusMap.get(barId);
+      const fallbackName = isNonEmptyString(item.barName) ? item.barName.trim() : 'Bar supprimé';
+      const fallbackIcon = isNonEmptyString(item.barIcon) ? item.barIcon.trim() : '🏪';
       group = {
         barId,
-        barName: knownBar ? knownBar.name : 'Bar supprimé',
-        barIcon: knownBar ? knownBar.icon : '🏪',
+        barName: knownBar ? knownBar.name : fallbackName,
+        barIcon: knownBar ? knownBar.icon : fallbackIcon,
         isDeletedBar: !knownBar,
         items: [],
         subtotal: 0,
         totalItems: 0
       };
       groupsMap.set(barId, group);
+    } else if (group.isDeletedBar) {
+      if ((!group.barName || group.barName === 'Bar supprimé') && isNonEmptyString(item.barName)) {
+        group.barName = item.barName.trim();
+      }
+      if ((!group.barIcon || group.barIcon === '🏪') && isNonEmptyString(item.barIcon)) {
+        group.barIcon = item.barIcon.trim();
+      }
     }
 
     const qty = typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1;

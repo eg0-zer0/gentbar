@@ -196,11 +196,6 @@ const TicketView = ({
             <h1 className="text-base sm:text-lg font-bold text-foreground">
               Ticket
             </h1>
-            {grouped.isMultiBar && (
-              <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
-                {grouped.barsCount} bars
-              </span>
-            )}
           </div>
 
           {/* Compteur et boutons d'action rapide */}
@@ -269,6 +264,15 @@ const TicketView = ({
             </div>
           </div>
         ) : null}
+
+        {/* Avertissement bar supprimé en commande mono-bar */}
+        {!grouped.isMultiBar && grouped.groups[0]?.isDeletedBar && (
+          <div className="px-3 py-1.5 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive flex items-center gap-1.5">
+            <span>{grouped.groups[0].barIcon}</span>
+            <span className="font-semibold">{grouped.groups[0].barName}</span>
+            <span className="text-[10px] bg-destructive/20 px-1.5 py-0.5 rounded font-medium">bar supprimé</span>
+          </div>
+        )}
 
         {items.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">

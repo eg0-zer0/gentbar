@@ -90,11 +90,6 @@ const OrderSummary = ({
           <span className="flex items-center gap-2">
             <Receipt className="w-5 h-5 text-primary" />
             <span>Résumé de la commande</span>
-            {grouped.isMultiBar && (
-              <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">
-                {grouped.barsCount} bars
-              </span>
-            )}
           </span>
           <Button
             className="btn-primary"

@@ -43,7 +43,8 @@ export const formatOrderSummary = (orderData, menus = []) => {
   if (grouped.isMultiBar) {
     summary += `Commande · ${grouped.barsCount} bars\n`;
     grouped.groups.forEach((group) => {
-      summary += `── ${group.barIcon} ${group.barName} ──────── ${formatPrice(group.subtotal)}\n`;
+      const deletedSuffix = group.isDeletedBar ? ' (supprimé)' : '';
+      summary += `── ${group.barIcon} ${group.barName}${deletedSuffix} ──────── ${formatPrice(group.subtotal)}\n`;
       group.items.forEach((item) => {
         const itemName = item.drinkName || item.name;
         summary += ` ${item.quantity}× ${itemName}\n`;
@@ -51,6 +52,13 @@ export const formatOrderSummary = (orderData, menus = []) => {
     });
     summary += `Total ─────────────────────── ${formatPrice(total)}\n`;
   } else {
+    const singleBar = grouped.groups[0];
+    if (singleBar && singleBar.barName && singleBar.barName !== 'Bar supprimé') {
+      const deletedSuffix = singleBar.isDeletedBar ? ' (supprimé)' : '';
+      summary += `Bar : ${singleBar.barIcon} ${singleBar.barName}${deletedSuffix}\n\n`;
+    } else if (singleBar?.isDeletedBar) {
+      summary += `Bar : 🏪 Bar supprimé\n\n`;
+    }
     summary += `📝 Détail de la commande :\n`;
     items.forEach((item) => {
       const itemName = item.drinkName || item.name;

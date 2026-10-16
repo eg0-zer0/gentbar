@@ -67,29 +67,33 @@ const OrderHistory = ({
                   className="border border-border rounded-lg p-3 bg-card text-foreground"
                 >
                   <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {formatDate(order.date)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        {grouped.isMultiBar && (
-                          <Badge
-                            variant="outline"
-                            className="bg-primary/10 text-primary border-primary/30 text-xs font-semibold"
-                          >
-                            {grouped.barsCount} bars
-                          </Badge>
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm text-muted-foreground">
+                            {formatDate(order.date)}
+                          </span>
+                        </div>
+                        {!grouped.isMultiBar && grouped.groups[0] && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <span>•</span>
+                            <span>{grouped.groups[0].barIcon}</span>
+                            <span className="truncate max-w-[130px] sm:max-w-[200px]">{grouped.groups[0].barName}</span>
+                            {grouped.groups[0].isDeletedBar && (
+                              <span className="text-[10px] text-destructive bg-destructive/10 px-1 py-0.2 rounded font-medium">
+                                supprimé
+                              </span>
+                            )}
+                          </span>
                         )}
-                        <Badge
-                          variant="secondary"
-                          className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300"
-                        >
-                          {formatPrice(order.total)}
-                        </Badge>
                       </div>
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300 flex-shrink-0"
+                      >
+                        {formatPrice(order.total)}
+                      </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>

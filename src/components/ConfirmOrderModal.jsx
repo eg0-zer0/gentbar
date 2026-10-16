@@ -35,16 +35,11 @@ const ConfirmOrderModal = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[92vw] max-w-md mx-auto rounded-lg p-0 overflow-hidden bg-card text-foreground border border-border shadow-xl">
         <DialogHeader className="p-4 border-b border-border bg-card">
-          <DialogTitle className="flex items-center justify-between text-foreground font-semibold">
+          <DialogTitle className="flex items-center text-foreground font-semibold">
             <span className="flex items-center gap-2">
               <Receipt className="w-5 h-5 text-primary" />
               <span>Résumé de la commande</span>
             </span>
-            {grouped.isMultiBar && (
-              <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold">
-                {grouped.barsCount} bars
-              </span>
-            )}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Vérifiez le contenu de votre commande avant de la valider.

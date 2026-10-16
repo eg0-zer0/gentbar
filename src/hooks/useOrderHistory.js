@@ -64,22 +64,45 @@ export const useOrderHistory = (categories = [], activeBarId = BASE_BAR_ID) => {
     note = '',
     barId = activeBarId,
     sessionId = null,
-    paidFromPot = false
+    paidFromPot = false,
+    menus = []
   }) => {
     const trimmedNote = typeof note === 'string' ? note.trim() : '';
     const safeItems = Array.isArray(items) ? items : [];
     const resolvedBarId = barId || BASE_BAR_ID;
+    const menusMap = new Map();
+    if (Array.isArray(menus)) {
+      menus.forEach(m => {
+        if (m && m.id) menusMap.set(m.id, m);
+      });
+    }
+
     const newOrder = {
       id: `order-${Date.now()}`,
       date: new Date().toISOString(),
       barId: resolvedBarId,
-      items: safeItems.map(o => ({
-        drinkId: o.drinkId,
-        drinkName: o.drinkName,
-        quantity: o.quantity,
-        price: o.price,
-        barId: o.barId || resolvedBarId
-      })),
+      items: safeItems.map(o => {
+        const itemBarId = o.barId || resolvedBarId;
+        const currentBar = menusMap.get(itemBarId);
+        const barName =
+          (typeof o.barName === 'string' && o.barName.trim()) ||
+          currentBar?.name ||
+          '';
+        const barIcon =
+          (typeof o.barIcon === 'string' && o.barIcon.trim()) ||
+          currentBar?.icon ||
+          '';
+
+        return {
+          drinkId: o.drinkId,
+          drinkName: o.drinkName,
+          quantity: o.quantity,
+          price: o.price,
+          barId: itemBarId,
+          ...(barName ? { barName } : {}),
+          ...(barIcon ? { barIcon } : {})
+        };
+      }),
       total,
       note: trimmedNote,
       ...(sessionId ? { sessionId, paidFromPot } : {})
