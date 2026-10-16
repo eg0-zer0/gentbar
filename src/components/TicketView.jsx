@@ -13,10 +13,11 @@ import { formatPrice } from '../lib/format';
 import { load, save, remove } from '../lib/storage';
 import ShareButtons from './ShareButtons';
 import useTicketLock from '../hooks/useTicketLock';
+import { groupOrderItemsByBar, getOrderItemKey } from '../lib/menus';
 
 /**
  * Vue Ticket (E-4) : Prise de commande au bar en mode compact et lisible.
- * - Groupement distinct par catégorie de boissons (démarcation claire pour le barman).
+ * - Groupement distinct par catégorie de boissons (ou par bar si commande multi-bars).
  * - Noms de boissons complets sans coupure.
  * - Mémorisation des cases cochées par commande.
  * - Fermeture explicite ramenant à l'écran d'origine (historique ou menu).
@@ -24,6 +25,7 @@ import useTicketLock from '../hooks/useTicketLock';
 const TicketView = ({
   order,
   categories = [],
+  menus = [],
   onClose,
   onReorder
 }) => {
@@ -50,11 +52,21 @@ const TicketView = ({
     return [];
   }, [order]);
 
+  // Regroupement par bar (multi-bars § 4.6)
+  const grouped = useMemo(() => groupOrderItemsByBar(items, menus), [items, menus]);
+
   // Calcul du montant total
   const totalAmount = useMemo(() => {
     if (order && typeof order.total === 'number') return order.total;
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }, [order, items]);
+
+  // Helper pour la clé unique d'une boisson et la vérification des coches
+  const getItemKey = (item, idx) => getOrderItemKey(item) || item.drinkId || `${item.drinkName || item.name}-${idx}`;
+  const isItemChecked = (item, idx) => {
+    const key = getItemKey(item, idx);
+    return checkedIds.has(key) || (item?.drinkId ? checkedIds.has(item.drinkId) : false);
+  };
 
   // Nombre total de verres
   const totalDrinksCount = useMemo(() => {
@@ -64,8 +76,7 @@ const TicketView = ({
   // Nombre de verres servis
   const servedDrinksCount = useMemo(() => {
     return items.reduce((sum, item, idx) => {
-      const key = item.drinkId || `${item.drinkName || item.name}-${idx}`;
-      return checkedIds.has(key) ? sum + (item.quantity || 1) : sum;
+      return isItemChecked(item, idx) ? sum + (item.quantity || 1) : sum;
     }, 0);
   }, [items, checkedIds]);
 
@@ -92,14 +103,15 @@ const TicketView = ({
   // Cocher / Décocher tout et sauvegarde
   const handleToggleAll = () => {
     if (isLocked) return;
-    if (checkedIds.size === items.length) {
+    const allChecked = items.length > 0 && items.every((item, idx) => isItemChecked(item, idx));
+    if (allChecked) {
       const emptySet = new Set();
       setCheckedIds(emptySet);
       if (storageKey) {
         remove(storageKey);
       }
     } else {
-      const allKeys = items.map((item, idx) => item.drinkId || `${item.drinkName || item.name}-${idx}`);
+      const allKeys = items.map((item, idx) => getItemKey(item, idx));
       const fullSet = new Set(allKeys);
       setCheckedIds(fullSet);
       if (storageKey) {
@@ -184,6 +196,11 @@ const TicketView = ({
             <h1 className="text-base sm:text-lg font-bold text-foreground">
               Ticket
             </h1>
+            {grouped.isMultiBar && (
+              <span className="text-xs bg-primary/15 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap">
+                {grouped.barsCount} bars
+              </span>
+            )}
           </div>
 
           {/* Compteur et boutons d'action rapide */}
@@ -258,8 +275,80 @@ const TicketView = ({
             Aucun article dans cette commande.
           </div>
         ) : (
-          <div className="space-y-2.5">
-            {categoryGroups.map((group) => (
+          <div className="space-y-3">
+            {grouped.isMultiBar ? (
+              grouped.groups.map((group) => (
+                <div 
+                  key={group.barId} 
+                  className="bg-card border-2 border-border/80 rounded-xl overflow-hidden shadow-sm"
+                >
+                  <div className="flex items-center justify-between px-3.5 py-2 bg-muted/40 border-b border-border/70 text-xs font-semibold text-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <span>{group.barIcon}</span>
+                      <span>{group.barName}</span>
+                      {group.isDeletedBar && (
+                        <span className="text-[10px] text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">supprimé</span>
+                      )}
+                    </span>
+                    <span className="text-primary font-bold">{formatPrice(group.subtotal)}</span>
+                  </div>
+
+                  <ul className="divide-y divide-border/60 p-0 m-0 list-none">
+                    {group.items.map((item, originalIndex) => {
+                      const key = getItemKey(item, originalIndex);
+                      const isChecked = isItemChecked(item, originalIndex);
+                      const itemName = item.drinkName || item.name;
+
+                      return (
+                        <li
+                          key={key}
+                          onClick={() => toggleItem(key)}
+                          className={`flex items-center justify-between gap-2.5 px-3 py-2 cursor-pointer select-none transition-colors ${
+                            isChecked 
+                              ? 'bg-muted/40 text-muted-foreground' 
+                              : 'bg-card hover:bg-accent/10 text-foreground'
+                          }`}
+                          role="checkbox"
+                          aria-checked={isChecked}
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              toggleItem(key);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <div 
+                              className={`w-5 h-5 rounded border flex items-center justify-center transition-colors flex-shrink-0 ${
+                                isChecked 
+                                  ? 'bg-green-600 border-green-600 text-white' 
+                                  : 'border-muted-foreground/60 bg-transparent'
+                              }`}
+                            >
+                              {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            </div>
+
+                            <span className={`text-lg font-bold min-w-[2rem] flex-shrink-0 ${isChecked ? 'line-through text-muted-foreground' : 'text-primary'}`}>
+                              {item.quantity}×
+                            </span>
+
+                            <span className={`text-base font-semibold leading-tight break-words ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                              {itemName}
+                            </span>
+                          </div>
+
+                          <span className={`text-sm font-semibold flex-shrink-0 whitespace-nowrap ml-2 ${isChecked ? 'line-through opacity-70' : 'text-foreground'}`}>
+                            {formatPrice(item.price * item.quantity)}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              categoryGroups.map((group) => (
               <div 
                 key={group.id} 
                 className="bg-card border-2 border-border/80 rounded-xl overflow-hidden shadow-sm"
@@ -267,8 +356,8 @@ const TicketView = ({
                 {/* Liste des verres de cette catégorie avec démarcation nette entre blocs */}
                 <ul className="divide-y divide-border/60 p-0 m-0 list-none">
                     {group.items.map(({ item, originalIndex }) => {
-                      const key = item.drinkId || `${item.drinkName || item.name}-${originalIndex}`;
-                      const isChecked = checkedIds.has(key);
+                      const key = getItemKey(item, originalIndex);
+                      const isChecked = isItemChecked(item, originalIndex);
                       const itemName = item.drinkName || item.name;
 
                       return (
@@ -322,7 +411,8 @@ const TicketView = ({
                     })}
                   </ul>
                 </div>
-              ))}
+              ))
+            )}
           </div>
         )}
       </main>
@@ -342,6 +432,7 @@ const TicketView = ({
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
             <ShareButtons 
               order={order} 
+              menus={menus}
               isCurrentOrder={false} 
               className="w-auto h-8 px-2.5 text-xs"
               size="sm"
