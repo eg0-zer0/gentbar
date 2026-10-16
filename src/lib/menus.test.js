@@ -1,18 +1,26 @@
 import {
   BASE_BAR_ID,
   BASE_SOURCE_ID,
+  GENTBAR_BAR_ID,
   SCHEMA_VERSION,
   createBar,
   buildBaseBar,
+  buildGentBar,
   migrateLegacyToMenus,
   getActiveBar,
   updateBarCategories,
-  withBarId
+  withBarId,
+  isBaseBar,
+  countBarDrinks,
+  createCustomBar,
+  duplicateBar,
+  renameBar,
+  removeBar
 } from './menus';
 import { normalizeMenus } from './storage';
-import { mockCategories, MENU_VERSION } from '../mock';
+import { mockCategories, mockGentBarCategories, MENU_VERSION } from '../mock';
 
-describe('Modèle multi-bars et migration (Étape 9.7b)', () => {
+describe('Modèle multi-bars et migration (Étapes 9.7b & 9.7d)', () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -207,7 +215,7 @@ describe('Modèle multi-bars et migration (Étape 9.7b)', () => {
     expect(localStorage.getItem('menus__backup')).not.toBeNull();
   });
 
-  test('getActiveBar et updateBarCategories fonctionnent avec repli sûr', () => {
+  test('8. getActiveBar et updateBarCategories fonctionnent avec repli sûr', () => {
     const bar1 = buildBaseBar(mockCategories, MENU_VERSION);
     const bar2 = createBar({
       id: 'bar-2',
@@ -227,4 +235,62 @@ describe('Modèle multi-bars et migration (Étape 9.7b)', () => {
     expect(updated[1].categories).toHaveLength(2);
     expect(updated[0].categories).toHaveLength(bar1.categories.length);
   });
+
+  test('9. createCustomBar, duplicateBar, renameBar et countBarDrinks (Étape 9.7d)', () => {
+    const emptyBar = createCustomBar({ name: '  Buvette du Stade  ', icon: '☕' });
+    expect(emptyBar.origin).toBe('custom');
+    expect(emptyBar.name).toBe('Buvette du Stade');
+    expect(emptyBar.icon).toBe('☕');
+    expect(emptyBar.categories).toEqual([]);
+    expect(countBarDrinks(emptyBar)).toBe(0);
+    expect(isBaseBar(emptyBar)).toBe(false);
+
+    const gentBar = buildGentBar(mockGentBarCategories, MENU_VERSION);
+    expect(isBaseBar(gentBar)).toBe(true);
+    expect(countBarDrinks(gentBar)).toBe(14);
+
+    const copied = duplicateBar(gentBar, { name: 'GentBar Soirée Privée', icon: '🎉' });
+    expect(copied.origin).toBe('custom');
+    expect(copied.id).not.toBe(gentBar.id);
+    expect(copied.sourceId).not.toBe(gentBar.sourceId);
+    expect(copied.name).toBe('GentBar Soirée Privée');
+    expect(copied.icon).toBe('🎉');
+    expect(countBarDrinks(copied)).toBe(14);
+
+    // Indépendance de la copie : modifier la copie ne touche pas gentBar
+    const originalPrice = gentBar.categories[0].drinks[0].price;
+    copied.categories[0].drinks[0].price = 99;
+    expect(gentBar.categories[0].drinks[0].price).toBe(originalPrice);
+
+    const renamedMenus = renameBar([gentBar, copied], copied.id, {
+      name: 'Chez Mimi',
+      icon: '🍻'
+    });
+    expect(renamedMenus[1].name).toBe('Chez Mimi');
+    expect(renamedMenus[1].icon).toBe('🍻');
+  });
+
+  test('10. removeBar refuse de supprimer les 2 cartes de base officielles et replie activeMenuId si le bar actif est supprimé (Étape 9.7d)', () => {
+    const hockeyBar = buildBaseBar(mockCategories, MENU_VERSION);
+    const gentBar = buildGentBar(mockGentBarCategories, MENU_VERSION);
+    const customBar = createCustomBar({ id: 'chez-mimi', name: 'Chez Mimi', icon: '🍻' });
+    const menus = [hockeyBar, gentBar, customBar];
+
+    // Refus de supprimer Club de hockey ('rllhc')
+    const attemptHockey = removeBar(menus, BASE_BAR_ID, BASE_BAR_ID);
+    expect(attemptHockey.removed).toBe(false);
+    expect(attemptHockey.menus).toHaveLength(3);
+
+    // Refus de supprimer GentBar ('gentbar')
+    const attemptGent = removeBar(menus, GENTBAR_BAR_ID, GENTBAR_BAR_ID);
+    expect(attemptGent.removed).toBe(false);
+    expect(attemptGent.menus).toHaveLength(3);
+
+    // Suppression autorisée de 'chez-mimi' (qui était actif) -> repli sur 'rllhc'
+    const removedCustom = removeBar(menus, 'chez-mimi', 'chez-mimi');
+    expect(removedCustom.removed).toBe(true);
+    expect(removedCustom.menus).toHaveLength(2);
+    expect(removedCustom.activeMenuId).toBe(BASE_BAR_ID);
+  });
 });
+

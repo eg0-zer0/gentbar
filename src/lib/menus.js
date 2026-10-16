@@ -330,3 +330,151 @@ export function syncOrdersWithBar(orders, bar) {
     };
   });
 }
+
+export const BAR_ICONS = ['🏒', '🍹', '🍺', '🍻', '🍷', '🍸', '🥃', '☕', '🍔', '🍕', '🎉', '🏠'];
+
+/**
+ * Indique si un bar (ou identifiant de bar) est l'une des 2 cartes de base officielles
+ * ('rllhc' Club de hockey ou 'gentbar' GentBar).
+ */
+export function isBaseBar(barOrId) {
+  if (!barOrId) return false;
+  if (typeof barOrId === 'string') {
+    return BASE_BAR_IDS.includes(barOrId);
+  }
+  return Boolean(
+    barOrId.origin === 'base' || (isNonEmptyString(barOrId.id) && BASE_BAR_IDS.includes(barOrId.id))
+  );
+}
+
+/**
+ * Compte le nombre total de boissons dans un bar.
+ */
+export function countBarDrinks(bar) {
+  const categories = Array.isArray(bar?.categories) ? bar.categories : [];
+  return categories.reduce(
+    (sum, cat) => sum + (Array.isArray(cat?.drinks) ? cat.drinks.length : 0),
+    0
+  );
+}
+
+/**
+ * Génère un identifiant unique pour un bar personnalisé.
+ */
+export function generateBarId() {
+  const randomSuffix = Math.random().toString(36).slice(2, 6);
+  return `bar-${Date.now()}-${randomSuffix}`;
+}
+
+/**
+ * Crée une nouvelle carte personnalisée (vide par défaut).
+ */
+export function createCustomBar({
+  id,
+  name = 'Nouveau bar',
+  icon = '🍺',
+  categories = []
+} = {}) {
+  const safeId = isNonEmptyString(id) && !BASE_BAR_IDS.includes(id) ? id.trim() : generateBarId();
+  const safeName = isNonEmptyString(name) ? name.trim() : 'Nouveau bar';
+  const safeIcon = isNonEmptyString(icon) ? icon.trim() : '🍺';
+
+  return createBar({
+    id: safeId,
+    sourceId: `gentbar-${safeId}`,
+    name: safeName,
+    icon: safeIcon,
+    origin: 'custom',
+    baseVersion: null,
+    categories: Array.isArray(categories) ? categories : []
+  });
+}
+
+/**
+ * Duplique un bar existant en une nouvelle carte indépendante (nouvel `id` et nouveau `sourceId`).
+ * Fonction pure qui ne mute pas `sourceBar`.
+ */
+export function duplicateBar(sourceBar, { id, name, icon } = {}) {
+  const safeId = isNonEmptyString(id) && !BASE_BAR_IDS.includes(id) ? id.trim() : generateBarId();
+  const baseName = isNonEmptyString(sourceBar?.name) ? sourceBar.name.trim() : 'Bar';
+  const safeName = isNonEmptyString(name) ? name.trim() : `${baseName} (copie)`;
+  const safeIcon = isNonEmptyString(icon)
+    ? icon.trim()
+    : isNonEmptyString(sourceBar?.icon)
+      ? sourceBar.icon
+      : '🍺';
+
+  const clonedCategories = Array.isArray(sourceBar?.categories)
+    ? sourceBar.categories.map((cat) => ({
+        ...cat,
+        modified: false,
+        drinks: Array.isArray(cat?.drinks)
+          ? cat.drinks.map((d) => ({
+              ...d,
+              modified: false
+            }))
+          : []
+      }))
+    : [];
+
+  return createBar({
+    id: safeId,
+    sourceId: `gentbar-${safeId}`,
+    name: safeName,
+    icon: safeIcon,
+    origin: 'custom',
+    baseVersion: null,
+    categories: clonedCategories
+  });
+}
+
+/**
+ * Renomme un bar et/ou change son icône dans la liste `menus` (fonction pure).
+ */
+export function renameBar(menus, barId, { name, icon } = {}) {
+  if (!Array.isArray(menus)) return [];
+  const nextName = isNonEmptyString(name) ? name.trim() : null;
+  const nextIcon = isNonEmptyString(icon) ? icon.trim() : null;
+
+  return menus.map((bar) => {
+    if (!bar || bar.id !== barId) return bar;
+    return {
+      ...bar,
+      name: nextName !== null ? nextName : bar.name,
+      icon: nextIcon !== null ? nextIcon : bar.icon
+    };
+  });
+}
+
+/**
+ * Supprime un bar personnalisé de `menus` (fonction pure).
+ * Refuse systématiquement la suppression d'une carte de base officielle ('rllhc' ou 'gentbar').
+ * Renvoie `{ menus, activeMenuId, removed }`.
+ */
+export function removeBar(menus, barId, activeMenuId = BASE_BAR_ID) {
+  if (!Array.isArray(menus)) {
+    return { menus: [], activeMenuId: BASE_BAR_ID, removed: false };
+  }
+
+  const target = menus.find((b) => b && b.id === barId);
+  if (!target || isBaseBar(target) || isBaseBar(barId)) {
+    return {
+      menus: [...menus],
+      activeMenuId,
+      removed: false
+    };
+  }
+
+  const nextMenus = menus.filter((b) => b && b.id !== barId);
+  const nextActiveMenuId =
+    activeMenuId === barId
+      ? nextMenus[0]?.id || BASE_BAR_ID
+      : activeMenuId;
+
+  return {
+    menus: nextMenus,
+    activeMenuId: nextActiveMenuId,
+    removed: true
+  };
+}
+
