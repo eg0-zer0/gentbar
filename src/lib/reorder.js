@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import { normalizeText } from './search';
+import { BASE_BAR_ID } from './menus';
 
 /**
  * Ajoute les boissons d'une commande passée dans le panier en cours (E-8).
@@ -60,11 +61,13 @@ export function reorderIntoCart({
     }
 
     if (matchedDrink) {
+      const itemBarId = item.barId || order?.barId || BASE_BAR_ID;
       addedItems.push({
         drinkId: matchedDrink.id,
         drinkName: matchedDrink.name,
         price: matchedDrink.price,
-        quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1
+        quantity: typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1,
+        barId: itemBarId
       });
     } else {
       missingDrinks.push(rawName);
@@ -92,6 +95,7 @@ export function reorderIntoCart({
         ...newOrders[existingIndex],
         drinkName: itemToAdd.drinkName,
         price: itemToAdd.price,
+        barId: newOrders[existingIndex].barId || itemToAdd.barId || BASE_BAR_ID,
         quantity: newOrders[existingIndex].quantity + itemToAdd.quantity
       };
     } else {
@@ -100,6 +104,7 @@ export function reorderIntoCart({
         drinkName: itemToAdd.drinkName,
         price: itemToAdd.price,
         quantity: itemToAdd.quantity,
+        barId: itemToAdd.barId || BASE_BAR_ID,
         addedAt: new Date().toISOString()
       });
     }

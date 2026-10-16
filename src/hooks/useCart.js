@@ -2,12 +2,13 @@ import { useMemo } from 'react';
 import { toast } from 'sonner';
 import { useStoredState } from './useStoredState';
 import { normalizeOrders, normalizeString } from '../lib/storage';
+import { BASE_BAR_ID } from '../lib/menus';
 
 /**
  * Hook de gestion du panier de commande et de sa note libre.
  * Persiste automatiquement l'état dans localStorage.
  */
-export const useCart = () => {
+export const useCart = (activeBarId = BASE_BAR_ID) => {
   const [orders, setOrders] = useStoredState('orders', [], normalizeOrders);
   const [orderNote, setOrderNote] = useStoredState('orderNote', '', normalizeString);
 
@@ -24,8 +25,9 @@ export const useCart = () => {
   }, [orders]);
 
   // Ajouter une boisson ou incrémenter sa quantité
-  const addDrink = (drink) => {
+  const addDrink = (drink, barId = activeBarId) => {
     if (!drink || !drink.id) return;
+    const resolvedBarId = drink.barId || barId || BASE_BAR_ID;
     setOrders(prevOrders => {
       const list = Array.isArray(prevOrders) ? prevOrders : [];
       const idx = list.findIndex(order => order.drinkId === drink.id);
@@ -35,6 +37,7 @@ export const useCart = () => {
           ...updated[idx],
           drinkName: drink.name,
           price: drink.price,
+          barId: updated[idx].barId || resolvedBarId,
           quantity: updated[idx].quantity + 1
         };
         return updated;
@@ -46,6 +49,7 @@ export const useCart = () => {
           drinkName: drink.name,
           price: drink.price,
           quantity: 1,
+          barId: resolvedBarId,
           addedAt: new Date().toISOString()
         }
       ];

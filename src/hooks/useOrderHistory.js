@@ -8,15 +8,16 @@ import {
   purgeOrphanTicketCheckmarks
 } from '../lib/storage';
 import { formatPrice } from '../lib/format';
+import { BASE_BAR_ID, withBarId } from '../lib/menus';
 
 /**
  * Hook de gestion de l'historique des commandes et du score de popularité des boissons.
  * Prépare également le rattachement aux sessions du mode Soirée (sessionId, paidFromPot).
  */
-export const useOrderHistory = (categories = []) => {
+export const useOrderHistory = (categories = [], activeBarId = BASE_BAR_ID) => {
   const [orderHistory, setOrderHistory] = useStoredState(
     'orderHistory',
-    mockOrderHistory,
+    () => withBarId(mockOrderHistory, BASE_BAR_ID),
     normalizeOrderHistory
   );
 
@@ -57,17 +58,27 @@ export const useOrderHistory = (categories = []) => {
   }, [orderHistory, categories]);
 
   // Créer et enregistrer une nouvelle commande
-  const createOrder = ({ items = [], total = 0, note = '', sessionId = null, paidFromPot = false }) => {
+  const createOrder = ({
+    items = [],
+    total = 0,
+    note = '',
+    barId = activeBarId,
+    sessionId = null,
+    paidFromPot = false
+  }) => {
     const trimmedNote = typeof note === 'string' ? note.trim() : '';
     const safeItems = Array.isArray(items) ? items : [];
+    const resolvedBarId = barId || BASE_BAR_ID;
     const newOrder = {
       id: `order-${Date.now()}`,
       date: new Date().toISOString(),
+      barId: resolvedBarId,
       items: safeItems.map(o => ({
         drinkId: o.drinkId,
         drinkName: o.drinkName,
         quantity: o.quantity,
-        price: o.price
+        price: o.price,
+        barId: o.barId || resolvedBarId
       })),
       total,
       note: trimmedNote,
