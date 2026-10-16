@@ -6,10 +6,16 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 
+const CATEGORY_ICONS = [
+  '🍺', '🍻', '🍷', '🥂', '🍾', '🍹', '🍸', '🥃',
+  '🥤', '💧', '🧃', '☕', '🫖', '🚫',
+  '🥨', '🍟', '🍔', '🍕', '🌭', '🥪', '🧀', '🍰',
+];
+
 const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
   const [formData, setFormData] = useState({
     name: '',
-    icon: '',
+    icon: '🍺',
   });
 
   // Etat pour contrôle de la modale de confirmation suppression
@@ -19,12 +25,12 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
     if (category) {
       setFormData({
         name: category.name || '',
-        icon: category.icon || '',
+        icon: category.icon || '🍺',
       });
     } else {
-      setFormData({ name: '', icon: '' });
+      setFormData({ name: '', icon: '🍺' });
     }
-  }, [category]);
+  }, [category, isOpen]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -82,21 +88,39 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
             </div>
 
             <div>
-              <Label htmlFor="category-icon" className={`${textClass} block mb-1`}>Icône (emoji)</Label>
-              <Input
-                id="category-icon"
-                type="text"
-                value={formData.icon}
-                onChange={e => setFormData({ ...formData, icon: e.target.value })}
-                onBlur={() => setFormData(prev => ({ ...prev, icon: prev.icon.trim() }))}
-                placeholder="Ex: ☕"
-                required
-                maxLength={2}
-                className="w-full bg-background text-foreground"
-              />
+              <div className="flex items-center justify-between mb-1.5">
+                <Label htmlFor="category-icon" className={textClass}>Icône (emoji)</Label>
+                <Input
+                  id="category-icon"
+                  type="text"
+                  value={formData.icon}
+                  onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                  onBlur={() => setFormData(prev => ({ ...prev, icon: prev.icon.trim() }))}
+                  placeholder="🍺"
+                  required
+                  maxLength={4}
+                  aria-label="Saisir un emoji personnalisé"
+                  className="w-16 h-9 text-center text-lg bg-background text-foreground px-2"
+                />
+              </div>
+              <div className="grid grid-cols-8 gap-1.5 pt-1">
+                {CATEGORY_ICONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, icon: emoji }))}
+                    className={`h-9 rounded-md text-lg flex items-center justify-center border transition-colors ${
+                      formData.icon === emoji
+                        ? 'border-primary bg-primary/15 ring-1 ring-primary'
+                        : 'border-border bg-background hover:bg-accent'
+                    }`}
+                    aria-label={`Choisir l'icône ${emoji}`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
             </div>
-
-            {/* Place pour les emojis ici */}
 
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-border mt-4">
               {category?.id ? (
