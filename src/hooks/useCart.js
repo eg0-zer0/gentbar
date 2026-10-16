@@ -24,13 +24,34 @@ export const useCart = (activeBarId = BASE_BAR_ID) => {
     return orders.reduce((sum, item) => sum + (item.quantity || 0), 0);
   }, [orders]);
 
+  // Bars distincts présents dans le panier en cours (§ 4.6)
+  const barsInCart = useMemo(() => {
+    if (!Array.isArray(orders)) return [];
+    return Array.from(new Set(orders.map((o) => o.barId || BASE_BAR_ID)));
+  }, [orders]);
+
+  const isMultiBarCart = barsInCart.length > 1;
+
+  // Obtenir la quantité d'une boisson (optionnellement restreinte à un bar spécifique)
+  const getItemQuantity = (drinkId, barId = activeBarId) => {
+    if (!Array.isArray(orders) || !drinkId) return 0;
+    const targetBarId = barId || BASE_BAR_ID;
+    const item = orders.find(
+      (o) => o.drinkId === drinkId && (o.barId || BASE_BAR_ID) === targetBarId
+    );
+    return item ? item.quantity : 0;
+  };
+
   // Ajouter une boisson ou incrémenter sa quantité
   const addDrink = (drink, barId = activeBarId) => {
     if (!drink || !drink.id) return;
     const resolvedBarId = drink.barId || barId || BASE_BAR_ID;
     setOrders(prevOrders => {
       const list = Array.isArray(prevOrders) ? prevOrders : [];
-      const idx = list.findIndex(order => order.drinkId === drink.id);
+      // Match strict par couple (drinkId, barId) pour isoler les articles de chaque bar (§ 4.6)
+      const idx = list.findIndex(
+        order => order.drinkId === drink.id && (order.barId || BASE_BAR_ID) === resolvedBarId
+      );
       if (idx >= 0) {
         const updated = [...list];
         updated[idx] = {
@@ -56,30 +77,41 @@ export const useCart = (activeBarId = BASE_BAR_ID) => {
     });
   };
 
-  // Modifier la quantité d'une boisson
-  const updateQuantity = (drinkId, qty) => {
+  // Modifier la quantité d'une boisson (avec barId optionnel pour ciblage exact)
+  const updateQuantity = (drinkId, qty, barId = null) => {
     if (qty <= 0) {
-      removeItem(drinkId);
+      removeItem(drinkId, barId);
     } else {
-      setOrders(prev => (Array.isArray(prev) ? prev : []).map(item => item.drinkId === drinkId ? { ...item, quantity: qty } : item));
+      setOrders(prev =>
+        (Array.isArray(prev) ? prev : []).map(item => {
+          const matchBar = barId ? (item.barId || BASE_BAR_ID) === barId : true;
+          return item.drinkId === drinkId && matchBar ? { ...item, quantity: qty } : item;
+        })
+      );
     }
   };
 
-  // Retirer un article du panier (avec notification)
-  const removeItem = (drinkId) => {
+  // Retirer un article du panier (avec notification et ciblage barId)
+  const removeItem = (drinkId, barId = null) => {
     setOrders(prev => {
       const list = Array.isArray(prev) ? prev : [];
-      const exists = list.some(item => item.drinkId === drinkId);
+      const matchPredicate = item =>
+        item.drinkId === drinkId && (barId ? (item.barId || BASE_BAR_ID) === barId : true);
+      const exists = list.some(matchPredicate);
       if (exists) {
         toast("Article supprimé", { description: "L'article a été retiré du panier" });
       }
-      return list.filter(item => item.drinkId !== drinkId);
+      return list.filter(item => !matchPredicate(item));
     });
   };
 
   // Retirer silencieusement une boisson du panier (ex: suppression de boisson au menu)
-  const removeDrinkFromCart = (drinkId) => {
-    setOrders(prev => (Array.isArray(prev) ? prev.filter(item => item.drinkId !== drinkId) : []));
+  const removeDrinkFromCart = (drinkId, barId = null) => {
+    setOrders(prev =>
+      (Array.isArray(prev)
+        ? prev.filter(item => !(item.drinkId === drinkId && (barId ? (item.barId || BASE_BAR_ID) === barId : true)))
+        : [])
+    );
   };
 
   // Vider le panier et réinitialiser la note libre
@@ -113,6 +145,9 @@ export const useCart = (activeBarId = BASE_BAR_ID) => {
     setOrderNote,
     totalAmount,
     totalItems,
+    barsInCart,
+    isMultiBarCart,
+    getItemQuantity,
     addDrink,
     updateQuantity,
     removeItem,
