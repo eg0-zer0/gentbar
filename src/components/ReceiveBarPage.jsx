@@ -11,7 +11,9 @@ import {
   Sparkles,
   GitMerge,
   Plus,
-  Loader2
+  Loader2,
+  Camera,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -26,6 +28,54 @@ import { countBarDrinks } from '../lib/menus';
 import { mergeMenus, summarizeReport } from '../lib/menuMerge';
 import { formatPrice } from '../lib/format';
 import { useMenus } from '../hooks/useMenus';
+import QrScannerModal from './QrScannerModal';
+
+const MergeReportDetails = ({ report, targetBarName }) => {
+  if (!report) return null;
+  const missingCount = Array.isArray(report.missing) ? report.missing.length : 0;
+  const addedCount = Array.isArray(report.added) ? report.added.length : 0;
+  const updatedCount = Array.isArray(report.updated) ? report.updated.length : 0;
+  const keptCount = Array.isArray(report.kept) ? report.kept.length : 0;
+
+  return (
+    <div className="space-y-2 p-3.5 bg-background/80 rounded-xl border border-border/80 text-xs">
+      <div className="font-semibold text-foreground flex items-center justify-between">
+        <span>Effet de la fusion :</span>
+        <span className="text-primary font-medium">{summarizeReport(report)}</span>
+      </div>
+      <ul className="space-y-1.5 pt-1.5 border-t border-border/50">
+        {missingCount > 0 && (
+          <li className="flex items-start gap-1.5 text-emerald-700 dark:text-emerald-400 font-medium">
+            <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+            <span>
+              <strong>{missingCount}</strong> boisson{missingCount > 1 ? 's' : ''} propre{missingCount > 1 ? 's' : ''} à « {targetBarName || 'ce bar'} » conservée{missingCount > 1 ? 's' : ''} : <em>aucun produit local ne sera supprimé</em>.
+            </span>
+          </li>
+        )}
+        {keptCount > 0 && (
+          <li className="flex items-start gap-1.5 text-amber-700 dark:text-amber-300">
+            <span className="font-bold shrink-0 text-amber-500">★</span>
+            <span>
+              <strong>{keptCount}</strong> boisson{keptCount > 1 ? 's' : ''} personnalisée{keptCount > 1 ? 's' : ''} conservée{keptCount > 1 ? 's' : ''} sans être écrasée{keptCount > 1 ? 's' : ''}.
+            </span>
+          </li>
+        )}
+        {addedCount > 0 && (
+          <li className="flex items-start gap-1.5 text-foreground">
+            <span className="text-emerald-500 font-bold shrink-0">＋</span>
+            <span><strong>{addedCount}</strong> nouvelle{addedCount > 1 ? 's' : ''} boisson{addedCount > 1 ? 's' : ''} ajoutée{addedCount > 1 ? 's' : ''}.</span>
+          </li>
+        )}
+        {updatedCount > 0 && (
+          <li className="flex items-start gap-1.5 text-foreground">
+            <span className="text-blue-500 font-bold shrink-0">↻</span>
+            <span><strong>{updatedCount}</strong> prix mis à jour selon la carte reçue.</span>
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+};
 
 export const ReceiveBarPage = ({
   menus: propMenus,
@@ -46,6 +96,7 @@ export const ReceiveBarPage = ({
   const [incomingBar, setIncomingBar] = useState(null);
   const [selectedTargetBarId, setSelectedTargetBarId] = useState('');
   const [showMergeSelector, setShowMergeSelector] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -117,6 +168,26 @@ export const ReceiveBarPage = ({
       }
     } catch {
       setError('Impossible de décoder ce lien.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleScanSuccess = async (scannedRawValue) => {
+    setIsScannerOpen(false);
+    if (!scannedRawValue || !scannedRawValue.trim()) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await decodeBarFromShareInput(scannedRawValue.trim());
+      if (res.valid) {
+        setIncomingBar(res.bar);
+        toast.success('QR code scanné avec succès !');
+      } else {
+        setError(res.error || 'Contenu de QR code non reconnu.');
+      }
+    } catch {
+      setError('Impossible de lire ce QR code.');
     } finally {
       setLoading(false);
     }
@@ -263,9 +334,7 @@ export const ReceiveBarPage = ({
                 </div>
 
                 {mergePreview?.report && (
-                  <div className="text-xs font-medium text-primary px-2 py-1 bg-background/80 rounded-md border border-primary/20">
-                    {summarizeReport(mergePreview.report)}
-                  </div>
+                  <MergeReportDetails report={mergePreview.report} targetBarName={linkedBar.name} />
                 )}
 
                 <div className="pt-2 flex flex-col sm:flex-row gap-2">
@@ -336,10 +405,10 @@ export const ReceiveBarPage = ({
                       </select>
 
                       {mergePreview?.report && (
-                        <div className="text-xs text-muted-foreground bg-card p-2.5 rounded-lg border border-border">
-                          <span className="font-medium text-foreground">Effet de la fusion : </span>
-                          {summarizeReport(mergePreview.report)}
-                        </div>
+                        <MergeReportDetails
+                          report={mergePreview.report}
+                          targetBarName={menus.find((b) => b && b.id === selectedTargetBarId)?.name}
+                        />
                       )}
 
                       <div className="flex items-center gap-2 pt-1">
@@ -383,6 +452,30 @@ export const ReceiveBarPage = ({
           /* Formulaires d'import manuel (lien ou fichier) */
           !loading && (
             <div className="space-y-6">
+              {/* Option 0 : Scanner directement avec l'appareil photo */}
+              <div className="bg-card rounded-2xl border border-primary/30 p-5 shadow-sm space-y-3 bg-gradient-to-br from-primary/5 via-card to-card">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                    <Camera className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-sm text-foreground">Scanner directement</h2>
+                    <p className="text-xs text-muted-foreground">
+                      Pointez l'appareil photo vers le QR code d'un ami
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  onClick={() => setIsScannerOpen(true)}
+                  className="btn-primary w-full h-11 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>Scanner un QR code</span>
+                </Button>
+              </div>
+
               {/* Option 1 : Coller un lien */}
               <div className="bg-card rounded-2xl border border-border p-5 shadow-sm space-y-4">
                 <div className="flex items-center gap-2.5">
@@ -452,6 +545,12 @@ export const ReceiveBarPage = ({
           )
         )}
       </main>
+
+      <QrScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={handleScanSuccess}
+      />
     </div>
   );
 };
