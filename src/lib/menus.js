@@ -524,3 +524,83 @@ export function applyMergedBarToMenus(menus, targetBarId, incomingBar, mergedBar
   });
 }
 
+/**
+ * Retourne la clé unique d'un article dans un panier ou une commande multi-bars (§ 4.6).
+ * Forme : "barId:drinkId".
+ */
+export function getOrderItemKey(item) {
+  const barId = isNonEmptyString(item?.barId) ? item.barId.trim() : BASE_BAR_ID;
+  const drinkId = isNonEmptyString(item?.drinkId) ? item.drinkId.trim() : '';
+  return `${barId}:${drinkId}`;
+}
+
+/**
+ * Regroupe les articles d'une commande ou d'un panier par bar (§ 4.6).
+ * Calcule les sous-totaux par bar, le total général et identifie les bars supprimés.
+ *
+ * @param {Array} items - Liste d'articles { drinkId, drinkName, price, quantity, barId }
+ * @param {Array} menus - Liste des bars actuels { id, name, icon }
+ * @returns {Object} { groups, barsCount, isMultiBar, totalAmount, totalItems }
+ */
+export function groupOrderItemsByBar(items, menus = []) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return {
+      groups: [],
+      barsCount: 0,
+      isMultiBar: false,
+      totalAmount: 0,
+      totalItems: 0
+    };
+  }
+
+  const menusMap = new Map();
+  if (Array.isArray(menus)) {
+    menus.forEach((b) => {
+      if (b && isNonEmptyString(b.id)) {
+        menusMap.set(b.id, b);
+      }
+    });
+  }
+
+  const groupsMap = new Map();
+
+  items.forEach((item) => {
+    if (!item) return;
+    const barId = isNonEmptyString(item.barId) ? item.barId.trim() : BASE_BAR_ID;
+    let group = groupsMap.get(barId);
+    if (!group) {
+      const knownBar = menusMap.get(barId);
+      group = {
+        barId,
+        barName: knownBar ? knownBar.name : 'Bar supprimé',
+        barIcon: knownBar ? knownBar.icon : '🏪',
+        isDeletedBar: !knownBar,
+        items: [],
+        subtotal: 0,
+        totalItems: 0
+      };
+      groupsMap.set(barId, group);
+    }
+
+    const qty = typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1;
+    const price = typeof item.price === 'number' && !isNaN(item.price) ? item.price : 0;
+    const lineTotal = price * qty;
+
+    group.items.push(item);
+    group.subtotal = Math.round((group.subtotal + lineTotal) * 100) / 100;
+    group.totalItems += qty;
+  });
+
+  const groups = Array.from(groupsMap.values());
+  const totalAmount = Math.round(groups.reduce((sum, g) => sum + g.subtotal, 0) * 100) / 100;
+  const totalItems = groups.reduce((sum, g) => sum + g.totalItems, 0);
+
+  return {
+    groups,
+    barsCount: groups.length,
+    isMultiBar: groups.length > 1,
+    totalAmount,
+    totalItems
+  };
+}
+

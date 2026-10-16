@@ -15,7 +15,9 @@ import {
   createCustomBar,
   duplicateBar,
   renameBar,
-  removeBar
+  removeBar,
+  getOrderItemKey,
+  groupOrderItemsByBar
 } from './menus';
 import { normalizeMenus } from './storage';
 import { mockCategories, mockGentBarCategories, MENU_VERSION } from '../mock';
@@ -291,6 +293,53 @@ describe('Modèle multi-bars et migration (Étapes 9.7b & 9.7d)', () => {
     expect(removedCustom.removed).toBe(true);
     expect(removedCustom.menus).toHaveLength(2);
     expect(removedCustom.activeMenuId).toBe(BASE_BAR_ID);
+  });
+
+  test('11. getOrderItemKey génère une clé composite barId:drinkId (§ 4.6)', () => {
+    expect(getOrderItemKey({ barId: 'rllhc', drinkId: 'd-1' })).toBe('rllhc:d-1');
+    expect(getOrderItemKey({ barId: 'chez-mimi', drinkId: 'd-99' })).toBe('chez-mimi:d-99');
+    // Repli sur BASE_BAR_ID si barId absent
+    expect(getOrderItemKey({ drinkId: 'd-1' })).toBe(`${BASE_BAR_ID}:d-1`);
+  });
+
+  test('12. groupOrderItemsByBar regroupe par bar, calcule les sous-totaux et gère les bars supprimés (§ 4.6)', () => {
+    const hockeyBar = buildBaseBar(mockCategories, MENU_VERSION);
+    const gentBar = buildGentBar(mockGentBarCategories, MENU_VERSION);
+    const menus = [hockeyBar, gentBar];
+
+    const items = [
+      { drinkId: 'd-1', drinkName: 'Carlsberg 25cl', price: 2.5, quantity: 2, barId: 'rllhc' },
+      { drinkId: 'd-2', drinkName: 'Duvel', price: 4.5, quantity: 1, barId: 'rllhc' },
+      { drinkId: 'g-1', drinkName: 'Mojito', price: 7.0, quantity: 2, barId: 'gentbar' },
+      { drinkId: 'old-1', drinkName: 'Cocktail Ancien', price: 5.0, quantity: 1, barId: 'bar-supprime' }
+    ];
+
+    const result = groupOrderItemsByBar(items, menus);
+    expect(result.barsCount).toBe(3);
+    expect(result.isMultiBar).toBe(true);
+    expect(result.totalItems).toBe(6);
+    // (2.5*2 + 4.5*1) + (7.0*2) + (5.0*1) = 9.5 + 14.0 + 5.0 = 28.5
+    expect(result.totalAmount).toBe(28.5);
+
+    // Groupe 1 : Club de hockey
+    expect(result.groups[0].barId).toBe('rllhc');
+    expect(result.groups[0].barName).toBe('Club de hockey');
+    expect(result.groups[0].barIcon).toBe('🏒');
+    expect(result.groups[0].isDeletedBar).toBe(false);
+    expect(result.groups[0].subtotal).toBe(9.5);
+    expect(result.groups[0].totalItems).toBe(3);
+
+    // Groupe 2 : GentBar
+    expect(result.groups[1].barId).toBe('gentbar');
+    expect(result.groups[1].barName).toBe('GentBar');
+    expect(result.groups[1].subtotal).toBe(14);
+    expect(result.groups[1].totalItems).toBe(2);
+
+    // Groupe 3 : Bar supprimé
+    expect(result.groups[2].barId).toBe('bar-supprime');
+    expect(result.groups[2].barName).toBe('Bar supprimé');
+    expect(result.groups[2].isDeletedBar).toBe(true);
+    expect(result.groups[2].subtotal).toBe(5);
   });
 });
 
