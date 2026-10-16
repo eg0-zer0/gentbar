@@ -495,7 +495,7 @@ export const ReceiveBarPage = ({
                     type="text"
                     value={pastedLink}
                     onChange={(e) => setPastedLink(e.target.value)}
-                    placeholder="https://gentbar.netlify.app/recevoir#c=..."
+                    placeholder="Collez votre lien ici (ex: https://...)"
                     className="w-full bg-background text-sm"
                   />
                   <Button type="submit" className="btn-primary w-full h-10 text-sm font-medium">
