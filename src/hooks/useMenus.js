@@ -14,7 +14,12 @@ import {
   updateBarCategories,
   withBarId,
   appendDeletedIds,
-  syncOrdersWithBar
+  syncOrdersWithBar,
+  isBaseBar,
+  createCustomBar,
+  duplicateBar,
+  renameBar,
+  removeBar
 } from '../lib/menus';
 import {
   load,
@@ -195,8 +200,8 @@ export const runMigrationsIfNeeded = () => {
 };
 
 /**
- * Hook de gestion des menus et catégories (modèle multi-bars A-29 / 9.7b & 9.7c).
- * Maintient l'API historique intacte pour DrinkOrderApp tout en exposant menus, activeMenuId et activeMenu.
+ * Hook de gestion des menus et catégories (modèle multi-bars A-29 / 9.7b, 9.7c & 9.7d).
+ * Maintient l'API historique intacte pour DrinkOrderApp tout en exposant menus, activeMenuId, activeMenu et les actions de gestion des bars.
  */
 export const useMenus = () => {
   const [schemaVersion] = useState(() => {
@@ -212,7 +217,7 @@ export const useMenus = () => {
     )
   );
 
-  const [activeMenuId] = useState(() =>
+  const [activeMenuId, setActiveMenuId] = useState(() =>
     load('activeMenuId', BASE_BAR_ID, normalizeString)
   );
 
@@ -228,17 +233,115 @@ export const useMenus = () => {
     save('schemaVersion', schemaVersion);
   }, [schemaVersion]);
 
-  // Avertir une fois après une mise à jour automatique des cartes de base
+  // Avertir une fois après une mise à jour automatique des cartes de base (léger délai pour que Toaster soit monté)
   useEffect(() => {
     if (menuMigrationNotice) {
-      toast(menuMigrationNotice);
+      const notice = menuMigrationNotice;
       menuMigrationNotice = null;
+      const timer = setTimeout(() => {
+        toast(notice, {
+          description: 'Les cartes officielles ont été synchronisées.'
+        });
+      }, 80);
+      return () => clearTimeout(timer);
     }
+    return undefined;
   }, []);
 
   const activeMenu =
     getActiveBar(menus, activeMenuId) || buildBaseBar(mockCategories, MENU_VERSION);
   const categories = Array.isArray(activeMenu?.categories) ? activeMenu.categories : [];
+
+  // Sélectionner un bar actif
+  const selectBar = useCallback(
+    (barId, { silent = false } = {}) => {
+      if (!barId) return;
+      const target = Array.isArray(menus) ? menus.find((b) => b && b.id === barId) : null;
+      if (!target) return;
+      setActiveMenuId(barId);
+      if (!silent) {
+        toast(`Carte active : ${target.name}`, {
+          description: `${target.icon} ${target.name}`
+        });
+      }
+    },
+    [menus]
+  );
+
+  // Créer une nouvelle carte vide
+  const addEmptyBar = useCallback(
+    ({ name, icon, activate = true } = {}) => {
+      const newBar = createCustomBar({ name, icon, categories: [] });
+      setMenus((prev) => [...(Array.isArray(prev) ? prev : []), newBar]);
+      if (activate) {
+        setActiveMenuId(newBar.id);
+      }
+      toast('Carte créée', {
+        description: `${newBar.icon} ${newBar.name} est prête.`
+      });
+      return newBar;
+    },
+    []
+  );
+
+  // Dupliquer une carte existante en une copie indépendante
+  const duplicateExistingBar = useCallback(
+    (sourceBarId, { name, icon, activate = true } = {}) => {
+      const sourceBar = Array.isArray(menus)
+        ? menus.find((b) => b && b.id === sourceBarId)
+        : null;
+      if (!sourceBar) return null;
+
+      const copiedBar = duplicateBar(sourceBar, { name, icon });
+      setMenus((prev) => [...(Array.isArray(prev) ? prev : []), copiedBar]);
+      if (activate) {
+        setActiveMenuId(copiedBar.id);
+      }
+      toast('Carte dupliquée', {
+        description: `${copiedBar.icon} ${copiedBar.name} a été créée à partir de ${sourceBar.name}.`
+      });
+      return copiedBar;
+    },
+    [menus]
+  );
+
+  // Renommer un bar et/ou changer son icône
+  const renameExistingBar = useCallback((barId, { name, icon } = {}) => {
+    if (!barId) return;
+    setMenus((prev) => renameBar(prev, barId, { name, icon }));
+    toast('Carte modifiée', {
+      description: 'Le nom et l’icône ont été mis à jour.'
+    });
+  }, []);
+
+  // Supprimer un bar personnalisé (refusé sur les 2 cartes de base officielles)
+  const deleteExistingBar = useCallback(
+    (barId) => {
+      const target = Array.isArray(menus) ? menus.find((b) => b && b.id === barId) : null;
+      if (!target || isBaseBar(target) || isBaseBar(barId)) {
+        toast.error('Suppression impossible', {
+          description: 'Les cartes de base officielles ne peuvent pas être supprimées.'
+        });
+        return false;
+      }
+
+      const previousMenusRaw = loadRaw('menus');
+      if (previousMenusRaw !== null) {
+        saveRaw('menus__backup', previousMenusRaw);
+      }
+
+      const result = removeBar(menus, barId, activeMenuId);
+      if (!result.removed) return false;
+
+      setMenus(result.menus);
+      setActiveMenuId(result.activeMenuId);
+      toast('Carte supprimée', {
+        description: `${target.name} a été retirée de vos bars.`
+      });
+      return true;
+    },
+    [menus, activeMenuId]
+  );
 
   // Met à jour les catégories du bar actif
   const setCategories = useCallback(
@@ -421,6 +524,11 @@ export const useMenus = () => {
     menus,
     activeMenuId,
     activeMenu,
+    selectBar,
+    addEmptyBar,
+    duplicateExistingBar,
+    renameExistingBar,
+    deleteExistingBar,
     categories,
     setCategories,
     toggleCategory,
