@@ -11,7 +11,8 @@ import {
   RotateCcw,
   Trash2,
   Share2,
-  ShoppingBag
+  ShoppingBag,
+  QrCode
 } from 'lucide-react';
 import { Button } from './ui/button';
 import {

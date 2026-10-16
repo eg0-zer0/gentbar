@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feat-9-7b` · **Prochaine étape** : 9.7f Commande sur deux bars · **Dernier commit** : 067b545
+**Branche de travail** : `feat-9-7b` · **Prochaine étape** : 9.7f Commande sur deux bars · **Dernier commit** : 8879b83
 
 ---
 
