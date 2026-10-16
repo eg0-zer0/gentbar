@@ -59,8 +59,10 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
       return;
     }
 
+    let stream = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      // 1. Tenter la caméra arrière (smartphone)
+      stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: 'environment' },
           width: { ideal: 1280 },
@@ -68,7 +70,28 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
         },
         audio: false
       });
+    } catch (firstErr) {
+      // 2. Repli sur n'importe quelle caméra disponible (webcam PC portable, etc.)
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+      } catch (err) {
+        console.warn('Erreur accès caméra:', err);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+          setCameraError('L’accès à la caméra a été refusé. Veuillez autoriser l’appareil photo dans le navigateur.');
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+          setCameraError('Aucune caméra détectée sur cet appareil (PC de bureau). Utilisez le bouton photo ci-dessous ou testez sur smartphone.');
+        } else {
+          setCameraError('Impossible d’ouvrir la caméra sur cet appareil. Testez sur smartphone ou choisissez une photo.');
+        }
+        setScanning(false);
+        return;
+      }
+    }
 
+    if (stream) {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -80,14 +103,6 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
           runDetectionLoop(detector);
         }
       }
-    } catch (err) {
-      console.warn('Erreur accès caméra:', err);
-      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('L’accès à la caméra a été refusé. Veuillez autoriser l’appareil photo dans vos réglages.');
-      } else {
-        setCameraError('Impossible d’ouvrir la caméra sur cet appareil.');
-      }
-      setScanning(false);
     }
   };
 

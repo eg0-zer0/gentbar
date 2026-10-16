@@ -11,8 +11,7 @@ import {
   RotateCcw,
   Trash2,
   Share2,
-  ShoppingBag,
-  QrCode
+  ShoppingBag
 } from 'lucide-react';
 import { Button } from './ui/button';
 import {
@@ -105,17 +104,7 @@ const MyBarsScreen = () => {
             <h1 className="text-lg sm:text-xl font-bold text-foreground">Mes bars</h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1.5 h-9 px-3"
-              onClick={() => navigate('/recevoir')}
-            >
-              <QrCode className="w-4 h-4" />
-              <span className="hidden sm:inline">Recevoir</span>
-            </Button>
+          <div>
             <Button
               type="button"
               size="sm"
