@@ -132,6 +132,12 @@ export function save(key, value) {
 
 /** Supprime une liste de clés (utilisé par la réinitialisation des données). */
 export function removeKeys(keys) {
+  if (Array.isArray(keys) && keys.includes('menus')) {
+    const rawMenus = loadRaw('menus');
+    if (rawMenus !== null) {
+      saveRaw('menus__backup_reset', rawMenus);
+    }
+  }
   keys.forEach((key) => {
     try {
       localStorage.removeItem(key);
@@ -161,9 +167,29 @@ const isNum = (n) => typeof n === 'number' && Number.isFinite(n);
 const isStr = (s) => typeof s === 'string';
 
 const isDrink = (d) => d && isStr(d.id) && isStr(d.name) && isNum(d.price);
-const isOrderLine = (o) => o && isStr(o.drinkId) && isStr(o.drinkName) && isNum(o.price) && isNum(o.quantity) && o.quantity > 0;
-const isHistoryItem = (i) => i && isStr(i.drinkName) && isNum(i.quantity) && isNum(i.price) && (i.drinkId === undefined || isStr(i.drinkId));
-const isHistoryOrder = (o) => o && isStr(o.id) && isNum(o.total) && Array.isArray(o.items) && o.items.every(isHistoryItem) && (o.note === undefined || isStr(o.note));
+const isOrderLine = (o) =>
+  o &&
+  isStr(o.drinkId) &&
+  isStr(o.drinkName) &&
+  isNum(o.price) &&
+  isNum(o.quantity) &&
+  o.quantity > 0 &&
+  (o.barId === undefined || isStr(o.barId));
+const isHistoryItem = (i) =>
+  i &&
+  isStr(i.drinkName) &&
+  isNum(i.quantity) &&
+  isNum(i.price) &&
+  (i.drinkId === undefined || isStr(i.drinkId)) &&
+  (i.barId === undefined || isStr(i.barId));
+const isHistoryOrder = (o) =>
+  o &&
+  isStr(o.id) &&
+  isNum(o.total) &&
+  Array.isArray(o.items) &&
+  o.items.every(isHistoryItem) &&
+  (o.note === undefined || isStr(o.note)) &&
+  (o.barId === undefined || isStr(o.barId));
 
 const filterList = (v, isValid) => {
   if (!Array.isArray(v)) return null;
@@ -190,6 +216,52 @@ export const normalizeCategories = (v) => {
   return { value, dropped };
 };
 
+export const normalizeMenus = (v) => {
+  if (!Array.isArray(v)) return null;
+  let dropped = 0;
+  const value = [];
+
+  v.forEach((bar) => {
+    const validHeader =
+      bar &&
+      isStr(bar.id) &&
+      bar.id.trim().length > 0 &&
+      isStr(bar.name) &&
+      bar.name.trim().length > 0 &&
+      Array.isArray(bar.categories);
+
+    if (!validHeader) {
+      dropped += 1;
+      return;
+    }
+
+    const catResult = normalizeCategories(bar.categories);
+    if (!catResult) {
+      dropped += 1;
+      return;
+    }
+
+    dropped += catResult.dropped;
+    value.push(
+      catResult.value === bar.categories
+        ? bar
+        : { ...bar, categories: catResult.value }
+    );
+  });
+
+  if (dropped > 0 || value.length === 0) {
+    try {
+      const existingRaw = localStorage.getItem('menus');
+      backupRaw('menus', existingRaw !== null ? existingRaw : JSON.stringify(v));
+    } catch {
+      // Sauvegarde de secours ignorée si indisponible
+    }
+  }
+
+  if (value.length === 0) return null;
+  return { value, dropped };
+};
+
 export const normalizeOrders = (v) => filterList(v, isOrderLine);
 
 export const normalizeOrderHistory = (v) => filterList(v, isHistoryOrder);
@@ -198,10 +270,23 @@ export const normalizeBoolean = (v) => (typeof v === 'boolean' ? { value: v, dro
 
 export const normalizeString = (v) => (typeof v === 'string' ? { value: v, dropped: 0 } : null);
 
+export const normalizeNumber = (v) => (isNum(v) ? { value: v, dropped: 0 } : null);
+
 export const normalizeOneOf = (allowed) => (v) => (allowed.includes(v) ? { value: v, dropped: 0 } : null);
 
 // Clés de données de l'application (réinitialisation).
-export const APP_DATA_KEYS = ['categories', 'orders', 'orderNote', 'orderHistory', 'menuVersion', 'sortBy', 'soundEnabled'];
+export const APP_DATA_KEYS = [
+  'categories',
+  'menus',
+  'activeMenuId',
+  'schemaVersion',
+  'orders',
+  'orderNote',
+  'orderHistory',
+  'menuVersion',
+  'sortBy',
+  'soundEnabled'
+];
 
 /**
  * Demande au navigateur la persistance du stockage (A-27) pour éviter l'éviction automatique

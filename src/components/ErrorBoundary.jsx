@@ -1,5 +1,5 @@
 import React from 'react';
-import { removeKeys, APP_DATA_KEYS } from '../lib/storage';
+import { removeKeys, APP_DATA_KEYS, loadRaw, saveRaw } from '../lib/storage';
 
 // Filet de sécurité global (A-08) : toute erreur de rendu affiche cet écran
 // au lieu d'une page blanche. Volontairement sans dépendance aux composants UI
@@ -27,6 +27,10 @@ class ErrorBoundary extends React.Component {
       "Réinitialiser les données ?\n\nLe panier, l'historique des commandes et vos modifications de la carte seront effacés. Cette action est irréversible."
     );
     if (!ok) return;
+    const rawMenus = loadRaw('menus');
+    if (rawMenus !== null) {
+      saveRaw('menus__backup_reset', rawMenus);
+    }
     removeKeys(APP_DATA_KEYS);
     window.location.reload();
   };
