@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, X, AlertCircle, RefreshCw, Upload } from 'lucide-react';
+import { Camera, X, AlertCircle, RefreshCw, Upload, Loader2 } from 'lucide-react';
 import jsQR from 'jsqr';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
@@ -174,54 +174,150 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
     animFrameRef.current = requestAnimationFrame(() => runDetectionLoop(nativeDetector));
   };
 
+  const [analyzingPhoto, setAnalyzingPhoto] = useState(false);
+
+  // Fonction d'aide pour charger une image en HTMLImageElement
+  const loadHtmlImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new window.Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Traitement d'une photo / image prise par l'utilisateur (compatible 100% navigateurs)
-  const handlePhotoFile = (e) => {
+  const handlePhotoFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setCameraError(null);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new window.Image();
-      img.onload = () => {
+    setAnalyzingPhoto(true);
+
+    try {
+      // 1. Tenter en priorité BarcodeDetector natif (Chrome Android, Google ML Kit, ultra-puissant sur photos d'écran)
+      if (typeof window !== 'undefined' && 'BarcodeDetector' in window) {
         try {
-          const canvas = document.createElement('canvas');
-          const maxDim = 1200;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
-          }
-
-          const rawData = scanCanvasWithJsQr(canvas, img, w, h, 'attemptBoth');
-
-          if (rawData) {
+          const bmp = await createImageBitmap(file);
+          const detector = new window.BarcodeDetector({ formats: ['qr_code'] });
+          const barcodes = await detector.detect(bmp);
+          if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
             stopCamera();
-            onScanSuccess(rawData);
+            onScanSuccess(barcodes[0].rawValue);
             onClose();
-          } else {
-            setCameraError('Aucun QR code détecté sur cette photo. Rapprochez-vous du code ou ajustez la lumière.');
+            return;
           }
-        } catch (err) {
-          setCameraError('Impossible d’analyser cette image.');
+        } catch (detectorErr) {
+          // Continuer vers le repli jsQR
         }
-      };
-      img.onerror = () => {
-        setCameraError('Impossible d’ouvrir l’image sélectionnée.');
-      };
-      img.src = event.target?.result;
-    };
-    reader.onerror = () => {
-      setCameraError('Erreur de lecture du fichier.');
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+      }
+
+      // 2. Préparer la source image (createImageBitmap gère nativement l'orientation EXIF)
+      let source = null;
+      let naturalWidth = 0;
+      let naturalHeight = 0;
+      try {
+        source = await createImageBitmap(file);
+        naturalWidth = source.width;
+        naturalHeight = source.height;
+      } catch (bmpErr) {
+        source = await loadHtmlImage(file);
+        naturalWidth = source.width;
+        naturalHeight = source.height;
+      }
+
+      if (!source || naturalWidth <= 0 || naturalHeight <= 0) {
+        throw new Error('Image invalide');
+      }
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+      // PASSE A : Image globale haute résolution (max 1800px pour préserver la netteté des modules QR denses)
+      const maxDim = 1800;
+      let w = naturalWidth;
+      let h = naturalHeight;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(source, 0, 0, w, h);
+      let imgData = ctx.getImageData(0, 0, w, h);
+
+      let found = jsQR(imgData.data, w, h, { inversionAttempts: 'attemptBoth' });
+      if (found && found.data) {
+        stopCamera();
+        onScanSuccess(found.data);
+        onClose();
+        return;
+      }
+
+      // PASSE B : Recadrage sur la zone centrale (65% x 65%) - indispensable quand le QR code est au milieu de la photo
+      const cropW = Math.floor(naturalWidth * 0.65);
+      const cropH = Math.floor(naturalHeight * 0.65);
+      const startX = Math.floor((naturalWidth - cropW) / 2);
+      const startY = Math.floor((naturalHeight - cropH) / 2);
+
+      canvas.width = Math.min(cropW, 1200);
+      canvas.height = Math.min(cropH, 1200);
+      ctx.drawImage(source, startX, startY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+      imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      found = jsQR(imgData.data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+      if (found && found.data) {
+        stopCamera();
+        onScanSuccess(found.data);
+        onClose();
+        return;
+      }
+
+      // PASSE C : Binarisation adaptative (filtre fort contraste pour reflets d'écran d'ordinateur)
+      const dataArr = imgData.data;
+      const binarized = new Uint8ClampedArray(dataArr.length);
+      let sumLum = 0;
+      for (let i = 0; i < dataArr.length; i += 4) {
+        sumLum += 0.299 * dataArr[i] + 0.587 * dataArr[i + 1] + 0.114 * dataArr[i + 2];
+      }
+      const avgLum = sumLum / (dataArr.length / 4);
+      const threshold = Math.max(70, Math.min(185, avgLum));
+
+      for (let i = 0; i < dataArr.length; i += 4) {
+        const lum = 0.299 * dataArr[i] + 0.587 * dataArr[i + 1] + 0.114 * dataArr[i + 2];
+        const val = lum > threshold ? 255 : 0;
+        binarized[i] = val;
+        binarized[i + 1] = val;
+        binarized[i + 2] = val;
+        binarized[i + 3] = 255;
+      }
+
+      found = jsQR(binarized, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+      if (found && found.data) {
+        stopCamera();
+        onScanSuccess(found.data);
+        onClose();
+        return;
+      }
+
+      setCameraError('Aucun QR code détecté sur cette photo. Essayez de vous rapprocher de l’écran ou de prendre la photo bien de face.');
+    } catch (err) {
+      console.warn('Erreur analyse photo QR:', err);
+      setCameraError('Impossible d’analyser cette image.');
+    } finally {
+      setAnalyzingPhoto(false);
+      e.target.value = '';
+    }
   };
 
   return (
@@ -293,11 +389,21 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
             <Button
               type="button"
               variant="outline"
+              disabled={analyzingPhoto}
               className="flex-1 h-10 text-xs flex items-center justify-center gap-1.5"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="w-3.5 h-3.5" />
-              Prendre / choisir une photo
+              {analyzingPhoto ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Analyse de la photo…</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>Prendre / choisir une photo</span>
+                </>
+              )}
             </Button>
             <Button
               type="button"
