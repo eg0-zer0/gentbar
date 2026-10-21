@@ -346,9 +346,9 @@ export function parseDrinkList(text, {
       categories.push(currentCategory);
     }
 
-    // Gestion de splitSlashes (boissons multiples "Coca / Zéro 2,50" ou double prix "Whisky 10€ le verre / 50€ la bouteille")
+    // Gestion de splitSlashes (boissons multiples "Coca / Zéro 2,50" ou "Coca, Oasis, Ice Tea 1,50", ou double prix "Whisky 10€ le verre / 50€ la bouteille")
     let itemsToAdd = [];
-    if (splitSlashes && rawLine.includes('/')) {
+    if (splitSlashes && (rawLine.includes('/') || (parsed.name && parsed.name.includes(',')))) {
       const slashParts = rawLine.split('/');
       const parsedParts = slashParts.map((p) => parseSingleLine(p));
       const partsWithPrice = parsedParts.filter((p) => p.price !== null);
@@ -379,9 +379,11 @@ export function parseDrinkList(text, {
             hasOcrE: pp.hasOcrE
           };
         });
-      } else if (parsed.name && parsed.name.includes('/')) {
+      } else if (parsed.name && (parsed.name.includes('/') || parsed.name.includes(','))) {
+        // Séparation des boissons groupées de même prix ("Coca / Zéro" ou "Coca, Oasis, Ice Tea")
+        const delimiter = parsed.name.includes('/') ? '/' : ',';
         const parts = parsed.name
-          .split('/')
+          .split(delimiter)
           .map((p) => p.trim())
           .filter(Boolean);
         const names = parts.length > 0 ? parts : [parsed.name];

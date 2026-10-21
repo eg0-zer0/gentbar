@@ -550,4 +550,31 @@ Blanc
     expect(wines.drinks[1].name).toBe('Rouge (la bouteille)');
     expect(wines.drinks[1].price).toBe(35);
   });
+
+  test('Carte de buvette : sépare les listes de boissons ou viennoiseries avec virgules (splitSlashes)', () => {
+    const text = `VIENNOISERIES
+Snikers, Kitkat, Chips 0,50 €
+SOFTS
+Coca, Oasis, Ice Tea 1,50 €`;
+    const res = parseDrinkList(text, { allowCategories: true, splitSlashes: true });
+    expect(res.categories.length).toBe(2);
+
+    const viennoiseries = res.categories[0].drinks;
+    expect(viennoiseries.length).toBe(3);
+    expect(viennoiseries[0].name).toBe('Snikers');
+    expect(viennoiseries[0].price).toBe(0.5);
+    expect(viennoiseries[1].name).toBe('Kitkat');
+    expect(viennoiseries[1].price).toBe(0.5);
+    expect(viennoiseries[2].name).toBe('Chips');
+    expect(viennoiseries[2].price).toBe(0.5);
+
+    const softs = res.categories[1].drinks;
+    expect(softs.length).toBe(3);
+    expect(softs[0].name).toBe('Coca');
+    expect(softs[0].price).toBe(1.5);
+    expect(softs[1].name).toBe('Oasis');
+    expect(softs[1].price).toBe(1.5);
+    expect(softs[2].name).toBe('Ice Tea');
+    expect(softs[2].price).toBe(1.5);
+  });
 });

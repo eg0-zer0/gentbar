@@ -33,10 +33,11 @@ export const AI_PROMPT_TEMPLATE = `Voici la photo d'une carte de boissons. Rédi
 RÈGLES STRICTES :
 1. Ne mets AUCUN texte d'introduction, AUCUN commentaire et AUCUNE politesse.
 2. N'utilise PAS de tableau, PAS de puces (pas de tiret ni de bullet) et PAS de gras (**).
-3. Titres de catégories : écris chaque catégorie ENTIÈREMENT EN MAJUSCULES sur sa propre ligne (ex : BIÈRES, COCKTAILS, VINS, SOFTS).
-4. Boissons : une seule boisson par ligne au format : Nom Volume Prix € (ex : Jupiler 25cl 2,50 €).
-5. Ignore totalement les recettes, listes d'ingrédients ou descriptions sous les boissons.
-6. En cas de double tarif (verre / bouteille ou 25cl / 50cl), sépare-les par un slash sur la même ligne (ex : Whisky 10€ le verre / 50€ la bouteille).`;
+3. Titres de catégories : écris chaque catégorie ENTIÈREMENT EN MAJUSCULES sur sa propre ligne (ex : BIÈRES, COCKTAILS, VINS, SOFTS, VIENNOISERIES).
+4. SÉPARATION DES PRODUITS GROUPÉS : Si une ligne regroupe plusieurs produits distincts de même prix séparés par des virgules, des barres ou 'ou' (ex : 'Café, thé, Chocolat 1€', 'Eau, Eau pétillante 1€', 'Coca, Oasis, Ice Tea 1,5€', 'Snikers, Kitkat, Chips 0,5€', 'Verre de Rouge, rosé, blanc 1€'), DÉCOUPE-LES IMPÉRATIVEMENT EN LIGNES DISTINCTES avec le même prix pour chacune (ex : Café 1€ puis Thé 1€ puis Chocolat 1€ ; Verre de Rouge 1€ puis Verre de Rosé 1€ puis Verre de Blanc 1€).
+5. Boissons : une seule boisson par ligne au format : Nom Volume Prix € (ex : Jupiler 25cl 2,50 €).
+6. Ignore totalement les recettes, listes d'ingrédients ou descriptions sous les boissons.
+7. En cas de double tarif (verre / bouteille ou 25cl / 50cl), sépare-les par un slash sur la même ligne (ex : Whisky 10€ le verre / 50€ la bouteille).`;
 
 let nextTempId = 1;
 const getTempId = () => `bulk-item-${Date.now()}-${nextTempId++}`;
@@ -578,7 +579,7 @@ export const BulkAddDrinksModal = ({
             )}
           </div>
 
-          {/* Option : Séparer A / B */}
+          {/* Option : Séparer A / B et A, B, C */}
           <div className="flex items-center gap-2 pt-0.5">
             <input
               type="checkbox"
@@ -591,7 +592,7 @@ export const BulkAddDrinksModal = ({
               htmlFor="split-slashes-checkbox"
               className="text-xs text-foreground font-medium cursor-pointer select-none"
             >
-              Séparer les « A / B » (boissons multiples ou double prix : verre / bouteille)
+              Séparer les listes « A / B » ou « A, B, C » de même prix
             </Label>
           </div>
 
