@@ -57,8 +57,10 @@ export function compressImageFile(file, maxDim = 1600) {
   });
 }
 
+const CANDIDATE_MODELS = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
+
 /**
- * Analyse une photo de carte de boissons via l'API Gemini.
+ * Analyse une photo de carte de boissons via l'API Gemini avec bascule automatique en cas de charge.
  *
  * @param {File} file
  * @returns {Promise<string>} Texte brut des boissons
@@ -70,35 +72,50 @@ export async function analyzeMenuPhotoWithGemini(file) {
 
   const { base64Data, mimeType } = await compressImageFile(file);
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+  let lastErrorMessage = '';
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { inline_data: { mime_type: mimeType, data: base64Data } },
-            { text: PROMPT_INSTRUCTIONS }
+  for (let i = 0; i < CANDIDATE_MODELS.length; i += 1) {
+    const model = CANDIDATE_MODELS[i];
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { inline_data: { mime_type: mimeType, data: base64Data } },
+                { text: PROMPT_INSTRUCTIONS }
+              ]
+            }
           ]
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim()) {
+          return text.trim();
         }
-      ]
-    })
-  });
+      }
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const message = errorData?.error?.message || `Erreur ${response.status}`;
-    throw new Error(`Échec de l'analyse IA : ${message}`);
+      const errorData = await response.json().catch(() => ({}));
+      lastErrorMessage = errorData?.error?.message || `Erreur HTTP ${response.status}`;
+
+      // Si erreur 503 (haute demande) ou 429 (rate limit) ou 404, tenter le modèle suivant
+      if (response.status === 503 || response.status === 429 || response.status === 404) {
+        continue;
+      }
+
+      // Pour les autres erreurs (ex: 400 Bad Request), inutile de boucler
+      break;
+    } catch (err) {
+      lastErrorMessage = err.message || 'Erreur réseau';
+    }
   }
 
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (!text || !text.trim()) {
-    throw new Error('Aucun texte extrait par l’IA.');
-  }
-
-  return text.trim();
+  throw new Error(`Échec de l'analyse IA : ${lastErrorMessage || 'Service temporairement indisponible'}`);
 }
