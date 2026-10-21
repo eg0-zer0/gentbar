@@ -416,11 +416,11 @@ function computePenalty(modules) {
 /**
  * Génère la matrice booléenne 2D d'un QR code pour une chaîne UTF-8 donnée.
  */
-export function generateQrMatrix(text, ecLevel = 'L') {
+export function generateQrMatrix(text, ecLevel = 'L', minVersion = 1) {
   const normalizedEc = (ecLevel && EC_TABLES[ecLevel]) ? ecLevel : 'L';
   const ecBits = EC_INDICATORS[normalizedEc] ?? 0b01;
   const bytes = utf8Bytes(String(text || ''));
-  let version = 1;
+  let version = Math.max(1, Math.min(40, Number(minVersion) || 1));
   while (version <= 40) {
     const cap = getTotalDataCodewords(version, normalizedEc);
     const headerBytes = version <= 9 ? 2 : 3;
