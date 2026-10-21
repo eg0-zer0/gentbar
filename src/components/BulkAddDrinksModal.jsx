@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Bot,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -26,6 +27,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { parseDrinkList, guessCategoryIcon, MAX_PASTE_CHARS } from '../lib/parseDrinkList';
 import { LIMITS } from '../lib/barShare';
+import { analyzeMenuPhotoWithGemini, GEMINI_API_KEY } from '../lib/geminiVision';
 
 export const AI_PROMPT_TEMPLATE = `Voici la photo d'une carte de boissons. Rédige UNIQUEMENT la liste textuelle brute pour l'importer directement dans mon application de bar.
 RÈGLES STRICTES :
@@ -55,6 +57,34 @@ export const BulkAddDrinksModal = ({
   const [isDebouncing, setIsDebouncing] = useState(false);
   const existingNamesKey = Array.isArray(existingNames) ? existingNames.join(';;;') : '';
   const debounceTimerRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
+
+  const handleTriggerPhotoUpload = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handlePhotoSelected = async (e) => {
+    const file = e.target?.files?.[0];
+    if (!file) return;
+
+    setIsAnalyzingPhoto(true);
+    const toastId = toast.loading('Analyse IA de la carte en cours avec Gemini…');
+
+    try {
+      const extractedText = await analyzeMenuPhotoWithGemini(file);
+      setRawText(extractedText);
+      toast.success('Carte analysée avec succès par l’IA !', { id: toastId });
+    } catch (err) {
+      console.error('Erreur scan photo:', err);
+      toast.error(err.message || 'Échec de l’analyse de la photo.', { id: toastId });
+    } finally {
+      setIsAnalyzingPhoto(false);
+    }
+  };
 
   // Réinitialisation à l'ouverture de la modale
   useEffect(() => {
@@ -464,6 +494,54 @@ export const BulkAddDrinksModal = ({
               </div>
             </div>
           </div>
+
+          {/* Action directe : Scanner une photo de carte avec Gemini Flash */}
+          {GEMINI_API_KEY && (
+            <div className="p-3 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent rounded-xl border border-primary/30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 text-primary">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <span>Scanner une carte avec l’IA</span>
+                    <span className="text-[10px] px-1.5 py-0.2 font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded">
+                      Instantané
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">
+                    Prenez une photo : Gemini extrait et range automatiquement toutes les boissons.
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                onClick={handleTriggerPhotoUpload}
+                disabled={isAnalyzingPhoto}
+                className="btn-primary h-8 text-xs font-semibold px-3 gap-1.5 shrink-0 cursor-pointer shadow-sm"
+              >
+                {isAnalyzingPhoto ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Analyse IA en cours…</span>
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Choisir une photo</span>
+                  </>
+                )}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoSelected}
+              />
+            </div>
+          )}
 
           {/* Zone de texte collé */}
           <div className="space-y-1.5">
