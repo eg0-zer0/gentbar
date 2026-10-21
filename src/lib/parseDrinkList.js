@@ -47,8 +47,8 @@ function parseSingleLine(rawLine) {
   const inParen = (idx) => parenSpans.some((s) => idx >= s.start && idx < s.end);
 
   // Recherche de tous les nombres candidats (avec virgule, point, ou lettre O)
-  // Formats acceptés : 2,50 · 2.50 · 2,5 · 2 · 2,50 € · €2,50 · 2.50eur · 2,5O
-  const numRegex = /(?:€\s*)?(\d+(?:[.,][0-9O0]+)?|\d+)\s*(?:€|eur|euros?)?/gi;
+  // Formats acceptés : 2,50 · 2.50 · 2,5 · 2 · 2,50 € · €2,50 · 2.50eur · 2,5O · 10E · 12e
+  const numRegex = /(?:[€$£]\s*)?(\d+(?:[.,][0-9O0]+)?|\d+)\s*(?:€|eur|euros?|[eE](?![a-z0-9]))?/gi;
   let nm;
   const candidates = [];
   while ((nm = numRegex.exec(cleaned)) !== null) {
@@ -73,7 +73,8 @@ function parseSingleLine(rawLine) {
       name: cleaned.replace(/\s+/g, ' '),
       price: null,
       multiple: false,
-      hasOcrO: false
+      hasOcrO: false,
+      hasOcrE: false
     };
   }
 
@@ -91,6 +92,12 @@ function parseSingleLine(rawLine) {
   numStr = numStr.replace(',', '.');
   const price = Math.round(parseFloat(numStr) * 100) / 100;
 
+  // Détection de la lettre 'E' / 'e' reconnue pour le symbole '€'
+  let hasOcrE = false;
+  if (/[0-9][eE](?:\s|$|[^a-df-z0-9])/i.test(lastCandidate.match)) {
+    hasOcrE = true;
+  }
+
   // Le nom est le reste de la ligne avant (ou après) le prix
   let name = (cleaned.slice(0, lastCandidate.start) + cleaned.slice(lastCandidate.end)).trim();
 
@@ -103,7 +110,8 @@ function parseSingleLine(rawLine) {
     name,
     price: Number.isFinite(price) ? price : null,
     multiple,
-    hasOcrO
+    hasOcrO,
+    hasOcrE
   };
 }
 
@@ -162,7 +170,7 @@ export function isCategoryHeaderLine(rawLine) {
 }
 
 /**
- * Détecte si une ligne ne contient qu'un prix isolé (ex. 2€, 4,50, 3.00 €, 2,5O).
+ * Détecte si une ligne ne contient qu'un prix isolé (ex. 2€, 4,50, 3.00 €, 2,5O, 10E).
  *
  * @param {string} line - Ligne brute
  * @returns {boolean}
@@ -172,11 +180,36 @@ export function isStandalonePriceLine(line) {
   if (!cleaned) return false;
   // Ne doit pas contenir d'unité de volume ou de degré
   if (/(?:cl|ml|dl|l|litres?|°|%)(?![a-zA-Z0-9])/i.test(cleaned)) return false;
-  const match = cleaned.match(/^[-–—:\s]*(?:[€$£]\s*)?([0-9]+(?:[.,][0-9O0]{1,2})?)\s*(?:[€$£]|eur|euros?)?$/i);
+  const match = cleaned.match(/^[-–—:\s]*(?:[€$£E]\s*)?([0-9]+(?:[.,][0-9O0]{1,2})?)\s*(?:[€$£]|eur|euros?|[eE](?![a-df-z0-9]))?$/i);
   if (!match) return false;
   const numStr = match[1].replace(/[Oo]/g, '0').replace(',', '.');
   const val = parseFloat(numStr);
   return Number.isFinite(val) && val <= 1000;
+}
+
+/**
+ * Détecte si une ligne ne contient que des tarifs et des mentions de contenants
+ * (ex: "10€ le verre/50€ la bouteille", "8€ verre / 35€ bouteille", "9€ le verre/35 E la bouteille").
+ *
+ * @param {string} line - Ligne brute
+ * @returns {boolean}
+ */
+export function isTariffOnlyLine(line) {
+  const cleaned = (line || '').replace(/^[\s*•\-–—·]+\s*/, '').trim();
+  if (!cleaned) return false;
+  // Doit comporter au moins un prix
+  const hasPrice = /(?:\d+(?:[.,][0-9O0]+)?|\d+)\s*(?:€|eur|euros?|[eE](?![a-df-z0-9]))|(?:[€$£]\s*\d+)/i.test(cleaned);
+  if (!hasPrice) return false;
+
+  // Retirer les nombres et symboles de prix
+  const stripped = cleaned
+    .replace(/(?:[€$£]|eur)\s*\d+(?:[.,][0-9O0]+)?/gi, '')
+    .replace(/\d+(?:[.,][0-9O0]+)?\s*(?:€|eur|euros?|[eE](?![a-df-z0-9]))?/gi, '')
+    .replace(/\b(?:le|la|les|en|au|du|un|une|verres?|bouteilles?|pichets?|demi|pintes?|flûtes?|coupes?|galopins?|doses?|shots?|pots?|carafes?|cl|ml|dl|l)\b/gi, '')
+    .replace(/[\s\t.,;:/\-–—()]+/g, '')
+    .trim();
+
+  return stripped.length === 0;
 }
 
 /**
@@ -194,7 +227,7 @@ export function stitchStandalonePrices(rawLines, { allowCategories = false } = {
   const nonEmpty = (rawLines || []).map((l) => l.trim()).filter(Boolean);
   const items = nonEmpty.map((line) => ({
     text: line,
-    isPrice: isStandalonePriceLine(line),
+    isPrice: isStandalonePriceLine(line) || isTariffOnlyLine(line),
     isCat: allowCategories && isCategoryHeaderLine(line),
     merged: false
   }));
@@ -203,7 +236,9 @@ export function stitchStandalonePrices(rawLines, { allowCategories = false } = {
   for (let i = 0; i < items.length; i += 1) {
     if (items[i].isPrice && i > 0) {
       const prev = items[i - 1];
-      if (!prev.isPrice && !prev.isCat && parseSingleLine(prev.text).price === null) {
+      // Si items[i] est une pure ligne de tarifs (ex: verre/bouteille), prev est le produit même s'il finissait par ':'
+      const canMergeWithCat = isTariffOnlyLine(items[i].text) && !prev.isPrice;
+      if (!prev.isPrice && (!prev.isCat || canMergeWithCat) && parseSingleLine(prev.text).price === null) {
         prev.text = prev.text + ' ' + items[i].text;
         items[i].merged = true;
       }
@@ -311,25 +346,68 @@ export function parseDrinkList(text, {
       categories.push(currentCategory);
     }
 
-    // Gestion de splitSlashes (ex: "Coca / Zéro 2,50" -> "Coca" et "Zéro")
-    const namesToAdd = [];
-    if (splitSlashes && parsed.name && parsed.name.includes('/')) {
-      const parts = parsed.name
-        .split('/')
-        .map((p) => p.trim())
-        .filter(Boolean);
-      if (parts.length > 0) {
-        namesToAdd.push(...parts);
-      } else {
-        namesToAdd.push(parsed.name);
+    // Gestion de splitSlashes (boissons multiples "Coca / Zéro 2,50" ou double prix "Whisky 10€ le verre / 50€ la bouteille")
+    let itemsToAdd = [];
+    if (splitSlashes && rawLine.includes('/')) {
+      const slashParts = rawLine.split('/');
+      const parsedParts = slashParts.map((p) => parseSingleLine(p));
+      const partsWithPrice = parsedParts.filter((p) => p.price !== null);
+
+      if (slashParts.length > 1 && partsWithPrice.length >= 2) {
+        // Multi-tarifs avec un prix par segment
+        const p0 = parsedParts[0];
+        const containerRegex = /^(?:le\s+|la\s+|les\s+|en\s+|au\s+|du\s+|un\s+|une\s+)?(?:verres?|bouteilles?|pichets?|demi|pintes?|flûtes?|coupes?|galopins?|doses?|shots?|pots?|carafes?|\d+\s*(?:cl|ml|dl|l))$/i;
+        const baseMatch = p0.name.match(/^(.*?)(?:\s+[-–—:]\s*|\s+)(?:le\s+|la\s+|les\s+|en\s+|au\s+|du\s+|un\s+|une\s+)?(?:verres?|bouteilles?|pichets?|demi|pintes?|flûtes?|coupes?|galopins?|doses?|shots?|pots?|carafes?|\d+\s*(?:cl|ml|dl|l))$/i);
+        const baseName = (baseMatch ? baseMatch[1] : p0.name).replace(/[\s\t.•\-–—:]+$/, '').trim();
+
+        itemsToAdd = parsedParts.map((pp, idx) => {
+          let segName = pp.name;
+          const isJustContainer = !segName || containerRegex.test(segName.trim());
+          if (idx === 0) {
+            if (baseMatch) {
+              const spec = p0.name.slice(baseName.length).trim().replace(/^[-–—:]\s*/, '');
+              segName = spec ? `${baseName} (${spec})` : baseName;
+            }
+          } else if (isJustContainer) {
+            segName = segName ? `${baseName} (${segName})` : `${baseName} (${idx + 1})`;
+          }
+          return {
+            name: segName,
+            price: pp.price,
+            multiple: pp.multiple,
+            hasOcrO: pp.hasOcrO,
+            hasOcrE: pp.hasOcrE
+          };
+        });
+      } else if (parsed.name && parsed.name.includes('/')) {
+        const parts = parsed.name
+          .split('/')
+          .map((p) => p.trim())
+          .filter(Boolean);
+        const names = parts.length > 0 ? parts : [parsed.name];
+        itemsToAdd = names.map((n) => ({
+          name: n,
+          price: parsed.price,
+          multiple: parsed.multiple,
+          hasOcrO: parsed.hasOcrO,
+          hasOcrE: parsed.hasOcrE
+        }));
       }
-    } else {
-      namesToAdd.push(parsed.name);
     }
 
-    for (let i = 0; i < namesToAdd.length; i += 1) {
-      const rawName = namesToAdd[i];
-      let finalName = rawName;
+    if (itemsToAdd.length === 0) {
+      itemsToAdd.push({
+        name: parsed.name,
+        price: parsed.price,
+        multiple: parsed.multiple,
+        hasOcrO: parsed.hasOcrO,
+        hasOcrE: parsed.hasOcrE
+      });
+    }
+
+    for (let i = 0; i < itemsToAdd.length; i += 1) {
+      const item = itemsToAdd[i];
+      let finalName = item.name;
       const issues = [];
       let isWarning = false;
       let isError = false;
@@ -351,7 +429,7 @@ export function parseDrinkList(text, {
       }
 
       // 2. Validation du prix
-      let finalPrice = parsed.price;
+      let finalPrice = item.price;
       if (finalPrice === null) {
         isError = true;
         issues.push('Aucun prix détecté');
@@ -364,14 +442,19 @@ export function parseDrinkList(text, {
       }
 
       // 3. Avertissements contextuels
-      if (parsed.multiple && finalPrice !== null) {
+      if (item.multiple && finalPrice !== null) {
         isWarning = true;
         issues.push(`Plusieurs nombres détectés (prix retenu : ${finalPrice} €)`);
       }
 
-      if (parsed.hasOcrO) {
+      if (item.hasOcrO) {
         isWarning = true;
         issues.push("Lettre 'O' corrigée en zéro");
+      }
+
+      if (item.hasOcrE) {
+        isWarning = true;
+        issues.push("Lettre 'E' reconnue comme symbole €");
       }
 
       // 4. Détection des doublons

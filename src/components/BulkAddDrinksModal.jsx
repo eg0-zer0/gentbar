@@ -232,6 +232,17 @@ export const BulkAddDrinksModal = ({
     );
   };
 
+  const handleDeleteAllErrors = () => {
+    setParsedCategories((prev) =>
+      prev
+        .map((cat) => ({
+          ...cat,
+          drinks: cat.drinks.filter((d) => d.status !== 'error')
+        }))
+        .filter((cat) => cat.drinks.length > 0 || (allowCategories && cat.name !== 'Divers'))
+    );
+  };
+
   const handleUpdateCategoryName = (catTempId, newName) => {
     setParsedCategories((prev) =>
       prev.map((cat) => {
@@ -381,7 +392,7 @@ export const BulkAddDrinksModal = ({
               htmlFor="split-slashes-checkbox"
               className="text-xs text-foreground font-medium cursor-pointer select-none"
             >
-              Séparer les « A / B » en deux boissons (ex: Coca / Zéro 2,50 → 2 boissons)
+              Séparer les « A / B » (boissons multiples ou double prix : verre / bouteille)
             </Label>
           </div>
 
@@ -403,8 +414,8 @@ export const BulkAddDrinksModal = ({
                   {isDebouncing && <span className="text-muted-foreground text-[11px] animate-pulse">(analyse…)</span>}
                 </div>
 
-                {/* Compteur récapitulatif */}
-                <div className="text-xs flex items-center gap-2 font-medium">
+                {/* Compteur récapitulatif & Actions d'erreurs */}
+                <div className="text-xs flex items-center gap-2 font-medium flex-wrap">
                   <span className="text-foreground font-bold">
                     {stats.totalDrinks} boisson{stats.totalDrinks > 1 ? 's' : ''}
                   </span>
@@ -414,9 +425,22 @@ export const BulkAddDrinksModal = ({
                     </span>
                   )}
                   {stats.errorCount > 0 && (
-                    <span className="text-destructive bg-destructive/10 px-2 py-0.5 rounded-full font-bold">
-                      ❌ {stats.errorCount} à corriger
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-destructive bg-destructive/10 px-2 py-0.5 rounded-full font-bold">
+                        ❌ {stats.errorCount} à corriger
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleDeleteAllErrors}
+                        className="h-6 px-2 text-[11px] font-semibold text-destructive border-destructive/40 bg-destructive/10 hover:bg-destructive/20 gap-1 cursor-pointer"
+                        title="Supprimer d'un coup toutes les lignes sans prix ou en erreur"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Supprimer erreurs ({stats.errorCount})</span>
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -572,8 +596,15 @@ export const BulkAddDrinksModal = ({
         <div className="pt-3 border-t border-border shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2.5">
           <div className="text-xs text-muted-foreground">
             {stats.errorCount > 0 ? (
-              <span className="text-destructive font-medium">
-                Veuillez corriger ou supprimer les {stats.errorCount} ligne{stats.errorCount > 1 ? 's' : ''} en erreur pour pouvoir ajouter.
+              <span className="text-destructive font-medium flex items-center gap-1.5 flex-wrap">
+                <span>{stats.errorCount} ligne{stats.errorCount > 1 ? 's' : ''} en erreur.</span>
+                <button
+                  type="button"
+                  onClick={handleDeleteAllErrors}
+                  className="underline font-semibold text-destructive hover:opacity-80 cursor-pointer"
+                >
+                  Tout retirer en 1 clic
+                </button>
               </span>
             ) : stats.totalDrinks > 0 ? (
               <span className="text-emerald-700 dark:text-emerald-400 font-medium">

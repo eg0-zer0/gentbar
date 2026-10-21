@@ -437,4 +437,117 @@ Thé
     expect(res.categories[2].drinks[2].name).toBe('Thé');
     expect(res.categories[2].drinks[2].price).toBe(2.5);
   });
+
+  test("OCR : reconnaît la lettre 'E' / 'e' comme symbole monétaire avec avertissement", () => {
+    const text = 'Mojito 10E\nMargarita 12e\nExpresso 2E';
+    const res = parseDrinkList(text);
+    const drinks = res.categories[0].drinks;
+    expect(drinks.length).toBe(3);
+    expect(drinks[0].name).toBe('Mojito');
+    expect(drinks[0].price).toBe(10);
+    expect(drinks[0].status).toBe('warning');
+    expect(drinks[0].issues).toContain("Lettre 'E' reconnue comme symbole €");
+
+    expect(drinks[1].name).toBe('Margarita');
+    expect(drinks[1].price).toBe(12);
+    expect(drinks[1].status).toBe('warning');
+
+    expect(drinks[2].name).toBe('Expresso');
+    expect(drinks[2].price).toBe(2);
+  });
+
+  test('Multi-tarifs : découpe les doubles prix (verre / bouteille) avec splitSlashes', () => {
+    const text = `Whisky 10€ le verre / 50€ la bouteille
+Vodka 8€ le verre/35€ la bouteille
+Rouge: 9€ le verre/35 E la bouteille`;
+    const res = parseDrinkList(text, { splitSlashes: true });
+    const drinks = res.categories[0].drinks;
+    expect(drinks.length).toBe(6);
+
+    expect(drinks[0].name).toBe('Whisky (le verre)');
+    expect(drinks[0].price).toBe(10);
+
+    expect(drinks[1].name).toBe('Whisky (la bouteille)');
+    expect(drinks[1].price).toBe(50);
+
+    expect(drinks[2].name).toBe('Vodka (le verre)');
+    expect(drinks[2].price).toBe(8);
+
+    expect(drinks[3].name).toBe('Vodka (la bouteille)');
+    expect(drinks[3].price).toBe(35);
+
+    expect(drinks[4].name).toBe('Rouge (le verre)');
+    expect(drinks[4].price).toBe(9);
+
+    expect(drinks[5].name).toBe('Rouge (la bouteille)');
+    expect(drinks[5].price).toBe(35);
+  });
+
+  test('OCR & Tarifs : fusionne une ligne de tarif (verre/bouteille) avec le nom de boisson sur la ligne précédente', () => {
+    const text = `Whisky
+10€ le verre/50€ la bouteille
+Vodka
+8€ le verre/35€ la bouteille`;
+    const res = parseDrinkList(text, { splitSlashes: true });
+    const drinks = res.categories[0].drinks;
+    expect(drinks.length).toBe(4);
+    expect(drinks[0].name).toBe('Whisky (le verre)');
+    expect(drinks[0].price).toBe(10);
+    expect(drinks[1].name).toBe('Whisky (la bouteille)');
+    expect(drinks[1].price).toBe(50);
+    expect(drinks[2].name).toBe('Vodka (le verre)');
+    expect(drinks[2].price).toBe(8);
+    expect(drinks[3].name).toBe('Vodka (la bouteille)');
+    expect(drinks[3].price).toBe(35);
+  });
+
+  test('Carte complexe utilisateur (affiche 2 colonnes avec Mojito 10E et doubles tarifs)', () => {
+    const text = `COCETAILS CLASSIQUES
+Mojito
+10E
+Margarita
+12€
+Cosmopolitan
+12€
+SPIRITUEUX
+Whisky
+10€ le verre/50€ la bouteille
+Vodka
+8€ le verre/35€ la bouteille
+VINS
+Rouge:
+9€ le verre/35 E la bouteille
+Blanc
+8€ le verre/30€ la bouteille`;
+
+    const res = parseDrinkList(text, { allowCategories: true, splitSlashes: true });
+    expect(res.categories.length).toBe(3);
+
+    // Cocktails
+    const cocktails = res.categories[0];
+    expect(cocktails.name).toBe('COCETAILS CLASSIQUES');
+    expect(cocktails.drinks[0].name).toBe('Mojito');
+    expect(cocktails.drinks[0].price).toBe(10);
+    expect(cocktails.drinks[0].status).toBe('warning'); // hasOcrE
+
+    // Spiritueux
+    const spirits = res.categories[1];
+    expect(spirits.name).toBe('SPIRITUEUX');
+    expect(spirits.drinks[0].name).toBe('Whisky (le verre)');
+    expect(spirits.drinks[0].price).toBe(10);
+    expect(spirits.drinks[1].name).toBe('Whisky (la bouteille)');
+    expect(spirits.drinks[1].price).toBe(50);
+    expect(spirits.drinks[2].name).toBe('Vodka (le verre)');
+    expect(spirits.drinks[2].price).toBe(8);
+    expect(spirits.drinks[3].name).toBe('Vodka (la bouteille)');
+    expect(spirits.drinks[3].price).toBe(35);
+
+    // Vins
+    const wines = res.categories[2];
+    expect(wines.name).toBe('VINS');
+    expect(wines.drinks[0].name).toBe('Rouge (le verre)');
+    expect(wines.drinks[0].price).toBe(9);
+    expect(wines.drinks[1].name).toBe('Rouge (la bouteille)');
+    expect(wines.drinks[1].price).toBe(35);
+  });
 });
