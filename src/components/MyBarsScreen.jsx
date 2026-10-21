@@ -40,7 +40,8 @@ const MyBarsScreen = () => {
     duplicateExistingBar,
     renameExistingBar,
     deleteExistingBar,
-    restoreBaseBar
+    restoreBaseBar,
+    createBarFromCategories
   } = useMenus();
 
   const { totalItems, clearCart } = useCart(activeMenuId);
@@ -303,6 +304,10 @@ const MyBarsScreen = () => {
         }}
         onDuplicateBar={(srcId, params) => {
           duplicateExistingBar(srcId, { ...params, activate: true });
+          navigate('/app');
+        }}
+        onCreateFromCategories={(params) => {
+          createBarFromCategories(params);
           navigate('/app');
         }}
       />

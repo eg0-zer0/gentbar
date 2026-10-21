@@ -1,6 +1,10 @@
 // Modèle de données et fonctions pures pour la gestion multi-bars (A-29 / Étapes 9.7b & 9.7c).
 // Aucun accès direct au stockage (localStorage) dans ce module.
 
+import { generateDrinkId } from '../utils/id';
+import { LIMITS, stripControlChars } from './barShare';
+import { guessCategoryIcon } from './parseDrinkList';
+
 export const BASE_BAR_ID = 'rllhc';
 export const BASE_SOURCE_ID = 'gentbar-rllhc';
 export const GENTBAR_BAR_ID = 'gentbar';
@@ -613,3 +617,170 @@ export function groupOrderItemsByBar(items, menus = []) {
   };
 }
 
+
+
+/**
+ * Ajoute une liste de boissons à une catégorie existante (fonction pure, sans mutation).
+ * Génère un identifiant unique via generateDrinkId et marque modified: true.
+ *
+ * @param {Array} categories - Liste des catégories du bar
+ * @param {string} categoryId - Identifiant de la catégorie cible
+ * @param {Array} drinks - Liste des boissons à ajouter [{ name, price }]
+ * @returns {Array} Nouvelle liste de catégories mise à jour
+ */
+export function appendDrinksToCategory(categories, categoryId, drinks) {
+  if (!Array.isArray(categories)) return [];
+  if (!isNonEmptyString(categoryId) || !Array.isArray(drinks) || drinks.length === 0) {
+    return categories.map((c) => ({ ...c }));
+  }
+
+  return categories.map((cat) => {
+    if (!cat || cat.id !== categoryId) {
+      return cat;
+    }
+
+    const existingDrinks = Array.isArray(cat.drinks) ? cat.drinks : [];
+    const newDrinks = drinks
+      .filter((d) => d && isNonEmptyString(d.name) && typeof d.price === 'number')
+      .map((d) => ({
+        id: generateDrinkId(d.name.trim(), categoryId),
+        name: d.name.trim(),
+        price: Math.round(d.price * 100) / 100,
+        modified: true
+      }));
+
+    return {
+      ...cat,
+      modified: true,
+      drinks: [...existingDrinks, ...newDrinks]
+    };
+  });
+}
+
+/**
+ * Crée un bar complet à partir de catégories analysées (fonction pure testable).
+ * Assigne un sourceId unique, origin: 'custom', modified: true sur boissons/catégories,
+ * et respecte strictement les limites de LIMITS (40 catégories, 400 boissons).
+ *
+ * @param {object} params
+ * @param {string} params.name - Nom du bar
+ * @param {string} params.icon - Icône du bar
+ * @param {Array} params.parsedCategories - Catégories analysées [{ name, icon, drinks: [{ name, price }] }]
+ * @returns {object} Nouvel objet Bar complet
+ */
+export function createBarFromParsedCategories({
+  name = 'Nouveau bar',
+  icon = '🍹',
+  parsedCategories = []
+} = {}) {
+  const barId = generateBarId();
+  const sourceId = `bar-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const cleanName = stripControlChars(name || 'Nouveau bar').slice(0, LIMITS.MAX_NAME_LENGTH) || 'Nouveau bar';
+  const cleanIcon = (icon || '🍹').trim().slice(0, LIMITS.MAX_ICON_CHARS) || '🍹';
+
+  const rawCats = Array.isArray(parsedCategories) ? parsedCategories : [];
+  const cappedCats = rawCats.slice(0, LIMITS.MAX_CATEGORIES);
+
+  let remainingDrinks = LIMITS.MAX_DRINKS;
+  const categories = [];
+
+  for (let cIdx = 0; cIdx < cappedCats.length; cIdx += 1) {
+    const cat = cappedCats[cIdx];
+    if (!cat || !isNonEmptyString(cat.name)) continue;
+
+    const catName = stripControlChars(cat.name).slice(0, LIMITS.MAX_NAME_LENGTH) || 'Catégorie';
+    const catId = `cat-${Date.now()}-${cIdx}`;
+    const catIcon = (cat.icon || guessCategoryIcon(catName)).trim().slice(0, LIMITS.MAX_ICON_CHARS) || '🍹';
+
+    const rawDrinks = Array.isArray(cat.drinks) ? cat.drinks : [];
+    const validDrinks = rawDrinks.filter(
+      (d) => d && isNonEmptyString(d.name) && typeof d.price === 'number' && Number.isFinite(d.price)
+    );
+
+    const drinksToTake = validDrinks.slice(0, Math.max(0, remainingDrinks));
+    remainingDrinks -= drinksToTake.length;
+
+    const drinks = drinksToTake.map((d, dIdx) => ({
+      id: `${generateDrinkId(d.name.trim(), catId)}-${dIdx}`,
+      name: stripControlChars(d.name).slice(0, LIMITS.MAX_NAME_LENGTH),
+      price: Math.round(d.price * 100) / 100,
+      modified: true
+    }));
+
+    categories.push({
+      id: catId,
+      name: catName,
+      icon: catIcon,
+      modified: true,
+      drinks
+    });
+  }
+
+  return createBar({
+    id: barId,
+    sourceId,
+    name: cleanName,
+    icon: cleanIcon,
+    origin: 'custom',
+    categories
+  });
+}
+
+/**
+ * Ajoute des catégories analysées à une liste de catégories existante.
+ * Préserve l'immutabilité et respecte LIMITS (MAX_CATEGORIES et MAX_DRINKS).
+ */
+export function appendParsedCategoriesToCategories(existingCategories = [], parsedCategories = []) {
+  if (!Array.isArray(parsedCategories) || parsedCategories.length === 0) {
+    return Array.isArray(existingCategories) ? existingCategories : [];
+  }
+  const result = Array.isArray(existingCategories)
+    ? existingCategories.map((c) => ({
+        ...c,
+        drinks: Array.isArray(c.drinks) ? [...c.drinks] : []
+      }))
+    : [];
+
+  const existingTotalDrinks = result.reduce(
+    (sum, c) => sum + (Array.isArray(c.drinks) ? c.drinks.length : 0),
+    0
+  );
+  let remainingDrinks = Math.max(0, LIMITS.MAX_DRINKS - existingTotalDrinks);
+  const remainingCategorySlots = Math.max(0, LIMITS.MAX_CATEGORIES - result.length);
+
+  const cappedNewCats = parsedCategories.slice(0, remainingCategorySlots);
+
+  for (let cIdx = 0; cIdx < cappedNewCats.length; cIdx += 1) {
+    const cat = cappedNewCats[cIdx];
+    if (!cat || !isNonEmptyString(cat.name)) continue;
+
+    const catName = stripControlChars(cat.name).slice(0, LIMITS.MAX_NAME_LENGTH) || 'Catégorie';
+    const catId = `cat-${Date.now()}-${cIdx}`;
+    const catIcon = (cat.icon || guessCategoryIcon(catName)).trim().slice(0, LIMITS.MAX_ICON_CHARS) || '🍹';
+
+    const rawDrinks = Array.isArray(cat.drinks) ? cat.drinks : [];
+    const validDrinks = rawDrinks.filter(
+      (d) => d && isNonEmptyString(d.name) && typeof d.price === 'number' && Number.isFinite(d.price)
+    );
+
+    const drinksToTake = validDrinks.slice(0, Math.max(0, remainingDrinks));
+    remainingDrinks -= drinksToTake.length;
+
+    const drinks = drinksToTake.map((d, dIdx) => ({
+      id: `${generateDrinkId(d.name.trim(), catId)}-${dIdx}`,
+      name: stripControlChars(d.name).slice(0, LIMITS.MAX_NAME_LENGTH),
+      price: Math.round(d.price * 100) / 100,
+      modified: true
+    }));
+
+    result.push({
+      id: catId,
+      name: catName,
+      icon: catIcon,
+      modified: true,
+      drinks
+    });
+  }
+
+  return result;
+}

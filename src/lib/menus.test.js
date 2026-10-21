@@ -17,7 +17,10 @@ import {
   renameBar,
   removeBar,
   getOrderItemKey,
-  groupOrderItemsByBar
+  groupOrderItemsByBar,
+  appendDrinksToCategory,
+  createBarFromParsedCategories,
+  appendParsedCategoriesToCategories
 } from './menus';
 import { normalizeMenus } from './storage';
 import { mockCategories, mockGentBarCategories, MENU_VERSION } from '../mock';
@@ -365,5 +368,110 @@ describe('Modèle multi-bars et migration (Étapes 9.7b & 9.7d)', () => {
     expect(result.groups[0].isDeletedBar).toBe(true);
     expect(result.groups[0].subtotal).toBe(12.0);
   });
+
+  test('14. appendDrinksToCategory ne mute pas ses arguments et marque modified: true (Étape 9.8)', () => {
+    const originalCategories = [
+      {
+        id: 'cat-biere',
+        name: 'Bières',
+        icon: '🍺',
+        drinks: [{ id: 'd-1', name: 'Jupiler', price: 2.5 }]
+      },
+      {
+        id: 'cat-soft',
+        name: 'Softs',
+        icon: '💧',
+        drinks: []
+      }
+    ];
+
+    const newDrinks = [
+      { name: 'Duvel', price: 4.5 },
+      { name: 'Leffe', price: 4.0 }
+    ];
+
+    const updated = appendDrinksToCategory(originalCategories, 'cat-biere', newDrinks);
+
+    // Non-mutation
+    expect(originalCategories[0].drinks).toHaveLength(1);
+    expect(updated).not.toBe(originalCategories);
+    expect(updated[0]).not.toBe(originalCategories[0]);
+
+    // Contenu mis à jour
+    expect(updated[0].drinks).toHaveLength(3);
+    expect(updated[0].modified).toBe(true);
+    expect(updated[0].drinks[1].name).toBe('Duvel');
+    expect(updated[0].drinks[1].price).toBe(4.5);
+    expect(updated[0].drinks[1].modified).toBe(true);
+    expect(updated[0].drinks[1].id).toBeDefined();
+    expect(updated[0].drinks[2].name).toBe('Leffe');
+    expect(updated[0].drinks[2].price).toBe(4.0);
+
+    // L'autre catégorie reste intacte
+    expect(updated[1].drinks).toHaveLength(0);
+  });
+
+  test('15. createBarFromParsedCategories crée un bar custom avec sourceId neuf et respecte les limites (Étape 9.8)', () => {
+    const parsedCategories = [
+      {
+        name: 'Bières au fût',
+        icon: '🍺',
+        drinks: [
+          { name: 'Jupiler 25cl', price: 2.5 },
+          { name: 'Stella 25cl', price: 2.6 }
+        ]
+      },
+      {
+        name: 'Vins',
+        icon: '🍷',
+        drinks: [
+          { name: 'Rouge', price: 3.5 }
+        ]
+      }
+    ];
+
+    const bar = createBarFromParsedCategories({
+      name: 'Mon Bar Collé',
+      icon: '🍻',
+      parsedCategories
+    });
+
+    expect(bar.id).toBeDefined();
+    expect(bar.sourceId).toMatch(/^bar-/);
+    expect(bar.origin).toBe('custom');
+    expect(bar.name).toBe('Mon Bar Collé');
+    expect(bar.icon).toBe('🍻');
+    expect(bar.categories).toHaveLength(2);
+    expect(bar.categories[0].name).toBe('Bières au fût');
+    expect(bar.categories[0].modified).toBe(true);
+    expect(bar.categories[0].drinks).toHaveLength(2);
+    expect(bar.categories[0].drinks[0].modified).toBe(true);
+    expect(bar.categories[0].drinks[0].name).toBe('Jupiler 25cl');
+    expect(bar.categories[0].drinks[0].price).toBe(2.5);
+    expect(bar.categories[1].drinks).toHaveLength(1);
+  });
+
+  test('16. appendParsedCategoriesToCategories ajoute des catégories à une liste existante sans mutation', () => {
+    const existing = [
+      { id: 'cat-1', name: 'Softs', icon: '💧', drinks: [{ id: 'd-1', name: 'Eau', price: 1.5 }] }
+    ];
+    const incoming = [
+      { name: 'Bières', drinks: [{ name: 'Jupiler', price: 2.5 }] }
+    ];
+
+    const result = appendParsedCategoriesToCategories(existing, incoming);
+    expect(result).toHaveLength(2);
+    expect(result[0].name).toBe('Softs');
+    expect(result[1].name).toBe('Bières');
+    expect(result[1].icon).toBe('🍺');
+    expect(result[1].drinks).toHaveLength(1);
+    expect(result[1].drinks[0].name).toBe('Jupiler');
+    expect(result[1].drinks[0].price).toBe(2.5);
+    expect(result[1].drinks[0].modified).toBe(true);
+
+    // Vérifier l'immutabilité
+    expect(existing).toHaveLength(1);
+  });
+
 });
 

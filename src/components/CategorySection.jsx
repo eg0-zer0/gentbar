@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import DrinkCard from './DrinkCard';
 import { Button } from './ui/button';
-import { ChevronDown, ChevronRight, Edit, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Edit, Plus, FileText } from 'lucide-react';
+import BulkAddDrinksModal from './BulkAddDrinksModal';
 
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ const CategorySection = ({
   onToggleCategory,
   onEditCategory,
   onAddDrinkToCategory,
+  onAddDrinksToCategory,
   onDeleteCategory,
   onDeleteDrink,
   sortedDrinks = [],
@@ -25,6 +27,8 @@ const CategorySection = ({
   orders = [],
   soundEnabled = true,
 }) => {
+
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
 
   // Choix des boissons à afficher : tri personnalisé ou d'origine
   const drinksToShow = sortedDrinks.length > 0 ? sortedDrinks : category.drinks;
@@ -91,6 +95,14 @@ const CategorySection = ({
               <DropdownMenuItem
                 onClick={(e) => {
                   e.preventDefault();
+                  setIsBulkOpen(true);
+                }}
+              >
+                Ajouter plusieurs boissons
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.preventDefault();
                   onEditCategory(category);
                 }}
               >
@@ -128,6 +140,18 @@ const CategorySection = ({
           ))}
         </div>
       )}
+      <BulkAddDrinksModal
+        isOpen={isBulkOpen}
+        onClose={() => setIsBulkOpen(false)}
+        allowCategories={false}
+        targetCategoryName={category.name}
+        existingNames={(category.drinks || []).map((d) => d.name)}
+        onConfirm={(drinks) => {
+          if (onAddDrinksToCategory) {
+            onAddDrinksToCategory(category.id, drinks);
+          }
+        }}
+      />
     </section>
   );
 };

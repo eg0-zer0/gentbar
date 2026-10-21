@@ -7,6 +7,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { BAR_ICONS, countBarDrinks, isBaseBar } from '../lib/menus';
+import BulkAddDrinksModal from './BulkAddDrinksModal';
 
 /**
  * Sélecteur d'icône de bar (grille d'emojis rapides + champ libre).
@@ -63,6 +64,7 @@ export const AddBarModal = ({
   activeMenuId,
   onCreateEmpty,
   onDuplicateBar,
+  onCreateFromCategories,
   initialMode = 'menu',
   initialSourceBarId = null
 }) => {
@@ -71,6 +73,8 @@ export const AddBarModal = ({
   const [name, setName] = useState('');
   const [icon, setIcon] = useState('🍺');
   const [sourceBarId, setSourceBarId] = useState(initialSourceBarId || activeMenuId || menus[0]?.id || '');
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [pendingBarMeta, setPendingBarMeta] = useState({ name: '', icon: '🍺' });
 
   useEffect(() => {
     if (isOpen) {
@@ -118,6 +122,19 @@ export const AddBarModal = ({
     onClose();
   };
 
+
+  const handleSubmitPaste = (e) => {
+    e.preventDefault();
+    const trimmedName = name.trim();
+    const trimmedIcon = icon.trim() || '🍺';
+    if (!trimmedName) {
+      toast.error('Veuillez saisir un nom pour le bar.');
+      return;
+    }
+    setPendingBarMeta({ name: trimmedName, icon: trimmedIcon });
+    setShowBulkModal(true);
+  };
+
   const handleSubmitCopy = (e) => {
     e.preventDefault();
     const trimmedName = name.trim();
@@ -143,14 +160,18 @@ export const AddBarModal = ({
               ? 'Nouvelle carte vide'
               : step === 'copy'
                 ? 'Copier une carte'
-                : 'Ajouter un bar'}
+                : step === 'paste'
+                  ? 'Créer une carte par collage'
+                  : 'Ajouter un bar'}
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             {step === 'empty'
               ? 'Choisissez un nom et une icône. Vous pourrez ensuite ajouter vos catégories et boissons.'
               : step === 'copy'
                 ? 'Créez une carte indépendante à partir d’un bar existant pour la personnaliser librement.'
-                : 'Choisissez comment créer votre nouvelle carte de boissons.'}
+                : step === 'paste'
+                  ? 'Choisissez le nom et l’icône de votre bar, puis collez votre liste de boissons.'
+                  : 'Choisissez comment créer votre nouvelle carte de boissons.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -194,14 +215,14 @@ export const AddBarModal = ({
 
             <button
               type="button"
-              onClick={() =>
-                toast('Bientôt disponible', {
-                  description: 'L’ajout en lot par liste collée arrive à l’étape 9.8.'
-                })
-              }
-              className="flex flex-col items-start gap-2 p-4 rounded-lg border border-border/60 bg-background/50 opacity-75 hover:opacity-100 text-left transition-opacity"
+              onClick={() => {
+                setName('');
+                setIcon('🍺');
+                setStep('paste');
+              }}
+              className="flex flex-col items-start gap-2 p-4 rounded-lg border border-border bg-background hover:bg-muted/60 text-left transition-colors"
             >
-              <div className="w-9 h-9 rounded-full bg-muted text-muted-foreground flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full bg-primary/15 text-primary flex items-center justify-center">
                 <ClipboardList className="w-5 h-5" />
               </div>
               <div>
@@ -231,6 +252,53 @@ export const AddBarModal = ({
               </div>
             </button>
           </div>
+        )}
+
+        {step === 'paste' && (
+          <form onSubmit={handleSubmitPaste} className="space-y-4 mt-2">
+            <div>
+              <Label htmlFor="paste-bar-name" className="block mb-1 text-foreground">
+                Nom du bar
+              </Label>
+              <Input
+                id="paste-bar-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={60}
+                placeholder="Ex : Buvette du foot, Chez Nico…"
+                required
+                autoFocus
+                className="w-full bg-background text-foreground"
+              />
+            </div>
+
+            <div>
+              <Label className="block mb-1.5 text-foreground">Icône</Label>
+              <BarIconPicker value={icon} onChange={setIcon} id="paste-bar-icon" />
+            </div>
+
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+              {initialMode === 'menu' ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setStep('menu')}
+                  className="flex items-center gap-1.5"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Retour
+                </Button>
+              ) : (
+                <Button type="button" variant="outline" onClick={onClose}>
+                  Annuler
+                </Button>
+              )}
+              <Button type="submit" className="btn-primary">
+                Continuer
+              </Button>
+            </div>
+          </form>
         )}
 
         {step === 'empty' && (
@@ -344,6 +412,25 @@ export const AddBarModal = ({
           </form>
         )}
       </DialogContent>
+      <BulkAddDrinksModal
+        isOpen={showBulkModal}
+        onClose={() => setShowBulkModal(false)}
+        allowCategories={true}
+        targetCategoryName={pendingBarMeta.name}
+        currentCategoriesCount={0}
+        currentDrinksCount={0}
+        onConfirm={({ categories: parsedCats }) => {
+          if (onCreateFromCategories) {
+            onCreateFromCategories({
+              name: pendingBarMeta.name,
+              icon: pendingBarMeta.icon,
+              parsedCategories: parsedCats
+            });
+          }
+          setShowBulkModal(false);
+          onClose();
+        }}
+      />
     </Dialog>
   );
 };
@@ -436,6 +523,7 @@ const BarSelector = ({
   onSelectBar,
   onCreateEmptyBar,
   onDuplicateBar,
+  onCreateFromCategories,
   cartItemsCount = 0,
   onClearCart
 }) => {
@@ -630,6 +718,7 @@ const BarSelector = ({
         activeMenuId={activeMenuId}
         onCreateEmpty={onCreateEmptyBar}
         onDuplicateBar={onDuplicateBar}
+        onCreateFromCategories={onCreateFromCategories}
       />
     </>
   );

@@ -21,7 +21,10 @@ import {
   renameBar,
   removeBar,
   prepareImportedBar,
-  applyMergedBarToMenus
+  applyMergedBarToMenus,
+  appendDrinksToCategory,
+  createBarFromParsedCategories,
+  appendParsedCategoriesToCategories
 } from '../lib/menus';
 import { mergeMenus, summarizeReport } from '../lib/menuMerge';
 import {
@@ -581,6 +584,61 @@ export const useMenus = () => {
     [menus]
   );
 
+  // Ajouter plusieurs boissons à une catégorie en une seule mise à jour (E-11 / Étape 9.8)
+  const addDrinksToCategory = useCallback(
+    (categoryId, drinksToAdd) => {
+      if (!categoryId || !Array.isArray(drinksToAdd) || drinksToAdd.length === 0) return;
+      const nextCategories = appendDrinksToCategory(categories, categoryId, drinksToAdd);
+      setCategories(nextCategories);
+      const targetCat = categories.find((c) => c && c.id === categoryId);
+      const catName = targetCat?.name ? ` à « ${targetCat.name} »` : '';
+      toast.success(
+        `${drinksToAdd.length} boisson${drinksToAdd.length > 1 ? 's' : ''} ajoutée${drinksToAdd.length > 1 ? 's' : ''}${catName}`
+      );
+    },
+    [categories, setCategories]
+  );
+
+  // Créer un bar complet à partir de catégories analysées (E-11 / Étape 9.8)
+  const createBarFromCategories = useCallback(
+    ({ name, icon, parsedCategories, activate = true } = {}) => {
+      const newBar = createBarFromParsedCategories({ name, icon, parsedCategories });
+      setMenus((prev) => [...(Array.isArray(prev) ? prev : []), newBar]);
+      if (activate) {
+        setActiveMenuId(newBar.id);
+      }
+      const totalDrinks = Array.isArray(newBar.categories)
+        ? newBar.categories.reduce(
+            (sum, c) => sum + (Array.isArray(c.drinks) ? c.drinks.length : 0),
+            0
+          )
+        : 0;
+      toast.success(
+        `Bar « ${newBar.name} » créé : ${totalDrinks} boisson${totalDrinks > 1 ? 's' : ''}`
+      );
+      return newBar;
+    },
+    [setMenus, setActiveMenuId]
+  );
+
+
+  // Ajouter plusieurs catégories parsées au bar actif (E-11 / Étape 9.8)
+  const addCategoriesToActiveBar = useCallback(
+    (parsedCategories) => {
+      if (!Array.isArray(parsedCategories) || parsedCategories.length === 0) return;
+      const nextCategories = appendParsedCategoriesToCategories(categories, parsedCategories);
+      setCategories(nextCategories);
+      const addedDrinksCount = parsedCategories.reduce(
+        (acc, c) => acc + (Array.isArray(c?.drinks) ? c.drinks.length : 0),
+        0
+      );
+      toast.success(
+        `${addedDrinksCount} boisson${addedDrinksCount > 1 ? 's' : ''} ajoutée${addedDrinksCount > 1 ? 's' : ''} à « ${activeMenu?.name || 'la carte'} »`
+      );
+    },
+    [categories, setCategories, activeMenu]
+  );
+
   return {
     menus,
     activeMenuId,
@@ -599,7 +657,10 @@ export const useMenus = () => {
     deleteDrink,
     restoreBaseBar,
     importNewBar,
-    mergeIncomingBar
+    mergeIncomingBar,
+    addDrinksToCategory,
+    createBarFromCategories,
+    addCategoriesToActiveBar
   };
 };
 

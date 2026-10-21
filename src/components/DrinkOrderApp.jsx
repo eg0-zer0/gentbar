@@ -15,11 +15,12 @@ import SortControls from './SortControls';
 import TicketView from './TicketView';
 import DrinkCard from './DrinkCard';
 import MenuSearch from './MenuSearch';
+import BulkAddDrinksModal from './BulkAddDrinksModal';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 
 // Icons
-import { CheckCircle2, Receipt, RotateCcw, FolderPlus } from 'lucide-react';
+import { CheckCircle2, Receipt, RotateCcw, FolderPlus, ClipboardList } from 'lucide-react';
 
 // Custom Hooks
 import { useStoredState } from '../hooks/useStoredState';
@@ -50,7 +51,10 @@ const DrinkOrderApp = () => {
     saveCategory,
     deleteCategory,
     saveDrink,
-    deleteDrink
+    deleteDrink,
+    addDrinksToCategory,
+    createBarFromCategories,
+    addCategoriesToActiveBar
   } = useMenus();
 
   // 2. Gestion du panier et de la note libre
@@ -93,6 +97,7 @@ const DrinkOrderApp = () => {
 
   // 6. États des fenêtres modales & dialogues
   const [showBarSelector, setShowBarSelector] = useState(false);
+  const [showBulkAddInActiveBar, setShowBulkAddInActiveBar] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [ticketViewData, setTicketViewData] = useState(null);
@@ -243,6 +248,10 @@ const DrinkOrderApp = () => {
             setSearchQuery('');
             duplicateExistingBar(srcId, { ...params, activate: true });
           }}
+          onCreateFromCategories={(params) => {
+            setSearchQuery('');
+            createBarFromCategories(params);
+          }}
           cartItemsCount={totalItems}
           onClearCart={clearCart}
         />
@@ -310,7 +319,7 @@ const DrinkOrderApp = () => {
                 <p className="text-sm text-muted-foreground max-w-md mx-auto">
                   Ajoutez une première catégorie (ex. Bières, Cocktails, Softs) pour commencer à enregistrer vos boissons.
                 </p>
-                <div className="pt-1">
+                <div className="pt-1 flex flex-wrap items-center justify-center gap-2">
                   <Button
                     type="button"
                     className="btn-primary inline-flex items-center gap-2"
@@ -318,6 +327,15 @@ const DrinkOrderApp = () => {
                   >
                     <FolderPlus className="w-4 h-4" />
                     Ajouter une catégorie
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="inline-flex items-center gap-2"
+                    onClick={() => setShowBulkAddInActiveBar(true)}
+                  >
+                    <ClipboardList className="w-4 h-4" />
+                    Coller une liste
                   </Button>
                 </div>
               </div>
@@ -332,6 +350,7 @@ const DrinkOrderApp = () => {
                     onToggleCategory={toggleCategory}
                     onEditCategory={handleEditCategory}
                     onAddDrinkToCategory={handleAddDrinkToCategory}
+                    onAddDrinksToCategory={addDrinksToCategory}
                     onDeleteCategory={handleDeleteCategory}
                     onDeleteDrink={handleDeleteDrink}
                     sortedDrinks={sortDrinks(c.drinks, sortBy)}
@@ -341,15 +360,25 @@ const DrinkOrderApp = () => {
                     viewMode={viewMode}
                   />
                 ))}
-                <div className="pt-2">
+                <div className="pt-2 flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleAddCategory}
-                    className="w-full py-3 border-dashed text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
+                    className="flex-1 py-3 border-dashed text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
                   >
                     <FolderPlus className="w-4 h-4" />
                     <span>Ajouter une catégorie</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowBulkAddInActiveBar(true)}
+                    className="py-3 px-4 border-dashed text-muted-foreground hover:text-foreground flex items-center justify-center gap-2"
+                    title="Ajouter plusieurs catégories et boissons par texte collé"
+                  >
+                    <ClipboardList className="w-4 h-4" />
+                    <span>Ajout en lot</span>
                   </Button>
                 </div>
               </>
@@ -470,6 +499,19 @@ const DrinkOrderApp = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Modale d'ajout en lot pour le bar actif (E-11) */}
+        <BulkAddDrinksModal
+          isOpen={showBulkAddInActiveBar}
+          onClose={() => setShowBulkAddInActiveBar(false)}
+          allowCategories={true}
+          targetCategoryName={activeMenu?.name}
+          currentCategoriesCount={categories.length}
+          currentDrinksCount={categories.reduce((acc, c) => acc + (Array.isArray(c.drinks) ? c.drinks.length : 0), 0)}
+          onConfirm={({ categories: parsedCats }) => {
+            addCategoriesToActiveBar(parsedCats);
+            setShowBulkAddInActiveBar(false);
+          }}
+        />
         {/* Vue Ticket plein écran (E-4) */}
         {ticketViewData && (
           <TicketView
