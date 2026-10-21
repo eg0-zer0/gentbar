@@ -18,8 +18,8 @@ export function guessCategoryIcon(name = '') {
   if (/\bvins?\b|rouge|blanc|ros[eé]/.test(norm)) return '🍷';
   if (/bulle|cava|champagne|prosecco|spumante|cidre/.test(norm)) return '🥂';
   if (/cocktail|mojito|spritz|apero|apéro|sangria/.test(norm)) return '🍹';
+  if (/sans alcool|soft|eau|soda|cola|coke|sprite|fanta|limonade|tonique|tonic|perrier|ice tea|lipton|fuze/.test(norm)) return '💧';
   if (/alcool|gin|vodka|rhum|rum|whisky|whiskey|bourbon|liqueur|cognac|pastis|ricard|tequila/.test(norm)) return '🥃';
-  if (/soft|eau|soda|cola|coke|sprite|fanta|limonade|tonique|tonic|perrier|ice tea|lipton|fuze/.test(norm)) return '💧';
   if (/\bjus\b|nectar|smoothie/.test(norm)) return '🧃';
   if (/chaud|cafe|café|\bthe\b|thé|infusion|espresso|expresso|cappuccino|chocolat chaud/.test(norm)) return '☕';
   if (/snack|chips|bonbon|confiserie|\bchocolat\b|barre/.test(norm)) return '🍫';
@@ -107,16 +107,18 @@ function parseSingleLine(rawLine) {
   };
 }
 
-const CATEGORY_TERMS = [
-  'boissons',
-  'boissons alcoolisees',
+const EXACT_CATEGORY_TERMS = new Set([
   'boissons sans alcool',
+  'boissons avec alcool',
+  'boissons alcoolisees',
+  'boissons alcoolise',
   'boissons chaudes',
   'boissons fraiches',
+  'boissons',
   'bieres',
+  'bieres au fut',
   'bieres pression',
   'bieres bouteille',
-  'bieres au fut',
   'vins',
   'vins au verre',
   'vins bouteille',
@@ -125,20 +127,19 @@ const CATEGORY_TERMS = [
   'spiritueux',
   'softs',
   'softs et jus',
-  'jus',
   'aperitifs',
   'aperos',
   'bulles',
   'champagnes',
   'snacks',
   'restauration'
-];
+]);
 
 /**
  * Détecte si une ligne correspond à un titre de catégorie :
  * - finit par ':'
  * - OU contient des lettres et est entièrement en majuscules (accents compris)
- * - OU correspond à une catégorie caractéristique en casse mixte sans volume (ex: Boissons alcoolisées, Nos bières).
+ * - OU correspond à une catégorie caractéristique en casse mixte sans volume (ex: Boissons sans alcool, Boissons avec alcool).
  *
  * @param {string} rawLine - Ligne nettoyée
  * @returns {boolean}
@@ -149,10 +150,10 @@ export function isCategoryHeaderLine(rawLine) {
   const hasLetters = /[a-zA-ZÀ-ÖØ-öø-ÿ]/.test(cleaned);
   if (hasLetters && cleaned === cleaned.toUpperCase()) return true;
 
-  // Détection en casse mixte sans unité de volume (Google Lens / OCR)
-  if (!/(?:cl|ml|dl|l|litres?|°|%)(?![a-zA-Z0-9])/i.test(cleaned)) {
-    const norm = normalizeText(cleaned).replace(/^(?:nos|carte des)\s+/, '');
-    if (CATEGORY_TERMS.some((t) => norm === t || norm.startsWith(t + ' ') || norm.endsWith(' ' + t))) {
+  // Détection en casse mixte sans chiffre d'unité de volume (évite le faux positif sur la lettre 'l' d'alcool)
+  if (!/\d+\s*(?:cl|ml|dl|l|litres?|°|%)/i.test(cleaned)) {
+    const norm = normalizeText(cleaned).replace(/^(?:nos|carte des|tarifs?)\s+/, '');
+    if (EXACT_CATEGORY_TERMS.has(norm)) {
       return true;
     }
   }
@@ -180,7 +181,9 @@ export function isStandalonePriceLine(line) {
 
 /**
  * Pré-traite les lignes brutes pour fusionner automatiquement les prix isolés
- * placés sur une ligne séparée sous le nom de la boisson (fréquent avec Google Lens).
+ * placés sur une ligne séparée (fréquent avec Google Lens / OCR en colonnes).
+ * Fusionne en priorité vers la ligne précédente si elle n'a pas de prix,
+ * sinon vers la ligne suivante si le prix précède le produit.
  *
  * @param {string[]} rawLines - Lignes brutes
  * @param {object} options
@@ -189,27 +192,38 @@ export function isStandalonePriceLine(line) {
  */
 export function stitchStandalonePrices(rawLines, { allowCategories = false } = {}) {
   const nonEmpty = (rawLines || []).map((l) => l.trim()).filter(Boolean);
-  const result = [];
+  const items = nonEmpty.map((line) => ({
+    text: line,
+    isPrice: isStandalonePriceLine(line),
+    isCat: allowCategories && isCategoryHeaderLine(line),
+    merged: false
+  }));
 
-  for (let i = 0; i < nonEmpty.length; i += 1) {
-    const current = nonEmpty[i];
-
-    if (isStandalonePriceLine(current) && result.length > 0) {
-      const prev = result[result.length - 1];
-      const prevParsed = parseSingleLine(prev);
-      const isPrevCat = allowCategories && isCategoryHeaderLine(prev);
-
-      // Si la ligne précédente n'a pas encore de prix et n'est pas un titre de catégorie
-      if (prevParsed.price === null && !isPrevCat) {
-        result[result.length - 1] = prev + ' ' + current;
-        continue;
+  // Passe 1 : fusion vers le haut (Nom suivi de Prix sur la ligne suivante)
+  for (let i = 0; i < items.length; i += 1) {
+    if (items[i].isPrice && i > 0) {
+      const prev = items[i - 1];
+      if (!prev.isPrice && !prev.isCat && parseSingleLine(prev.text).price === null) {
+        prev.text = prev.text + ' ' + items[i].text;
+        items[i].merged = true;
       }
     }
-
-    result.push(current);
   }
 
-  return result;
+  const remaining = items.filter((it) => !it.merged);
+
+  // Passe 2 : fusion vers le bas (Prix seul précédant un nom sans prix)
+  for (let i = 0; i < remaining.length; i += 1) {
+    if (remaining[i].isPrice && i + 1 < remaining.length) {
+      const next = remaining[i + 1];
+      if (!next.isPrice && !next.isCat && parseSingleLine(next.text).price === null) {
+        next.text = next.text + ' ' + remaining[i].text;
+        remaining[i].merged = true;
+      }
+    }
+  }
+
+  return remaining.filter((it) => !it.merged).map((it) => it.text);
 }
 
 /**

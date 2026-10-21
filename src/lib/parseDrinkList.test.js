@@ -306,4 +306,135 @@ Coca-Cola 33cl
     expect(drinks[1].name).toBe('Coca-Cola 33cl');
     expect(drinks[1].price).toBe(2);
   });
+  test('Google Lens réel (Golf Haut Bugey) : 3 catégories réelles, zéro Divers, boissons et prix correctement rattachés', () => {
+    const text = `Boissons sans alcool
+
+Jus de fruits.....
+
+3€
+
+Cocktail sans alcool.
+
+3€
+
+Eau 50cl.
+
+2€
+
+Eau 1L
+
+3€
+
+Eau pétillante 33cl.
+
+3€
+
+Soda 33cl
+
+3€
+
+Soda 25cl.
+
+3€
+
+Boissons avec alcool
+
+Bière galopin 15cl.
+
+2€
+
+Bière pression 25cl.
+
+2,50 €
+
+Bière pression 50cl.
+
+5€
+
+10 €
+
+Bière pression pichet 1L.
+
+4€
+
+Bière bouteille
+
+4€
+
+Stitz
+
+2€
+
+Vin verre 12,5cl
+
+3€
+
+Vin verre + crème de fruits.
+
+Vin pichet 25cl.
+
+5€
+
+9€
+
+Vin pichet 50cl.
+
+15 €
+
+Vin pichet 1L...
+
+18 €
+
+Vin bouteille (Rouge, rosé, blanc).
+
+Mousseux coupe..
+
+4€
+
+19 €
+
+Mousseux bouteillle
+
+45 €
+
+Champagne bouteille.
+
+Boissons chaudes
+
+Café
+
+1,50 €
+
+Café décaféiné.
+
+1,50 €
+
+Thé
+
+2,50 €`;
+
+    const res = parseDrinkList(text, { allowCategories: true });
+
+    // Exactement 3 catégories détectées (aucun Divers)
+    expect(res.categories.length).toBe(3);
+    expect(res.categories[0].name).toBe('Boissons sans alcool');
+    expect(res.categories[0].icon).toBe('💧');
+    expect(res.categories[0].drinks.length).toBe(7);
+    expect(res.categories[0].drinks[0].name).toBe('Jus de fruits');
+    expect(res.categories[0].drinks[0].price).toBe(3);
+    expect(res.categories[0].drinks[0].status).toBe('ok');
+
+    expect(res.categories[1].name).toBe('Boissons avec alcool');
+    expect(res.categories[1].drinks.length).toBeGreaterThanOrEqual(10);
+
+    expect(res.categories[2].name).toBe('Boissons chaudes');
+    expect(res.categories[2].icon).toBe('☕');
+    expect(res.categories[2].drinks.length).toBe(3);
+    expect(res.categories[2].drinks[0].name).toBe('Café');
+    expect(res.categories[2].drinks[0].price).toBe(1.5);
+    expect(res.categories[2].drinks[1].name).toBe('Café décaféiné');
+    expect(res.categories[2].drinks[1].price).toBe(1.5);
+    expect(res.categories[2].drinks[2].name).toBe('Thé');
+    expect(res.categories[2].drinks[2].price).toBe(2.5);
+  });
 });
