@@ -2,6 +2,30 @@
  * Service d'analyse visuelle de cartes de boissons via Google Gemini Flash.
  */
 
+export function getGeminiApiKey() {
+  const envKey = (process.env.REACT_APP_GEMINI_API_KEY || '').trim();
+  if (envKey) return envKey;
+  try {
+    const localKey = (localStorage.getItem('gemini_api_key') || '').trim();
+    if (localKey) return localKey;
+  } catch (e) {
+    // ignore
+  }
+  return '';
+}
+
+export function saveGeminiApiKey(key) {
+  try {
+    if (key && key.trim()) {
+      localStorage.setItem('gemini_api_key', key.trim());
+    } else {
+      localStorage.removeItem('gemini_api_key');
+    }
+  } catch (e) {
+    // ignore
+  }
+}
+
 export const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || '';
 
 const PROMPT_INSTRUCTIONS = `Voici la photo d'une carte de boissons. Rédige UNIQUEMENT la liste textuelle brute pour l'importer directement dans mon application de bar.
@@ -67,7 +91,8 @@ const CANDIDATE_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3
  * @returns {Promise<string>} Texte brut des boissons
  */
 export async function analyzeMenuPhotoWithGemini(file) {
-  if (!GEMINI_API_KEY) {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
     throw new Error('Clé API Gemini non configurée (REACT_APP_GEMINI_API_KEY).');
   }
 
@@ -77,7 +102,7 @@ export async function analyzeMenuPhotoWithGemini(file) {
 
   for (let i = 0; i < CANDIDATE_MODELS.length; i += 1) {
     const model = CANDIDATE_MODELS[i];
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
     try {
       const response = await fetch(endpoint, {
