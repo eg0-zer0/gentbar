@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { usePWA } from '../hooks/usePWA';
 
-import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, Store, ChevronDown } from 'lucide-react';
+import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, Store, ChevronDown, QrCode } from 'lucide-react';
 
 import { Button } from './ui/button';
 
@@ -11,6 +11,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useViewMode } from '../contexts/ViewModeContext';
 
 import { useNavigate } from 'react-router-dom';
+import { ShareAppModal } from './ShareAppModal';
 
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ const Header = ({
   const { viewMode, cycleViewMode } = useViewMode();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Liste des thèmes et modes utilisés dans cycle
   const themeModes = ['light', 'dark', 'gentbar'];
@@ -134,9 +136,18 @@ const Header = ({
               <History className="mr-2 w-4 h-4" />
               Historique
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => { setShowShareModal(true); setMenuOpen(false); }}>
+              <QrCode className="mr-2 w-4 h-4" />
+              Partager l'application
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <ShareAppModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </header>
   );
 };

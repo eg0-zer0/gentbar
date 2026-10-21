@@ -46,18 +46,60 @@ const ALIGNMENT_COORDS = [
   [6, 30, 58, 86, 114, 142, 170]
 ];
 
-// Niveau L (index 1..40) : [ecCodewordsPerBlock, numBlocks]
-const EC_LEVEL_L_TABLE = [
-  null,
-  [7, 1], [10, 1], [15, 1], [20, 1], [26, 1],
-  [18, 2], [20, 2], [24, 2], [30, 2], [18, 4],
-  [20, 4], [24, 4], [26, 4], [30, 4], [22, 6],
-  [24, 6], [28, 6], [30, 6], [28, 7], [28, 8],
-  [28, 8], [28, 9], [30, 9], [30, 10], [26, 12],
-  [28, 12], [30, 12], [30, 13], [30, 14], [30, 15],
-  [30, 16], [30, 17], [30, 18], [30, 19], [30, 19],
-  [30, 20], [30, 21], [30, 22], [30, 24], [30, 25]
-];
+// Niveaux de correction d'erreur (ISO/IEC 18004) : [ecCodewordsPerBlock, numBlocks] (index 1..40)
+const EC_TABLES = {
+  L: [
+    null,
+    [7, 1], [10, 1], [15, 1], [20, 1], [26, 1],
+    [18, 2], [20, 2], [24, 2], [30, 2], [18, 4],
+    [20, 4], [24, 4], [26, 4], [30, 4], [22, 6],
+    [24, 6], [28, 6], [30, 6], [28, 7], [28, 8],
+    [28, 8], [28, 9], [30, 9], [30, 10], [26, 12],
+    [28, 12], [30, 12], [30, 13], [30, 14], [30, 15],
+    [30, 16], [30, 17], [30, 18], [30, 19], [30, 19],
+    [30, 20], [30, 21], [30, 22], [30, 24], [30, 25]
+  ],
+  M: [
+    null,
+    [10, 1], [16, 1], [26, 1], [18, 2], [24, 2],
+    [16, 4], [18, 4], [22, 4], [22, 5], [26, 5],
+    [30, 5], [22, 8], [22, 9], [24, 9], [24, 10],
+    [28, 10], [28, 11], [26, 13], [26, 14], [26, 16],
+    [26, 17], [28, 17], [28, 18], [28, 20], [28, 21],
+    [28, 23], [28, 25], [28, 26], [28, 28], [28, 29],
+    [28, 31], [28, 33], [28, 35], [28, 37], [28, 38],
+    [28, 40], [28, 43], [28, 45], [28, 47], [28, 49]
+  ],
+  Q: [
+    null,
+    [13, 1], [22, 1], [18, 2], [26, 2], [18, 4],
+    [24, 4], [18, 6], [22, 6], [20, 8], [24, 8],
+    [28, 8], [26, 10], [24, 12], [20, 16], [30, 12],
+    [24, 17], [28, 16], [28, 18], [26, 21], [30, 20],
+    [28, 23], [28, 25], [30, 25], [30, 27], [30, 29],
+    [30, 31], [30, 33], [30, 35], [30, 37], [30, 38],
+    [30, 40], [30, 43], [30, 45], [30, 47], [30, 49],
+    [30, 51], [30, 53], [30, 56], [30, 59], [30, 62]
+  ],
+  H: [
+    null,
+    [17, 1], [28, 1], [22, 2], [16, 4], [22, 4],
+    [28, 4], [26, 5], [26, 6], [24, 8], [28, 8],
+    [24, 11], [28, 11], [22, 16], [24, 16], [24, 18],
+    [30, 16], [28, 19], [28, 21], [26, 25], [28, 25],
+    [30, 25], [28, 27], [30, 29], [30, 32], [30, 34],
+    [30, 36], [30, 39], [30, 42], [30, 45], [30, 48],
+    [30, 51], [30, 54], [30, 57], [30, 60], [30, 63],
+    [30, 66], [30, 70], [30, 74], [30, 77], [30, 81]
+  ]
+};
+
+const EC_INDICATORS = {
+  L: 0b01,
+  M: 0b00,
+  Q: 0b11,
+  H: 0b10
+};
 
 // Tables GF(256) avec polynôme primitif 0x11D
 const GF_EXP = new Uint8Array(512);
@@ -127,9 +169,10 @@ function getNumRawDataModules(version) {
   return result;
 }
 
-function getTotalDataCodewords(version) {
+function getTotalDataCodewords(version, ecLevel = 'L') {
   const totalCodewords = Math.floor(getNumRawDataModules(version) / 8);
-  const [ecPerBlock, numBlocks] = EC_LEVEL_L_TABLE[version];
+  const table = EC_TABLES[ecLevel] || EC_TABLES.L;
+  const [ecPerBlock, numBlocks] = table[version];
   return totalCodewords - ecPerBlock * numBlocks;
 }
 
@@ -146,8 +189,8 @@ function appendBits(val, len, bitArray) {
   }
 }
 
-function encodeDataCodewords(bytes, version) {
-  const capacityCodewords = getTotalDataCodewords(version);
+function encodeDataCodewords(bytes, version, ecLevel = 'L') {
+  const capacityCodewords = getTotalDataCodewords(version, ecLevel);
   const capacityBits = capacityCodewords * 8;
   const bits = [];
 
@@ -180,9 +223,10 @@ function encodeDataCodewords(bytes, version) {
   return dataCodewords;
 }
 
-function interleaveWithEcc(dataCodewords, version) {
+function interleaveWithEcc(dataCodewords, version, ecLevel = 'L') {
   const totalCodewords = Math.floor(getNumRawDataModules(version) / 8);
-  const [ecPerBlock, numBlocks] = EC_LEVEL_L_TABLE[version];
+  const table = EC_TABLES[ecLevel] || EC_TABLES.L;
+  const [ecPerBlock, numBlocks] = table[version];
   const numShortBlocks = numBlocks - (totalCodewords % numBlocks);
   const shortBlockTotalLen = Math.floor(totalCodewords / numBlocks);
   const shortDataLen = shortBlockTotalLen - ecPerBlock;
@@ -245,10 +289,9 @@ function drawAlignmentPattern(modules, isFunction, cx, cy) {
   }
 }
 
-function drawFormatBits(modules, isFunction, mask) {
+function drawFormatBits(modules, isFunction, mask, ecBits = 0b01) {
   const size = modules.length;
-  // Niveau L = 01 en binaire
-  const data = (0b01 << 3) | mask;
+  const data = (ecBits << 3) | mask;
   let rem = data;
   for (let i = 0; i < 10; i += 1) {
     rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
@@ -373,21 +416,23 @@ function computePenalty(modules) {
 /**
  * Génère la matrice booléenne 2D d'un QR code pour une chaîne UTF-8 donnée.
  */
-export function generateQrMatrix(text) {
+export function generateQrMatrix(text, ecLevel = 'L') {
+  const normalizedEc = (ecLevel && EC_TABLES[ecLevel]) ? ecLevel : 'L';
+  const ecBits = EC_INDICATORS[normalizedEc] ?? 0b01;
   const bytes = utf8Bytes(String(text || ''));
   let version = 1;
   while (version <= 40) {
-    const cap = getTotalDataCodewords(version);
+    const cap = getTotalDataCodewords(version, normalizedEc);
     const headerBytes = version <= 9 ? 2 : 3;
     if (bytes.length + headerBytes <= cap) break;
     version += 1;
   }
   if (version > 40) {
-    throw new Error('Contenu trop volumineux pour un QR code (max ~2 950 octets).');
+    throw new Error('Contenu trop volumineux pour un QR code.');
   }
 
-  const dataCodewords = encodeDataCodewords(bytes, version);
-  const allCodewords = interleaveWithEcc(dataCodewords, version);
+  const dataCodewords = encodeDataCodewords(bytes, version, normalizedEc);
+  const allCodewords = interleaveWithEcc(dataCodewords, version, normalizedEc);
 
   const size = version * 4 + 17;
   const modules = Array.from({ length: size }, () => Array(size).fill(false));
@@ -422,7 +467,7 @@ export function generateQrMatrix(text) {
   }
 
   // Réservation des zones de format et de version
-  drawFormatBits(modules, isFunction, 0);
+  drawFormatBits(modules, isFunction, 0, ecBits);
   drawVersionBits(modules, isFunction, version);
 
   // Placement des bits de données en zigzag de droite à gauche
@@ -448,7 +493,7 @@ export function generateQrMatrix(text) {
   let minPenalty = Infinity;
   for (let mask = 0; mask < 8; mask += 1) {
     applyMask(modules, isFunction, mask);
-    drawFormatBits(modules, isFunction, mask);
+    drawFormatBits(modules, isFunction, mask, ecBits);
     const p = computePenalty(modules);
     if (p < minPenalty) {
       minPenalty = p;

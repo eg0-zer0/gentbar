@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feat-9-7b` · **Prochaine étape** : 9.8 E-11 Ajout en lot (texte collé) · **Dernier commit** : c01ba94
+**Branche de travail** : `feat-share` · **Prochaine étape** : 9.8 E-11 Ajout en lot (texte collé) · **Dernier commit** : 831d75e
 
 ---
 
@@ -166,6 +166,11 @@
 * Partage multi-bars (9.7f) : cliquer sur Partager : vérifier que le texte copié/partagé présente la structure en tirets par bar conforme à la spécification (« ── 🏒 Club de hockey ──────── X,XX € », articles, « ── 🍹 GentBar ──────── Y,YY € », articles, Total général et Note).
 * Conservation du nom du bar supprimé dans l'historique et le ticket (9.7f) : créer un bar personnalisé (ex: « Chez Mimi »), passer une commande, puis supprimer ce bar dans « Mes bars ». Ouvrir l'historique : vérifier que la commande mentionne fidèlement « • 🍻 Chez Mimi [supprimé] » au lieu d'un nom effacé ou générique. Sur le ticket, vérifier l'encadré d'avertissement indiquant que ce bar a été supprimé.
 * Recommander avec bar supprimé (9.7f) : sur cette même commande de bar supprimé, cliquer sur « Recommander » : vérifier le message d'avertissement « « X » n'est plus disponible (bar supprimé) » sans aucun plantage.
+* Partage de l'application (QR code avec logo) :
+  - Sur la page d'accueil (/), cliquer sur « Partager l'application » : vérifier que la modale s'ouvre avec le QR code centré portant le logo GentBar au milieu.
+  - Dans le menu burger ☰ (/app), cliquer sur « Partager l'application » : vérifier que la même modale s'ouvre.
+  - Scanner le QR code avec un smartphone : vérifier que le scan est instantané et ouvre bien https://gentbar.netlify.app.
+  - Tester le bouton « Copier » (toast de confirmation et presse-papier contenant https://gentbar.netlify.app) et le bouton « Partager » (partage natif du smartphone).
 
 
 

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { usePWA } from '../hooks/usePWA';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
+import { QrCode } from 'lucide-react';
+import { ShareAppModal } from './ShareAppModal';
 import IosInstallPopup from './IosInstallPopup';
 import { useViewMode } from '../contexts/ViewModeContext';
 
@@ -13,6 +15,7 @@ export default function LandingPage() {
   const { viewMode } = useViewMode();
 
   const [showIosPopup, setShowIosPopup] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [updateStatus, setUpdateStatus] = useState('idle'); // 'idle' | 'checking' | 'up-to-date' | 'downloading'
 
   const isManualVisit = location.search.includes('manual') || location.state?.fromMenu;
@@ -145,6 +148,16 @@ export default function LandingPage() {
             ? 'Mise à jour en cours...'
             : 'Vérifier les mises à jour'}
         </Button>
+
+        <Button
+          type="button"
+          className="btn-outline flex items-center gap-2"
+          onClick={() => setShowShareModal(true)}
+          aria-label="Partager l'application"
+        >
+          <QrCode className="w-4 h-4" />
+          <span>Partager l&apos;application</span>
+        </Button>
       </div>
 
       {!isInstalled && !isInstallable && (
@@ -157,6 +170,10 @@ export default function LandingPage() {
       <footer className="mt-8 text-xs text-muted-text">
         Mode d&apos;affichage actuel : <strong>{viewMode}</strong>
       </footer>
+      <ShareAppModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+      />
     </main>
   );
 }
