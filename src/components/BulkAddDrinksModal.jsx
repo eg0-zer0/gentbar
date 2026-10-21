@@ -8,6 +8,7 @@ import {
   Trash2,
   FolderPlus,
   Camera,
+  ImageIcon,
   AlertCircle,
   Bot,
   Copy,
@@ -58,14 +59,22 @@ export const BulkAddDrinksModal = ({
   const [isDebouncing, setIsDebouncing] = useState(false);
   const existingNamesKey = Array.isArray(existingNames) ? existingNames.join(';;;') : '';
   const debounceTimerRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
   const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
   const [aiScanError, setAiScanError] = useState(null);
 
-  const handleTriggerPhotoUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-      fileInputRef.current.click();
+  const handleTriggerCamera = () => {
+    if (cameraInputRef.current) {
+      cameraInputRef.current.value = '';
+      cameraInputRef.current.click();
+    }
+  };
+
+  const handleTriggerGallery = () => {
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = '';
+      galleryInputRef.current.click();
     }
   };
 
@@ -442,31 +451,56 @@ export const BulkAddDrinksModal = ({
                   </span>
                 </div>
                 <div className="text-[11px] text-muted-foreground">
-                  Prenez une photo : l'IA extrait et range automatiquement toutes les boissons.
+                  Prenez une photo ou choisissez une image : l'IA extrait et range automatiquement toutes les boissons.
                 </div>
               </div>
             </div>
 
-            <Button
-              type="button"
-              onClick={handleTriggerPhotoUpload}
-              disabled={isAnalyzingPhoto}
-              className="btn-primary h-8 text-xs font-semibold px-3 gap-1.5 shrink-0 cursor-pointer shadow-sm"
-            >
+            <div className="flex items-center gap-2 shrink-0">
               {isAnalyzingPhoto ? (
-                <>
+                <Button
+                  type="button"
+                  disabled
+                  className="btn-primary h-8 text-xs font-semibold px-3 gap-1.5 cursor-not-allowed shadow-sm w-full sm:w-auto"
+                >
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Analyse IA en cours…</span>
-                </>
+                </Button>
               ) : (
                 <>
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Prendre / Choisir photo</span>
+                  <Button
+                    type="button"
+                    onClick={handleTriggerCamera}
+                    className="btn-primary h-8 text-xs font-semibold px-2.5 gap-1.5 flex-1 sm:flex-initial cursor-pointer shadow-sm"
+                    title="Prendre une photo directement avec l'appareil photo"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Prendre photo</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTriggerGallery}
+                    className="h-8 text-xs font-semibold px-2.5 gap-1.5 flex-1 sm:flex-initial cursor-pointer bg-background hover:bg-muted border-border/80"
+                    title="Choisir une image dans votre galerie de photos"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>Galerie</span>
+                  </Button>
                 </>
               )}
-            </Button>
+            </div>
             <input
-              ref={fileInputRef}
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handlePhotoSelected}
+            />
+            <input
+              ref={galleryInputRef}
               type="file"
               accept="image/*"
               className="hidden"
