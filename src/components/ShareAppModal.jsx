@@ -10,7 +10,7 @@ export const APP_SHARE_URL = 'https://gentbar.netlify.app';
 // Couleurs personnalisées du thème GentBar pour le QR code stylé
 const QR_DARK_COLOR = '#1e0f2b'; // Prune très sombre pour les modules et cadres
 const QR_PUPIL_COLOR = '#881337'; // Bordeaux / framboise GentBar pour les pupilles
-const QR_LOGO_BG = '#0f1a2f'; // Bleu nuit du blason officiel GentBar
+const QR_LOGO_BG = '#031726'; // Bleu marine officiel de l'icône de l'application
 
 export const ShareAppModal = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
@@ -135,15 +135,27 @@ export const ShareAppModal = ({ isOpen, onClose }) => {
               <svg
                 viewBox={`0 0 ${qrData.viewBoxSize} ${qrData.viewBoxSize}`}
                 className="w-full h-full select-none"
-                shapeRendering="crispEdges"
                 aria-label="QR code vers gentbar.netlify.app avec style GentBar"
                 role="img"
               >
+                <defs>
+                  {/* Découpe aux coins arrondis pour le logo central de l'application */}
+                  <clipPath id="gentbar-qr-logo-clip">
+                    <rect
+                      x={qrData.center - qrData.logoSize / 2}
+                      y={qrData.center - qrData.logoSize / 2}
+                      width={qrData.logoSize}
+                      height={qrData.logoSize}
+                      rx={0.5}
+                    />
+                  </clipPath>
+                </defs>
+
                 {/* 1. Fond blanc pur */}
                 <rect width={qrData.viewBoxSize} height={qrData.viewBoxSize} fill="white" />
 
-                {/* 2. Modules de données en prune sombre GentBar */}
-                <path d={qrData.dataPath} fill={QR_DARK_COLOR} />
+                {/* 2. Modules de données en prune sombre GentBar (bords nets) */}
+                <path d={qrData.dataPath} fill={QR_DARK_COLOR} shapeRendering="crispEdges" />
 
                 {/* 3. Les 3 Finder Patterns stylisés (cadre arrondi prune + pupille ronde bordeaux) */}
                 {qrData.finders.map((f, idx) => (
@@ -176,9 +188,9 @@ export const ShareAppModal = ({ isOpen, onClose }) => {
                   </g>
                 ))}
 
-                {/* 4. Grand logo GentBar au centre avec fond blason et bordure fine */}
+                {/* 4. Logo officiel de l'application (du manifest) au centre */}
                 <g>
-                  {/* Cadre de protection du logo au centre */}
+                  {/* Fond assorti à l'icône */}
                   <rect
                     x={qrData.center - qrData.logoSize / 2}
                     y={qrData.center - qrData.logoSize / 2}
@@ -186,17 +198,16 @@ export const ShareAppModal = ({ isOpen, onClose }) => {
                     height={qrData.logoSize}
                     rx={0.5}
                     fill={QR_LOGO_BG}
-                    stroke="white"
-                    strokeWidth={0.2}
                   />
 
-                  {/* Blason officiel GentBar (verre de bière, couronne et texte) */}
+                  {/* Image haute définition de l'icône de l'application déclarée dans le manifest */}
                   <image
-                    href="/icons/gentbar-logo.svg"
-                    x={qrData.center - qrData.logoSize / 2 + 0.2}
-                    y={qrData.center - qrData.logoSize / 2 + 0.2}
-                    width={qrData.logoSize - 0.4}
-                    height={qrData.logoSize - 0.4}
+                    href="/icons/icon-192x192.png"
+                    x={qrData.center - qrData.logoSize / 2}
+                    y={qrData.center - qrData.logoSize / 2}
+                    width={qrData.logoSize}
+                    height={qrData.logoSize}
+                    clipPath="url(#gentbar-qr-logo-clip)"
                     preserveAspectRatio="xMidYMid meet"
                   />
                 </g>
