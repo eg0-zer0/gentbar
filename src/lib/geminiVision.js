@@ -57,7 +57,7 @@ export function compressImageFile(file, maxDim = 1600) {
   });
 }
 
-const CANDIDATE_MODELS = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
+const CANDIDATE_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
 
 /**
  * Analyse une photo de carte de boissons via l'API Gemini avec bascule automatique en cas de charge.
