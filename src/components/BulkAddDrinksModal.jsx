@@ -590,9 +590,6 @@ export const BulkAddDrinksModal = ({
                 </button>
               </div>
             )}
-              className="w-full rounded-xl border border-input bg-background p-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition resize-y font-mono"
-              aria-label="Zone de texte pour coller la liste de boissons"
-            />
 
             {rawText.length > MAX_PASTE_CHARS && (
               <p className="text-xs text-destructive flex items-center gap-1 font-medium">
