@@ -8,8 +8,12 @@ import {
   Trash2,
   FolderPlus,
   Camera,
-  AlertCircle
+  AlertCircle,
+  Bot,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +26,13 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { parseDrinkList, guessCategoryIcon, MAX_PASTE_CHARS } from '../lib/parseDrinkList';
 import { LIMITS } from '../lib/barShare';
+
+export const AI_PROMPT_TEMPLATE = `Voici la photo d'une carte de boissons. Rédige uniquement la liste textuelle pour l'importer dans mon application, sans aucun commentaire ni texte d'introduction.
+Format strict :
+- Les catégories en MAJUSCULES (ex: BIÈRES, COCKTAILS, VINS)
+- Chaque boisson sur sa propre ligne avec son nom suivi de son prix (ex: Mojito 10,00 €)
+- Ignore les ingrédients, recettes et descriptions secondaires
+- Pour les doubles tarifs (verre / bouteille), sépare-les par un slash (ex: Whisky 10€ le verre / 50€ la bouteille)`;
 
 let nextTempId = 1;
 const getTempId = () => `bulk-item-${Date.now()}-${nextTempId++}`;
@@ -243,6 +254,32 @@ export const BulkAddDrinksModal = ({
     );
   };
 
+  const handleOpenChatGPT = () => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(AI_PROMPT_TEMPLATE);
+      }
+    } catch {
+      // Ignorer si l'accès clipboard échoue
+    }
+    toast.success('Prompt copié ! Joignez la photo dans ChatGPT puis collez la réponse ici.', {
+      duration: 5000
+    });
+    const url = `https://chatgpt.com/?q=${encodeURIComponent(AI_PROMPT_TEMPLATE)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyPrompt = () => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        navigator.clipboard.writeText(AI_PROMPT_TEMPLATE);
+        toast.success('Prompt copié dans le presse-papier !', { duration: 3000 });
+      }
+    } catch {
+      toast.error('Impossible de copier le prompt.');
+    }
+  };
+
   const handleUpdateCategoryName = (catTempId, newName) => {
     setParsedCategories((prev) =>
       prev.map((cat) => {
@@ -340,11 +377,45 @@ export const BulkAddDrinksModal = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-          {/* Encadré Astuce Photo */}
-          <div className="p-3 bg-muted/60 dark:bg-muted/40 rounded-xl border border-border/80 text-xs text-muted-foreground flex items-start gap-2.5">
-            <Camera className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-            <div className="leading-relaxed">
-              <strong className="text-foreground font-medium">Astuce photo :</strong> Pas envie de tout retaper ? Prenez la carte en photo, utilisez <em>Google Lens</em> (Android) ou <em>Texte en direct</em> (iPhone) pour copier le texte reconnu, puis collez-le ici. Vérifiez bien les prix : la reconnaissance de texte se trompe parfois.
+          {/* Encadré Astuce Photo & Aide IA */}
+          <div className="p-3 bg-muted/60 dark:bg-muted/40 rounded-xl border border-border/80 text-xs text-muted-foreground space-y-2">
+            <div className="flex items-start gap-2.5">
+              <Camera className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div className="leading-relaxed">
+                <strong className="text-foreground font-medium">Astuce photo :</strong> Pas envie de tout retaper ? Prenez la carte en photo et copiez le texte reconnu via <em>Google Lens</em> ou <em>Texte en direct</em>.
+              </div>
+            </div>
+
+            {/* Aide IA pour carte complexe */}
+            <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-[11px] text-foreground font-medium flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                Carte complexe ?
+              </span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyPrompt}
+                  className="h-7 text-[11px] px-2 gap-1 cursor-pointer bg-background"
+                  title="Copier le prompt pour Gemini, Claude ou une autre IA"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>Copier le prompt IA</span>
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleOpenChatGPT}
+                  className="h-7 text-[11px] px-2.5 gap-1.5 btn-primary font-semibold cursor-pointer"
+                  title="Ouvrir ChatGPT avec le prompt déjà préparé"
+                >
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>Ouvrir ChatGPT</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                </Button>
+              </div>
             </div>
           </div>
 
