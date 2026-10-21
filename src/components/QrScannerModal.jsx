@@ -1,6 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera, X, AlertCircle, RefreshCw, Upload, Loader2 } from 'lucide-react';
-import jsQR from 'jsqr';
+let jsQRInstance = null;
+let jsQRPromise = null;
+
+/**
+ * Import dynamique à la demande de jsQR (chargé uniquement à l'ouverture du scanner).
+ */
+const loadJsQR = () => {
+  if (jsQRInstance) return Promise.resolve(jsQRInstance);
+  if (!jsQRPromise) {
+    jsQRPromise = import('jsqr')
+      .then((mod) => {
+        jsQRInstance = mod.default || mod;
+        return jsQRInstance;
+      })
+      .catch((err) => {
+        jsQRPromise = null;
+        throw err;
+      });
+  }
+  return jsQRPromise;
+};
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 
@@ -8,14 +28,14 @@ import { Button } from './ui/button';
  * Utilitaire de décodage jsQR via Canvas 2D.
  */
 const scanCanvasWithJsQr = (canvas, source, width, height, inversionAttempts = 'dontInvert') => {
-  if (!canvas || !source || width <= 0 || height <= 0) return null;
+  if (!jsQRInstance || !canvas || !source || width <= 0 || height <= 0) return null;
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) return null;
   ctx.drawImage(source, 0, 0, width, height);
   const imageData = ctx.getImageData(0, 0, width, height);
-  const code = jsQR(imageData.data, imageData.width, imageData.height, {
+  const code = jsQRInstance(imageData.data, imageData.width, imageData.height, {
     inversionAttempts
   });
   return code ? code.data : null;
@@ -40,6 +60,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
       return;
     }
 
+    loadJsQR().catch(() => {});
     startCamera();
 
     return () => {
@@ -237,6 +258,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      const jsQR = await loadJsQR();
 
       // PASSE A : Image globale haute résolution (max 1800px pour préserver la netteté des modules QR denses)
       const maxDim = 1800;

@@ -4,7 +4,7 @@ import { usePWA } from '../hooks/usePWA';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
 import { QrCode } from 'lucide-react';
-import { ShareAppModal } from './ShareAppModal';
+const ShareAppModal = React.lazy(() => import('./ShareAppModal'));
 import IosInstallPopup from './IosInstallPopup';
 import { useViewMode } from '../contexts/ViewModeContext';
 
@@ -170,10 +170,14 @@ export default function LandingPage() {
       <footer className="mt-8 text-xs text-muted-text">
         Mode d&apos;affichage actuel : <strong>{viewMode}</strong>
       </footer>
-      <ShareAppModal
+      {showShareModal && (
+        <React.Suspense fallback={null}>
+          <ShareAppModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
       />
+        </React.Suspense>
+      )}
     </main>
   );
 }

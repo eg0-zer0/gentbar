@@ -28,7 +28,7 @@ import { countBarDrinks } from '../lib/menus';
 import { mergeMenus, summarizeReport } from '../lib/menuMerge';
 import { formatPrice } from '../lib/format';
 import { useMenus } from '../hooks/useMenus';
-import QrScannerModal from './QrScannerModal';
+// QrScannerModal et jsqr chargés dynamiquement à la demande à l'ouverture du scanner
 
 const MergeReportDetails = ({ report, targetBarName }) => {
   if (!report) return null;
@@ -97,6 +97,25 @@ export const ReceiveBarPage = ({
   const [selectedTargetBarId, setSelectedTargetBarId] = useState('');
   const [showMergeSelector, setShowMergeSelector] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isScannerLoading, setIsScannerLoading] = useState(false);
+  const [ScannerComponent, setScannerComponent] = useState(null);
+
+  const handleOpenScanner = async () => {
+    if (ScannerComponent) {
+      setIsScannerOpen(true);
+      return;
+    }
+    setIsScannerLoading(true);
+    try {
+      const module = await import('./QrScannerModal');
+      setScannerComponent(() => module.default || module.QrScannerModal);
+      setIsScannerOpen(true);
+    } catch {
+      toast.error('Impossible de charger le scanner QR.');
+    } finally {
+      setIsScannerLoading(false);
+    }
+  };
 
   const fileInputRef = useRef(null);
 
@@ -468,11 +487,16 @@ export const ReceiveBarPage = ({
 
                 <Button
                   type="button"
-                  onClick={() => setIsScannerOpen(true)}
+                  onClick={handleOpenScanner}
+                  disabled={isScannerLoading}
                   className="btn-primary w-full h-11 text-sm font-semibold flex items-center justify-center gap-2 shadow-sm"
                 >
-                  <Camera className="w-4 h-4" />
-                  <span>Scanner un QR code</span>
+                  {isScannerLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                  <span>{isScannerLoading ? 'Chargement du scanner…' : 'Scanner un QR code'}</span>
                 </Button>
               </div>
 
@@ -546,11 +570,13 @@ export const ReceiveBarPage = ({
         )}
       </main>
 
-      <QrScannerModal
-        isOpen={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
-        onScanSuccess={handleScanSuccess}
-      />
+      {ScannerComponent && isScannerOpen && (
+        <ScannerComponent
+          isOpen={isScannerOpen}
+          onClose={() => setIsScannerOpen(false)}
+          onScanSuccess={handleScanSuccess}
+        />
+      )}
     </div>
   );
 };

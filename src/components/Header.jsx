@@ -11,7 +11,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useViewMode } from '../contexts/ViewModeContext';
 
 import { useNavigate } from 'react-router-dom';
-import { ShareAppModal } from './ShareAppModal';
+const ShareAppModal = React.lazy(() => import('./ShareAppModal'));
 
 import {
   DropdownMenu,
@@ -144,10 +144,14 @@ const Header = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ShareAppModal
+      {showShareModal && (
+        <React.Suspense fallback={null}>
+          <ShareAppModal
         isOpen={showShareModal}
         onClose={() => setShowShareModal(false)}
-      />
+          />
+        </React.Suspense>
+      )}
     </header>
   );
 };
