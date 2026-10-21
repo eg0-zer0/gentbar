@@ -577,11 +577,6 @@ export const BulkAddDrinksModal = ({
               </p>
             )}
           </div>
-                <AlertCircle className="w-3.5 h-3.5" />
-                Texte très long : seuls les 50 000 premiers caractères sont analysés.
-              </p>
-            )}
-          </div>
 
           {/* Option : Séparer A / B */}
           <div className="flex items-center gap-2 pt-0.5">
