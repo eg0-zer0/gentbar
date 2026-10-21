@@ -70,12 +70,6 @@ export const BulkAddDrinksModal = ({
   const [pendingAction, setPendingAction] = useState(null);
 
   const handleTriggerCamera = () => {
-    if (!getGeminiApiKey()) {
-      setPendingAction('camera');
-      setApiKeyInput('');
-      setShowApiKeyModal(true);
-      return;
-    }
     if (cameraInputRef.current) {
       cameraInputRef.current.value = '';
       cameraInputRef.current.click();
@@ -83,12 +77,6 @@ export const BulkAddDrinksModal = ({
   };
 
   const handleTriggerGallery = () => {
-    if (!getGeminiApiKey()) {
-      setPendingAction('gallery');
-      setApiKeyInput('');
-      setShowApiKeyModal(true);
-      return;
-    }
     if (galleryInputRef.current) {
       galleryInputRef.current.value = '';
       galleryInputRef.current.click();

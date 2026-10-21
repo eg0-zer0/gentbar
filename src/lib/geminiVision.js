@@ -91,12 +91,42 @@ const CANDIDATE_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3
  * @returns {Promise<string>} Texte brut des boissons
  */
 export async function analyzeMenuPhotoWithGemini(file) {
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) {
-    throw new Error('Clé API Gemini non configurée (REACT_APP_GEMINI_API_KEY).');
+  const { base64Data, mimeType } = await compressImageFile(file);
+
+  // 1. Appel prioritaire via la fonction serverless Netlify (clé API cachée côté serveur)
+  try {
+    const serverlessRes = await fetch('/api/gemini-vision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        base64Data,
+        mimeType,
+        instructions: PROMPT_INSTRUCTIONS
+      })
+    });
+
+    if (serverlessRes.ok) {
+      const data = await serverlessRes.json();
+      if (data?.text && data.text.trim()) {
+        return data.text.trim();
+      }
+    } else if (serverlessRes.status !== 404) {
+      // Le serveur Netlify a répondu mais avec une erreur métier (ex: 503 quota, 502, etc.)
+      const errorData = await serverlessRes.json().catch(() => ({}));
+      throw new Error(errorData?.error || `Erreur serveur ${serverlessRes.status}`);
+    }
+  } catch (err) {
+    // Si l'erreur provient du serveur Netlify (pas une 404 de dev local), propager l'erreur
+    if (!err.message?.includes('404') && !err.message?.includes('Failed to fetch')) {
+      throw err;
+    }
   }
 
-  const { base64Data, mimeType } = await compressImageFile(file);
+  // 2. Repli direct (pour l'environnement local de développement où /api/gemini-vision n'est pas actif)
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) {
+    throw new Error('Clé API Gemini non configurée sur le serveur Netlify (GEMINI_API_KEY).');
+  }
 
   let lastErrorMessage = '';
 
