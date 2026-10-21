@@ -59,6 +59,8 @@ export const BulkAddDrinksModal = ({
   const debounceTimerRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
+  const [aiScanError, setAiScanError] = useState(null);
+  const [showManualAiFallback, setShowManualAiFallback] = useState(false);
 
   const handleTriggerPhotoUpload = () => {
     if (fileInputRef.current) {
@@ -72,6 +74,7 @@ export const BulkAddDrinksModal = ({
     if (!file) return;
 
     setIsAnalyzingPhoto(true);
+    setAiScanError(null);
     const toastId = toast.loading('Analyse IA de la carte en cours avec Gemini…');
 
     try {
@@ -80,7 +83,10 @@ export const BulkAddDrinksModal = ({
       toast.success('Carte analysée avec succès par l’IA !', { id: toastId });
     } catch (err) {
       console.error('Erreur scan photo:', err);
-      toast.error(err.message || 'Échec de l’analyse de la photo.', { id: toastId });
+      const msg = err.message || 'Échec de l’analyse de la photo.';
+      setAiScanError(msg);
+      setShowManualAiFallback(true);
+      toast.error(msg, { id: toastId });
     } finally {
       setIsAnalyzingPhoto(false);
     }
@@ -422,44 +428,87 @@ export const BulkAddDrinksModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 pr-1">
-          {/* Encadré Astuce Photo & Aide IA */}
-          <div className="p-3 bg-muted/60 dark:bg-muted/40 rounded-xl border border-border/80 text-xs text-muted-foreground space-y-2">
-            <div className="flex items-start gap-2.5">
-              <Camera className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <div className="leading-relaxed">
-                <strong className="text-foreground font-medium">Astuce photo :</strong> Pas envie de tout retaper ? Prenez la carte en photo et copiez le texte reconnu via <em>Google Lens</em> ou <em>Texte en direct</em>.
+        <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+          {/* 1. Action principale : Scanner une photo de carte avec l'IA */}
+          <div className="p-3 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent rounded-xl border border-primary/30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 text-primary">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <span>Scanner une photo de carte</span>
+                  <span className="text-[10px] px-1.5 py-0.2 font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded">
+                    Instantané
+                  </span>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  Prenez une photo : l'IA extrait et range automatiquement toutes les boissons.
+                </div>
               </div>
             </div>
 
-            {/* Raccourcis IA pour carte complexe */}
-            <div className="pt-2 border-t border-border/60 space-y-2">
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="text-[11px] text-foreground font-semibold flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-primary" />
-                  Carte complexe ? Ouvrir une IA avec le prompt pré-rempli :
-                </span>
-                <Button
+            <Button
+              type="button"
+              onClick={handleTriggerPhotoUpload}
+              disabled={isAnalyzingPhoto}
+              className="btn-primary h-8 text-xs font-semibold px-3 gap-1.5 shrink-0 cursor-pointer shadow-sm"
+            >
+              {isAnalyzingPhoto ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Analyse IA en cours…</span>
+                </>
+              ) : (
+                <>
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>Prendre / Choisir photo</span>
+                </>
+              )}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoSelected}
+            />
+          </div>
+
+          {/* 2. Repli en cas d'erreur ou d'épuisement de quota : message et liens vers IAs personnelles */}
+          {(showManualAiFallback || aiScanError) && (
+            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start gap-2 text-amber-700 dark:text-amber-300 font-medium">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div>
+                    {aiScanError ? (
+                      <span>L'analyse directe a rencontré un souci ({aiScanError}). Vous pouvez utiliser votre IA habituelle :</span>
+                    ) : (
+                      <span>Utiliser une IA personnelle où vous avez déjà un compte :</span>
+                    )}
+                  </div>
+                </div>
+                <button
                   type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopyPrompt}
-                  className="h-6 text-[10px] px-2 gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
-                  title="Copier uniquement le texte du prompt pour une autre application"
+                  onClick={() => {
+                    setShowManualAiFallback(false);
+                    setAiScanError(null);
+                  }}
+                  className="text-[11px] text-muted-foreground hover:text-foreground shrink-0 cursor-pointer underline"
                 >
-                  <Copy className="w-3 h-3" />
-                  <span>Copier prompt</span>
-                </Button>
+                  Masquer
+                </button>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
                   onClick={() => handleOpenAI('claude')}
                   className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
-                  title="Ouvrir Claude avec le prompt pré-rempli (recommandé pour les photos)"
+                  title="Ouvrir Claude avec le prompt pré-rempli"
                 >
                   <span className="text-amber-600 dark:text-amber-400 font-bold">●</span>
                   <span>Claude</span>
@@ -472,7 +521,7 @@ export const BulkAddDrinksModal = ({
                   variant="outline"
                   onClick={() => handleOpenAI('mistral')}
                   className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
-                  title="Ouvrir Mistral Le Chat avec le prompt pré-rempli"
+                  title="Ouvrir Mistral avec le prompt pré-rempli"
                 >
                   <span className="text-orange-500 font-bold">●</span>
                   <span>Mistral</span>
@@ -491,63 +540,27 @@ export const BulkAddDrinksModal = ({
                   <span>ChatGPT</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                 </Button>
-              </div>
-            </div>
-          </div>
 
-          {/* Action directe : Scanner une photo de carte avec Gemini Flash */}
-          {GEMINI_API_KEY && (
-            <div className="p-3 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent rounded-xl border border-primary/30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 text-primary">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                    <span>Scanner une carte avec l’IA</span>
-                    <span className="text-[10px] px-1.5 py-0.2 font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded">
-                      Instantané
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    Prenez une photo : Gemini extrait et range automatiquement toutes les boissons.
-                  </div>
-                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleCopyPrompt}
+                  className="h-7 text-xs px-2 gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                  title="Copier le prompt dans le presse-papier"
+                >
+                  <Copy className="w-3 h-3" />
+                  <span>Copier prompt</span>
+                </Button>
               </div>
-
-              <Button
-                type="button"
-                onClick={handleTriggerPhotoUpload}
-                disabled={isAnalyzingPhoto}
-                className="btn-primary h-8 text-xs font-semibold px-3 gap-1.5 shrink-0 cursor-pointer shadow-sm"
-              >
-                {isAnalyzingPhoto ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Analyse IA en cours…</span>
-                  </>
-                ) : (
-                  <>
-                    <Camera className="w-3.5 h-3.5" />
-                    <span>Choisir une photo</span>
-                  </>
-                )}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhotoSelected}
-              />
             </div>
           )}
 
-          {/* Zone de texte collé */}
+          {/* 3. Zone de texte collé */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
               <Label htmlFor="bulk-text-input" className="font-semibold text-foreground">
-                Coller votre liste ici
+                Ou collez votre liste directement ci-dessous
               </Label>
               {rawText.length > 0 && (
                 <span className={`text-[11px] ${rawText.length > MAX_PASTE_CHARS ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
@@ -561,7 +574,22 @@ export const BulkAddDrinksModal = ({
               value={rawText}
               onChange={(e) => setRawText(e.target.value)}
               placeholder={`Exemple :\n${allowCategories ? 'BIÈRES AU FÛT\n' : ''}Jupiler 25cl 2,50\nCarlsberg 40cl 4,50\nDuvel — 4,50 €\n...`}
-              rows={5}
+              rows={4}
+              className="w-full rounded-xl border border-input bg-background p-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition resize-y font-mono"
+              aria-label="Zone de texte pour coller la liste de boissons"
+            />
+
+            {!showManualAiFallback && !aiScanError && (
+              <div className="pt-0.5 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowManualAiFallback(true)}
+                  className="text-[11px] text-muted-foreground hover:text-foreground underline cursor-pointer"
+                >
+                  Utiliser une autre IA personnelle (Claude, ChatGPT…) ?
+                </button>
+              </div>
+            )}
               className="w-full rounded-xl border border-input bg-background p-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition resize-y font-mono"
               aria-label="Zone de texte pour coller la liste de boissons"
             />
