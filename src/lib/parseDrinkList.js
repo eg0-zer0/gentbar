@@ -107,19 +107,109 @@ function parseSingleLine(rawLine) {
   };
 }
 
+const CATEGORY_TERMS = [
+  'boissons',
+  'boissons alcoolisees',
+  'boissons sans alcool',
+  'boissons chaudes',
+  'boissons fraiches',
+  'bieres',
+  'bieres pression',
+  'bieres bouteille',
+  'bieres au fut',
+  'vins',
+  'vins au verre',
+  'vins bouteille',
+  'cocktails',
+  'alcools',
+  'spiritueux',
+  'softs',
+  'softs et jus',
+  'jus',
+  'aperitifs',
+  'aperos',
+  'bulles',
+  'champagnes',
+  'snacks',
+  'restauration'
+];
+
 /**
  * Détecte si une ligne correspond à un titre de catégorie :
  * - finit par ':'
- * - OU contient des lettres et est entièrement en majuscules (accents compris).
+ * - OU contient des lettres et est entièrement en majuscules (accents compris)
+ * - OU correspond à une catégorie caractéristique en casse mixte sans volume (ex: Boissons alcoolisées, Nos bières).
  *
  * @param {string} rawLine - Ligne nettoyée
  * @returns {boolean}
  */
-function isCategoryHeaderLine(rawLine) {
+export function isCategoryHeaderLine(rawLine) {
   const cleaned = (rawLine || '').replace(/^[\s*•\-–—·]+\s*/, '').trim();
   if (cleaned.endsWith(':')) return true;
   const hasLetters = /[a-zA-ZÀ-ÖØ-öø-ÿ]/.test(cleaned);
-  return hasLetters && cleaned === cleaned.toUpperCase();
+  if (hasLetters && cleaned === cleaned.toUpperCase()) return true;
+
+  // Détection en casse mixte sans unité de volume (Google Lens / OCR)
+  if (!/(?:cl|ml|dl|l|litres?|°|%)(?![a-zA-Z0-9])/i.test(cleaned)) {
+    const norm = normalizeText(cleaned).replace(/^(?:nos|carte des)\s+/, '');
+    if (CATEGORY_TERMS.some((t) => norm === t || norm.startsWith(t + ' ') || norm.endsWith(' ' + t))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Détecte si une ligne ne contient qu'un prix isolé (ex. 2€, 4,50, 3.00 €, 2,5O).
+ *
+ * @param {string} line - Ligne brute
+ * @returns {boolean}
+ */
+export function isStandalonePriceLine(line) {
+  const cleaned = (line || '').replace(/^[\s*•\-–—·]+\s*/, '').trim();
+  if (!cleaned) return false;
+  // Ne doit pas contenir d'unité de volume ou de degré
+  if (/(?:cl|ml|dl|l|litres?|°|%)(?![a-zA-Z0-9])/i.test(cleaned)) return false;
+  const match = cleaned.match(/^[-–—:\s]*(?:[€$£]\s*)?([0-9]+(?:[.,][0-9O0]{1,2})?)\s*(?:[€$£]|eur|euros?)?$/i);
+  if (!match) return false;
+  const numStr = match[1].replace(/[Oo]/g, '0').replace(',', '.');
+  const val = parseFloat(numStr);
+  return Number.isFinite(val) && val <= 1000;
+}
+
+/**
+ * Pré-traite les lignes brutes pour fusionner automatiquement les prix isolés
+ * placés sur une ligne séparée sous le nom de la boisson (fréquent avec Google Lens).
+ *
+ * @param {string[]} rawLines - Lignes brutes
+ * @param {object} options
+ * @param {boolean} [options.allowCategories=false]
+ * @returns {string[]} Lignes réassemblées
+ */
+export function stitchStandalonePrices(rawLines, { allowCategories = false } = {}) {
+  const nonEmpty = (rawLines || []).map((l) => l.trim()).filter(Boolean);
+  const result = [];
+
+  for (let i = 0; i < nonEmpty.length; i += 1) {
+    const current = nonEmpty[i];
+
+    if (isStandalonePriceLine(current) && result.length > 0) {
+      const prev = result[result.length - 1];
+      const prevParsed = parseSingleLine(prev);
+      const isPrevCat = allowCategories && isCategoryHeaderLine(prev);
+
+      // Si la ligne précédente n'a pas encore de prix et n'est pas un titre de catégorie
+      if (prevParsed.price === null && !isPrevCat) {
+        result[result.length - 1] = prev + ' ' + current;
+        continue;
+      }
+    }
+
+    result.push(current);
+  }
+
+  return result;
 }
 
 /**
@@ -157,8 +247,9 @@ export function parseDrinkList(text, {
     tooLong = true;
   }
 
-  // Fin de lignes Windows (\r\n) et Unix (\n)
-  const lines = processText.split(/\r?\n/);
+  // Fin de lignes Windows (\r\n) et Unix (\n) et fusion des prix isolés (Google Lens / OCR)
+  const rawLines = processText.split(/\r?\n/);
+  const lines = stitchStandalonePrices(rawLines, { allowCategories });
 
   const categories = [];
   let currentCategory = null;

@@ -262,4 +262,48 @@ Assiette Apéro Chaude / Froide 10,00
     expect(snacks.drinks.length).toBe(6);
     expect(snacks.drinks.every((d) => d.status === 'ok')).toBe(true);
   });
+  test('Google Lens / OCR : fusionne automatiquement les prix sur lignes séparées et détecte les catégories en casse mixte', () => {
+    const lensText = `
+Boissons alcoolisées
+
+Bieres pression 25 cl
+
+2€
+
+Spritz
+
+4€
+`;
+    const res = parseDrinkList(lensText, { allowCategories: true });
+    expect(res.categories.length).toBe(1);
+    expect(res.categories[0].name).toBe('Boissons alcoolisées');
+    expect(res.categories[0].drinks.length).toBe(2);
+
+    expect(res.categories[0].drinks[0].name).toBe('Bieres pression 25 cl');
+    expect(res.categories[0].drinks[0].price).toBe(2);
+    expect(res.categories[0].drinks[0].status).toBe('ok');
+
+    expect(res.categories[0].drinks[1].name).toBe('Spritz');
+    expect(res.categories[0].drinks[1].price).toBe(4);
+    expect(res.categories[0].drinks[1].status).toBe('ok');
+
+    expect(res.stats.errorCount).toBe(0);
+    expect(res.stats.totalDrinks).toBe(2);
+  });
+
+  test('Google Lens / OCR en mode mono-catégorie : associe chaque prix à la boisson au-dessus', () => {
+    const text = `
+Jupiler
+2,50 €
+Coca-Cola 33cl
+2.00
+`;
+    const res = parseDrinkList(text, { allowCategories: false });
+    const drinks = res.categories[0].drinks;
+    expect(drinks.length).toBe(2);
+    expect(drinks[0].name).toBe('Jupiler');
+    expect(drinks[0].price).toBe(2.5);
+    expect(drinks[1].name).toBe('Coca-Cola 33cl');
+    expect(drinks[1].price).toBe(2);
+  });
 });
