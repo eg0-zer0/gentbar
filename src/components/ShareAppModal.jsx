@@ -16,20 +16,24 @@ export const ShareAppModal = ({ isOpen, onClose }) => {
       const matrix = generateQrMatrix(APP_SHARE_URL, 'M');
       const svg = buildQrSvgPath(matrix, 3);
       const center = svg.viewBoxSize / 2;
-      // Taille de la pastille du logo : ~19% du QR code (~6.6 modules sur 35)
-      const badgeSize = svg.viewBoxSize * 0.19;
-      const logoSize = badgeSize * 0.85;
+      // Pastille circulaire : ~13.5% du QR code (~4.7 modules sur 35) pour garantir un décodage 100% instantané
+      const badgeDiameter = svg.viewBoxSize * 0.135;
+      const logoDiameter = badgeDiameter * 0.82;
+      const badgeRadius = badgeDiameter / 2;
+      const logoRadius = logoDiameter / 2;
 
       return {
         path: svg.path,
         viewBoxSize: svg.viewBoxSize,
         center,
-        badgeSize,
-        logoSize
+        badgeDiameter,
+        logoDiameter,
+        badgeRadius,
+        logoRadius
       };
     } catch (e) {
       console.warn('Erreur génération QR code app:', e);
-      return { path: '', viewBoxSize: 0, center: 0, badgeSize: 0, logoSize: 0 };
+      return { path: '', viewBoxSize: 0, center: 0, badgeDiameter: 0, logoDiameter: 0, badgeRadius: 0, logoRadius: 0 };
     }
   }, []);
 
@@ -100,31 +104,34 @@ export const ShareAppModal = ({ isOpen, onClose }) => {
                 aria-label="QR code vers gentbar.netlify.app avec logo GentBar"
                 role="img"
               >
+                <defs>
+                  <clipPath id="gentbar-logo-clip">
+                    <circle cx={qrSvg.center} cy={qrSvg.center} r={qrSvg.logoRadius} />
+                  </clipPath>
+                </defs>
+
                 {/* Fond blanc du QR code */}
                 <rect width={qrSvg.viewBoxSize} height={qrSvg.viewBoxSize} fill="white" />
 
                 {/* Modules noirs */}
                 <path d={qrSvg.path} fill="currentColor" />
 
-                {/* Pastille blanche de protection au centre */}
-                <rect
-                  x={qrSvg.center - qrSvg.badgeSize / 2}
-                  y={qrSvg.center - qrSvg.badgeSize / 2}
-                  width={qrSvg.badgeSize}
-                  height={qrSvg.badgeSize}
-                  rx={qrSvg.badgeSize * 0.22}
+                {/* Pastille circulaire blanche de protection au centre */}
+                <circle
+                  cx={qrSvg.center}
+                  cy={qrSvg.center}
+                  r={qrSvg.badgeRadius}
                   fill="white"
-                  stroke="white"
-                  strokeWidth={0.3}
                 />
 
-                {/* Logo GentBar incrusté au centre */}
+                {/* Logo GentBar circulaire au centre */}
                 <image
                   href="/icons/icon-192x192.png"
-                  x={qrSvg.center - qrSvg.logoSize / 2}
-                  y={qrSvg.center - qrSvg.logoSize / 2}
-                  width={qrSvg.logoSize}
-                  height={qrSvg.logoSize}
+                  x={qrSvg.center - qrSvg.logoRadius}
+                  y={qrSvg.center - qrSvg.logoRadius}
+                  width={qrSvg.logoDiameter}
+                  height={qrSvg.logoDiameter}
+                  clipPath="url(#gentbar-logo-clip)"
                   preserveAspectRatio="xMidYMid meet"
                 />
               </svg>

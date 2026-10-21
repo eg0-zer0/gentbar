@@ -59,6 +59,57 @@ describe('QR code de partage d\'application avec logo central', () => {
     expect(code?.data).toBe(APP_URL);
   });
 
+  test('jsQR décode le QR code avec la pastille circulaire et logo sombre au centre de ShareAppModal', () => {
+    const matrix = generateQrMatrix(APP_URL, 'M');
+    const size = matrix.length; // 29
+    const margin = 4;
+    const scale = 12;
+    const totalModules = size + margin * 2;
+    const imgSize = totalModules * scale;
+    const data = new Uint8ClampedArray(imgSize * imgSize * 4);
+    const centerPx = (margin + size / 2) * scale;
+    // Diamètre 4.7 modules (rayon 2.35 modules) et logo 3.8 modules (rayon 1.9 modules)
+    const badgeRadiusPx = 2.35 * scale;
+    const logoRadiusPx = 1.9 * scale;
+
+    for (let y = 0; y < imgSize; y++) {
+      for (let x = 0; x < imgSize; x++) {
+        const idx = (y * imgSize + x) * 4;
+        const dx = x - centerPx;
+        const dy = y - centerPx;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist <= logoRadiusPx) {
+          // Logo GentBar (fond sombre)
+          data[idx] = 15;
+          data[idx + 1] = 23;
+          data[idx + 2] = 42;
+          data[idx + 3] = 255;
+        } else if (dist <= badgeRadiusPx) {
+          // Anneau blanc protecteur
+          data[idx] = 255;
+          data[idx + 1] = 255;
+          data[idx + 2] = 255;
+          data[idx + 3] = 255;
+        } else {
+          const mx = Math.floor(x / scale) - margin;
+          const my = Math.floor(y / scale) - margin;
+          const isBlack =
+            mx >= 0 && mx < size && my >= 0 && my < size && matrix[my][mx];
+          const c = isBlack ? 0 : 255;
+          data[idx] = c;
+          data[idx + 1] = c;
+          data[idx + 2] = c;
+          data[idx + 3] = 255;
+        }
+      }
+    }
+
+    const code = jsQR(data, imgSize, imgSize);
+    expect(code).not.toBeNull();
+    expect(code?.data).toBe(APP_URL);
+  });
+
   test('La constante APP_SHARE_URL pointe vers gentbar.netlify.app', () => {
     expect(APP_URL).toBe('https://gentbar.netlify.app');
   });

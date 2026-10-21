@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `feat-share` · **Prochaine étape** : 9.8 E-11 Ajout en lot (texte collé) · **Dernier commit** : 831d75e
+**Branche de travail** : `feat-share` · **Prochaine étape** : 9.8 E-11 Ajout en lot (texte collé) · **Dernier commit** : 3367ff0
 
 ---
 
