@@ -254,7 +254,7 @@ export const BulkAddDrinksModal = ({
     );
   };
 
-  const handleOpenChatGPT = () => {
+  const handleOpenGemini = () => {
     try {
       if (navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(AI_PROMPT_TEMPLATE);
@@ -262,11 +262,10 @@ export const BulkAddDrinksModal = ({
     } catch {
       // Ignorer si l'accès clipboard échoue
     }
-    toast.success('Prompt copié ! Joignez la photo dans ChatGPT puis collez la réponse ici.', {
-      duration: 5000
+    toast.success('Prompt copié ! Joignez la photo dans Gemini, collez la consigne (Ctrl+V) puis validez.', {
+      duration: 5500
     });
-    const url = `https://chatgpt.com/?q=${encodeURIComponent(AI_PROMPT_TEMPLATE)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open('https://gemini.google.com/app', '_blank', 'noopener,noreferrer');
   };
 
   const handleCopyPrompt = () => {
@@ -407,12 +406,12 @@ export const BulkAddDrinksModal = ({
                 <Button
                   type="button"
                   size="sm"
-                  onClick={handleOpenChatGPT}
+                  onClick={handleOpenGemini}
                   className="h-7 text-[11px] px-2.5 gap-1.5 btn-primary font-semibold cursor-pointer"
-                  title="Ouvrir ChatGPT avec le prompt déjà préparé"
+                  title="Ouvrir Google Gemini avec le prompt copié"
                 >
-                  <Bot className="w-3.5 h-3.5" />
-                  <span>Ouvrir ChatGPT</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Ouvrir Gemini</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-70" />
                 </Button>
               </div>
