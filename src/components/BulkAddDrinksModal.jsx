@@ -27,12 +27,14 @@ import { Label } from './ui/label';
 import { parseDrinkList, guessCategoryIcon, MAX_PASTE_CHARS } from '../lib/parseDrinkList';
 import { LIMITS } from '../lib/barShare';
 
-export const AI_PROMPT_TEMPLATE = `Voici la photo d'une carte de boissons. Rédige uniquement la liste textuelle pour l'importer dans mon application, sans aucun commentaire ni texte d'introduction.
-Format strict :
-- Les catégories en MAJUSCULES (ex: BIÈRES, COCKTAILS, VINS)
-- Chaque boisson sur sa propre ligne avec son nom suivi de son prix (ex: Mojito 10,00 €)
-- Ignore les ingrédients, recettes et descriptions secondaires
-- Pour les doubles tarifs (verre / bouteille), sépare-les par un slash (ex: Whisky 10€ le verre / 50€ la bouteille)`;
+export const AI_PROMPT_TEMPLATE = `Voici la photo d'une carte de boissons. Rédige UNIQUEMENT la liste textuelle brute pour l'importer directement dans mon application de bar.
+RÈGLES STRICTES :
+1. Ne mets AUCUN texte d'introduction, AUCUN commentaire et AUCUNE politesse.
+2. N'utilise PAS de tableau, PAS de puces (pas de tiret ni de bullet) et PAS de gras (**).
+3. Titres de catégories : écris chaque catégorie ENTIÈREMENT EN MAJUSCULES sur sa propre ligne (ex : BIÈRES, COCKTAILS, VINS, SOFTS).
+4. Boissons : une seule boisson par ligne au format : Nom Volume Prix € (ex : Jupiler 25cl 2,50 €).
+5. Ignore totalement les recettes, listes d'ingrédients ou descriptions sous les boissons.
+6. En cas de double tarif (verre / bouteille ou 25cl / 50cl), sépare-les par un slash sur la même ligne (ex : Whisky 10€ le verre / 50€ la bouteille).`;
 
 let nextTempId = 1;
 const getTempId = () => `bulk-item-${Date.now()}-${nextTempId++}`;
@@ -254,7 +256,7 @@ export const BulkAddDrinksModal = ({
     );
   };
 
-  const handleOpenGemini = () => {
+  const handleOpenAI = (target) => {
     try {
       if (navigator?.clipboard?.writeText) {
         navigator.clipboard.writeText(AI_PROMPT_TEMPLATE);
@@ -262,10 +264,25 @@ export const BulkAddDrinksModal = ({
     } catch {
       // Ignorer si l'accès clipboard échoue
     }
-    toast.success('Prompt copié ! Joignez la photo dans Gemini, collez la consigne (Ctrl+V) puis validez.', {
-      duration: 5500
+
+    const labels = {
+      claude: 'Claude',
+      mistral: 'Mistral',
+      chatgpt: 'ChatGPT'
+    };
+
+    const urls = {
+      claude: `https://claude.ai/new?q=${encodeURIComponent(AI_PROMPT_TEMPLATE)}`,
+      mistral: `https://chat.mistral.ai/chat?q=${encodeURIComponent(AI_PROMPT_TEMPLATE)}`,
+      chatgpt: `https://chatgpt.com/?q=${encodeURIComponent(AI_PROMPT_TEMPLATE)}`
+    };
+
+    toast.success(`Prompt copié ! Joignez la photo dans ${labels[target] || 'l’IA'} puis validez.`, {
+      duration: 5000
     });
-    window.open('https://gemini.google.com/app', '_blank', 'noopener,noreferrer');
+
+    const targetUrl = urls[target] || urls.claude;
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleCopyPrompt = () => {
@@ -385,34 +402,64 @@ export const BulkAddDrinksModal = ({
               </div>
             </div>
 
-            {/* Aide IA pour carte complexe */}
-            <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[11px] text-foreground font-medium flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-primary" />
-                Carte complexe ?
-              </span>
-              <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Raccourcis IA pour carte complexe */}
+            <div className="pt-2 border-t border-border/60 space-y-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-[11px] text-foreground font-semibold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  Carte complexe ? Ouvrir une IA avec le prompt pré-rempli :
+                </span>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={handleCopyPrompt}
-                  className="h-7 text-[11px] px-2 gap-1 cursor-pointer bg-background"
-                  title="Copier le prompt pour Gemini, Claude ou une autre IA"
+                  className="h-6 text-[10px] px-2 gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                  title="Copier uniquement le texte du prompt pour une autre application"
                 >
                   <Copy className="w-3 h-3" />
-                  <span>Copier le prompt IA</span>
+                  <span>Copier prompt</span>
                 </Button>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   size="sm"
-                  onClick={handleOpenGemini}
-                  className="h-7 text-[11px] px-2.5 gap-1.5 btn-primary font-semibold cursor-pointer"
-                  title="Ouvrir Google Gemini avec le prompt copié"
+                  variant="outline"
+                  onClick={() => handleOpenAI('claude')}
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
+                  title="Ouvrir Claude avec le prompt pré-rempli (recommandé pour les photos)"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Ouvrir Gemini</span>
-                  <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                  <span className="text-amber-600 dark:text-amber-400 font-bold">●</span>
+                  <span>Claude</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                </Button>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleOpenAI('mistral')}
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
+                  title="Ouvrir Mistral Le Chat avec le prompt pré-rempli"
+                >
+                  <span className="text-orange-500 font-bold">●</span>
+                  <span>Mistral</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                </Button>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleOpenAI('chatgpt')}
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
+                  title="Ouvrir ChatGPT avec le prompt pré-rempli"
+                >
+                  <span className="text-emerald-500 font-bold">●</span>
+                  <span>ChatGPT</span>
+                  <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                 </Button>
               </div>
             </div>
