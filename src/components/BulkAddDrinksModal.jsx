@@ -60,7 +60,6 @@ export const BulkAddDrinksModal = ({
   const fileInputRef = useRef(null);
   const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
   const [aiScanError, setAiScanError] = useState(null);
-  const [showManualAiFallback, setShowManualAiFallback] = useState(false);
 
   const handleTriggerPhotoUpload = () => {
     if (fileInputRef.current) {
@@ -85,7 +84,6 @@ export const BulkAddDrinksModal = ({
       console.error('Erreur scan photo:', err);
       const msg = err.message || 'Échec de l’analyse de la photo.';
       setAiScanError(msg);
-      setShowManualAiFallback(true);
       toast.error(msg, { id: toastId });
     } finally {
       setIsAnalyzingPhoto(false);
@@ -475,29 +473,22 @@ export const BulkAddDrinksModal = ({
             />
           </div>
 
-          {/* 2. Repli en cas d'erreur ou d'épuisement de quota : message et liens vers IAs personnelles */}
-          {(showManualAiFallback || aiScanError) && (
+          {/* 2. Repli EXCLUSIF en cas d'erreur ou d'épuisement de quota Gemini */}
+          {aiScanError && (
             <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs space-y-2">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-start gap-2 text-amber-700 dark:text-amber-300 font-medium">
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
-                    {aiScanError ? (
-                      <span>L'analyse directe a rencontré un souci ({aiScanError}). Vous pouvez utiliser votre IA habituelle :</span>
-                    ) : (
-                      <span>Utiliser une IA personnelle où vous avez déjà un compte :</span>
-                    )}
+                    <span>L'analyse directe a rencontré un souci ({aiScanError}). Vous pouvez utiliser votre IA habituelle :</span>
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowManualAiFallback(false);
-                    setAiScanError(null);
-                  }}
+                  onClick={() => setAiScanError(null)}
                   className="text-[11px] text-muted-foreground hover:text-foreground shrink-0 cursor-pointer underline"
                 >
-                  Masquer
+                  Fermer
                 </button>
               </div>
 
@@ -579,20 +570,13 @@ export const BulkAddDrinksModal = ({
               aria-label="Zone de texte pour coller la liste de boissons"
             />
 
-            {!showManualAiFallback && !aiScanError && (
-              <div className="pt-0.5 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowManualAiFallback(true)}
-                  className="text-[11px] text-muted-foreground hover:text-foreground underline cursor-pointer"
-                >
-                  Utiliser une autre IA personnelle (Claude, ChatGPT…) ?
-                </button>
-              </div>
-            )}
-
             {rawText.length > MAX_PASTE_CHARS && (
               <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                <AlertCircle className="w-3.5 h-3.5" />
+                Texte très long : seuls les 50 000 premiers caractères sont analysés.
+              </p>
+            )}
+          </div>
                 <AlertCircle className="w-3.5 h-3.5" />
                 Texte très long : seuls les 50 000 premiers caractères sont analysés.
               </p>
