@@ -40,6 +40,7 @@ export const BulkAddDrinksModal = ({
   const [splitSlashes, setSplitSlashes] = useState(false);
   const [parsedCategories, setParsedCategories] = useState([]);
   const [isDebouncing, setIsDebouncing] = useState(false);
+  const existingNamesKey = Array.isArray(existingNames) ? existingNames.join(';;;') : '';
   const debounceTimerRef = useRef(null);
 
   // Réinitialisation à l'ouverture de la modale
@@ -98,7 +99,7 @@ export const BulkAddDrinksModal = ({
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [rawText, splitSlashes, allowCategories, existingNames, isOpen]);
+  }, [rawText, splitSlashes, allowCategories, existingNamesKey, isOpen]);
 
   // Statistiques calculées à partir de l'état d'aperçu modifiable
   const stats = useMemo(() => {

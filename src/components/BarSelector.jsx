@@ -90,7 +90,7 @@ export const AddBarModal = ({
         setIcon('🍺');
       }
     }
-  }, [isOpen, initialMode, initialSourceBarId, activeMenuId, menus]);
+  }, [isOpen]);
 
   const handleSelectCopyStep = () => {
     const defaultSourceId = activeMenuId || menus[0]?.id || '';
@@ -152,7 +152,8 @@ export const AddBarModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <>
+      <Dialog open={isOpen && !showBulkModal} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="bg-card text-foreground w-[92vw] max-w-md mx-auto rounded-lg p-5 sm:p-6 border border-border shadow-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-foreground">
@@ -412,6 +413,9 @@ export const AddBarModal = ({
           </form>
         )}
       </DialogContent>
+    </Dialog>
+
+    {showBulkModal && (
       <BulkAddDrinksModal
         isOpen={showBulkModal}
         onClose={() => setShowBulkModal(false)}
@@ -420,6 +424,8 @@ export const AddBarModal = ({
         currentCategoriesCount={0}
         currentDrinksCount={0}
         onConfirm={({ categories: parsedCats }) => {
+          setShowBulkModal(false);
+          onClose();
           if (onCreateFromCategories) {
             onCreateFromCategories({
               name: pendingBarMeta.name,
@@ -427,11 +433,10 @@ export const AddBarModal = ({
               parsedCategories: parsedCats
             });
           }
-          setShowBulkModal(false);
-          onClose();
         }}
       />
-    </Dialog>
+    )}
+  </>
   );
 };
 
@@ -716,9 +721,18 @@ const BarSelector = ({
         onClose={() => setShowAddModal(false)}
         menus={menus}
         activeMenuId={activeMenuId}
-        onCreateEmpty={onCreateEmptyBar}
-        onDuplicateBar={onDuplicateBar}
-        onCreateFromCategories={onCreateFromCategories}
+        onCreateEmpty={(params) => {
+          if (onCreateEmptyBar) onCreateEmptyBar(params);
+          onClose();
+        }}
+        onDuplicateBar={(srcId, params) => {
+          if (onDuplicateBar) onDuplicateBar(srcId, params);
+          onClose();
+        }}
+        onCreateFromCategories={(params) => {
+          if (onCreateFromCategories) onCreateFromCategories(params);
+          onClose();
+        }}
       />
     </>
   );
