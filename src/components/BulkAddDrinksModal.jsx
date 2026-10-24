@@ -9,8 +9,6 @@ import {
   FolderPlus,
   Camera,
   ImageIcon,
-  KeyRound,
-  X,
   AlertCircle,
   Bot,
   Copy,
@@ -30,7 +28,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { parseDrinkList, guessCategoryIcon, MAX_PASTE_CHARS } from '../lib/parseDrinkList';
 import { LIMITS } from '../lib/barShare';
-import { analyzeMenuPhotoWithGemini, getGeminiApiKey, saveGeminiApiKey } from '../lib/geminiVision';
+import { analyzeMenuPhotoWithGemini } from '../lib/geminiVision';
 
 export const AI_PROMPT_TEMPLATE = `Voici la photo d'une carte de boissons. Rédige UNIQUEMENT la liste textuelle brute pour l'importer directement dans mon application de bar.
 RÈGLES STRICTES :
@@ -65,10 +63,6 @@ export const BulkAddDrinksModal = ({
   const galleryInputRef = useRef(null);
   const [isAnalyzingPhoto, setIsAnalyzingPhoto] = useState(false);
   const [aiScanError, setAiScanError] = useState(null);
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [pendingAction, setPendingAction] = useState(null);
-
   const handleTriggerCamera = () => {
     if (cameraInputRef.current) {
       cameraInputRef.current.value = '';
@@ -81,26 +75,6 @@ export const BulkAddDrinksModal = ({
       galleryInputRef.current.value = '';
       galleryInputRef.current.click();
     }
-  };
-
-  const handleSaveApiKey = () => {
-    const trimmed = apiKeyInput.trim();
-    if (!trimmed) {
-      toast.error('Veuillez saisir une clé API valide.');
-      return;
-    }
-    saveGeminiApiKey(trimmed);
-    setShowApiKeyModal(false);
-    toast.success('Clé API Gemini enregistrée sur cet appareil !');
-
-    if (pendingAction === 'camera' && cameraInputRef.current) {
-      cameraInputRef.current.value = '';
-      cameraInputRef.current.click();
-    } else if (pendingAction === 'gallery' && galleryInputRef.current) {
-      galleryInputRef.current.value = '';
-      galleryInputRef.current.click();
-    }
-    setPendingAction(null);
   };
 
   const handlePhotoSelected = async (e) => {
@@ -514,20 +488,6 @@ export const BulkAddDrinksModal = ({
                     <span>Galerie</span>
                   </Button>
 
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setPendingAction(null);
-                      setApiKeyInput(getGeminiApiKey());
-                      setShowApiKeyModal((prev) => !prev);
-                    }}
-                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
-                    title="Configurer ou modifier la clé API Gemini"
-                  >
-                    <KeyRound className="w-3.5 h-3.5" />
-                  </Button>
                 </>
               )}
             </div>
@@ -547,73 +507,6 @@ export const BulkAddDrinksModal = ({
               onChange={handlePhotoSelected}
             />
           </div>
-
-          {/* Configuration directe de la clé API Gemini sur cet appareil */}
-          {showApiKeyModal && (
-            <div className="p-3 bg-card border border-primary/40 rounded-xl space-y-2.5 shadow-md">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                  <KeyRound className="w-4 h-4 text-primary" />
-                  <span>Clé API Google Gemini</span>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowApiKeyModal(false)}
-                  className="h-6 w-6 p-0 text-muted-foreground cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </Button>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                Pour analyser directement vos photos avec l’IA, saisissez votre clé d’API Google AI Studio (gratuite). Elle sera mémorisée sur cet appareil.
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  type="password"
-                  value={apiKeyInput}
-                  onChange={(e) => setApiKeyInput(e.target.value)}
-                  placeholder="Collez votre clé API (ex : AIzaSy... ou AQ...)"
-                  className="text-xs h-8 flex-1"
-                  autoFocus
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={handleSaveApiKey}
-                  disabled={!apiKeyInput.trim()}
-                  className="btn-primary h-8 text-xs px-3 font-semibold shrink-0 cursor-pointer"
-                >
-                  Enregistrer
-                </Button>
-              </div>
-              <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-0.5">
-                <a
-                  href="https://aistudio.google.com/app/apikey"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline flex items-center gap-1"
-                >
-                  <span>Créer une clé gratuite sur Google AI Studio</span>
-                  <ExternalLink className="w-2.5 h-2.5" />
-                </a>
-                {getGeminiApiKey() && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      saveGeminiApiKey('');
-                      setApiKeyInput('');
-                      toast.info('Clé API effacée de cet appareil');
-                    }}
-                    className="text-destructive hover:underline cursor-pointer"
-                  >
-                    Effacer la clé
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* 2. Repli EXCLUSIF en cas d'erreur ou d'épuisement de quota Gemini */}
           {aiScanError && (

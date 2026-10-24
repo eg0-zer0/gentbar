@@ -3,27 +3,7 @@
  */
 
 export function getGeminiApiKey() {
-  const envKey = (process.env.REACT_APP_GEMINI_API_KEY || '').trim();
-  if (envKey) return envKey;
-  try {
-    const localKey = (localStorage.getItem('gemini_api_key') || '').trim();
-    if (localKey) return localKey;
-  } catch (e) {
-    // ignore
-  }
-  return '';
-}
-
-export function saveGeminiApiKey(key) {
-  try {
-    if (key && key.trim()) {
-      localStorage.setItem('gemini_api_key', key.trim());
-    } else {
-      localStorage.removeItem('gemini_api_key');
-    }
-  } catch (e) {
-    // ignore
-  }
+  return (process.env.REACT_APP_GEMINI_API_KEY || '').trim();
 }
 
 export const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY || '';
