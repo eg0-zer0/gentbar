@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { usePWA } from '../hooks/usePWA';
 
-import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, Store, ChevronDown, QrCode } from 'lucide-react';
+import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Beer, Clover, Home, Store, ChevronDown, QrCode } from 'lucide-react';
 
 import { Button } from './ui/button';
 
@@ -60,13 +60,13 @@ const Header = ({
   const renderNextThemeIcon = () => {
     switch (nextTheme) {
       case 'light':
-        return <Sun className={iconClassName} aria-label="Mode Clair" />;
+        return <Sun className={iconClassName} aria-label="Thème Clair" />;
       case 'gentbar':
-        return <Layout className={iconClassName} aria-label="Mode GentBar" />;
+        return <Beer className={iconClassName} aria-label="Thème GentBar" />;
       case 'green':
-        return <Layout className={iconClassName} aria-label="Mode Green" />;
+        return <Clover className={iconClassName} aria-label="Thème Green" />;
       case 'dark':
-        return <Moon className={iconClassName} aria-label="Mode Sombre" />;
+        return <Moon className={iconClassName} aria-label="Thème Sombre" />;
       default:
         return null;
     }
@@ -148,7 +148,7 @@ const Header = ({
               >
                 {renderNextThemeIcon()}
                 <span>
-                  Mode {THEME_LABELS[nextTheme] || 'Clair'}
+                  Thème : {THEME_LABELS[nextTheme] || 'Clair'}
                 </span>
               </DropdownMenuItem>
               <DropdownMenuItem
