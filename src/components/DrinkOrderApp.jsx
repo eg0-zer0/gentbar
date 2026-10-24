@@ -217,20 +217,35 @@ const DrinkOrderApp = () => {
 
   // === RENDER ===
   return (
-    <div className="min-h-screen w-full overflow-x-clip bg-background text-foreground transition-colors duration-300">
-      <div className={`container mx-auto px-3 sm:px-4 pt-2 sm:pt-4 pb-8 max-w-7xl content-container ${!showConfirmModal ? 'pb-20' : ''}`}>
-        <Header
-          soundEnabled={soundEnabled}
-          onToggleSound={() => setSoundEnabled(s => !s)}
-          viewMode={viewMode}
-          onChangeViewMode={setViewMode}
-          onShowHistory={() => setShowHistory(true)}
-          activeBarName={activeMenu?.name || 'Club de hockey'}
-          activeBarIcon={activeMenu?.icon || '🏒'}
-          barsCount={Array.isArray(menus) ? menus.length : 1}
-          onOpenBarSelector={() => setShowBarSelector(true)}
-        />
+    <div className="min-h-screen w-full bg-background text-foreground transition-colors duration-300">
+      {/* HEADER FIXE / STICKY GLOBAL : Choix de la carte, Burger menu, Recherche et Tri */}
+      <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur-md border-b border-border/40 shadow-xs">
+        <div className="container mx-auto px-3 sm:px-4 pt-2 sm:pt-3 pb-2.5 max-w-7xl">
+          <Header
+            soundEnabled={soundEnabled}
+            onToggleSound={() => setSoundEnabled(s => !s)}
+            viewMode={viewMode}
+            onChangeViewMode={setViewMode}
+            onShowHistory={() => setShowHistory(true)}
+            activeBarName={activeMenu?.name || 'Club de hockey'}
+            activeBarIcon={activeMenu?.icon || '🏒'}
+            barsCount={Array.isArray(menus) ? menus.length : 1}
+            onOpenBarSelector={() => setShowBarSelector(true)}
+          />
 
+          <div className="flex items-center gap-2 mt-2 sm:mt-2.5">
+            <MenuSearch
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+              className="flex-1"
+            />
+            <SortControls sortBy={sortBy} setSortBy={setSortBy} />
+          </div>
+        </div>
+      </header>
+
+      <div className={`container mx-auto px-3 sm:px-4 pt-3 sm:pt-4 pb-8 max-w-7xl content-container ${!showConfirmModal ? 'pb-20' : ''}`}>
         <BarSelector
           isOpen={showBarSelector}
           onClose={() => setShowBarSelector(false)}
@@ -255,16 +270,6 @@ const DrinkOrderApp = () => {
           cartItemsCount={totalItems}
           onClearCart={clearCart}
         />
-
-        <div className="flex items-center gap-2 mb-5">
-          <MenuSearch
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onClear={() => setSearchQuery('')}
-            className="flex-1"
-          />
-          <SortControls sortBy={sortBy} setSortBy={setSortBy} />
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
