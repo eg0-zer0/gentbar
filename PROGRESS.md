@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : Étape suivante sur demande · **Dernier commit** : b9221ca
+**Branche de travail** : `roadmap` · **Prochaine étape** : Étape suivante sur demande · **Dernier commit** : 732715b
 
 ---
 
@@ -87,7 +87,7 @@
 - [x] 9.7e Partage et réception (lien, QR, fichier)
 - [x] 9.7f Commande sur deux bars
 - [x] 9.8b Chargement à la demande (scanner QR, jsqr, routes /bars et /recevoir, bundle < 165 kB)
-- [ ] 9.8 E-11 Ajout en lot (texte collé)
+- [x] 9.8 E-11 Ajout en lot (texte collé)
 - [ ] 9.9a Socle Soirée (centimes, arrondis, contexte, données)
 - [ ] 9.9b Parcours Soirée sans cagnotte
 - [ ] 9.9c Cagnotte
@@ -95,7 +95,7 @@
 - [ ] 9.10 Récapitulatif classique (sélection de tickets) — optionnel
 
 ## Étape 10 — Nettoyage et tests finaux de l'application
-- [ ] 10.1 Unification et simplification absolue des thèmes (zéro logique de thème dans les composants, source unique index.css via variables HSL, suppression du doublon RGB de App.css, suppression des préfixes dark: en dur)
+- [x] 10.1 Unification et simplification absolue des thèmes (zéro logique de thème dans les composants, source unique index.css via variables HSL, suppression du doublon RGB de App.css, suppression des préfixes dark: en dur, 4 thèmes Stitch : Clair, GentBar, Green, Sombre)
 - [ ] 10.2 Audit final Lighthouse & PWA (build de production, mesure performance réelle >90/100, accessibilité, PWA hors-ligne)
 
 ---
@@ -135,8 +135,23 @@
   3) Ergonomie mobile et repli IA (`src/components/BulkAddDrinksModal.jsx`) : double bouton dédié pour « Prendre photo » (déclencheur caméra natif direct via `capture="environment"`) et « Galerie » (sélection de fichiers/photos), interface épurée sans encombrement, boutons d'assistance IA personnelle (Claude, Mistral, ChatGPT) affichés uniquement en cas de repli conditionnel, bouton « Supprimer toutes les erreurs » en un clic, et édition inline des lignes analysées.
   4) Validation : 65 tests unitaires Jest au vert (`65 passed`), compilation de production sans avertissement et validation directe en production sur smartphone.
 * 21/10/2026 — Étape 9.8b terminée (branche `roadmap`) : chargement à la demande (code splitting) de tout ce qui ne sert qu'au partage et à la réception de cartes. 1) Scanner QR et jsqr : import dynamique de `QrScannerModal` au clic utilisateur sur « Scanner un QR code » avec état visuel de chargement (`isScannerLoading`, spinner et libellé « Chargement du scanner… »), et import dynamique asynchrone de `jsqr` (`loadJsQR`) évitant d'inclure la bibliothèque dans le bundle principal. 2) Routes secondaires : `/bars` (`MyBarsScreen`) et `/recevoir` (`ReceiveBarPage`) chargées via `React.lazy` + `Suspense` avec écran d'attente sobre (`PageFallback`, icône 🍹, mention « Chargement… » animée). 3) Modale de partage d'application (`ShareAppModal`) chargée en lazy dans `Header.jsx` et `LandingPage.jsx` pour externaliser `qrcode.js`. 4) Vérification Service Worker : les chunks générés sont intégralement détectés et pré-cachés par Workbox (19 URLs au total, 1.14 MB), garantissant le fonctionnement hors ligne complet de tous les écrans. 5) Mesure bundle JS principal : réduction de 221.51 kB à 163.50 kB compressés (-58.01 kB, -26.2%), atteignant l'objectif strict < 165 kB. Tous les tests Jest passent (40/40 passed).
+* 24/10/2026 — Étape 10.1 terminée et déployée en production (branche `Stitch_theme`, fusionnée dans `roadmap` et `main`) : unification et simplification absolue des thèmes + alignement complet sur le Design System Stitch :
+  1) **Suppression de `src/App.css` et assainissement sémantique total** : retrait définitif du fichier `src/App.css` (ancien doublon RGB) et éradication de toutes les couleurs codées en dur (`#...`, `rgba(...)`, classes `dark:...`) dans les composants JSX (`src/components/`). Tous les composants reposent désormais exclusivement sur les jetons HSL sémantiques de `src/index.css` (`--background`, `--card`, `--popover`, `--secondary`, `--muted`, `--foreground`, `--muted-foreground`, `--primary`, `--accent`, `--border`, `--input`, `--ring`, `--price`, `--warning`), rendant les composants 100 % agnostiques au thème actif.
+  2) **Déclaration des 4 thèmes Stitch dans `src/index.css` et rotation dans `ThemeContext.jsx`** :
+     - **Clair** (`html.gentbar-light` / `data-theme="light"`) : fond crème doux, cartes blanches épurées, textes anthracite haute lisibilité, accents magenta / rose punch.
+     - **GentBar** (`:root` / `html.gentbar` / `data-theme="gentbar"`) : charte signature *Velvet Arena* (fond prune nocturne profond, cartes velours, accents magenta électrique et prix ambre/or).
+     - **Green** (`html.gentbar-green` / `data-theme="green"`) : thème *Green Turf* (fond gazon nocturne très sombre, tuiles vert émeraude, accents orange vif balle de match et prix or éclatant).
+     - **Sombre** (`html.gentbar-dark` / `html.dark` / `data-theme="dark"`) : thème *Obsidienne & Or* (fond carbone fumé profond, cartes anthracite, bordures bronze discret et accents ambre/or).
+  3) **Menu burger et transition douce** : dans `Header.jsx`, affichage explicite `Thème : [Nom du thème]` avec icônes dédiées (`Sun` pour Clair, `Beer` pour GentBar, `Clover` pour Green, `Moon` pour Sombre). Ajout dans `@layer base` de `src/index.css` d'une transition en fondu doux (`background-color 0.3s ease, border-color 0.3s ease, color 0.25s ease`), automatiquement neutralisée par `@media (prefers-reduced-motion: reduce)`.
+  4) **Centralisation des boutons d'action positive (Option B — `.btn-primary`)** : création de la classe utilitaire maîtresse `.btn-primary` (`@apply bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold transition-all hover:opacity-95 active:scale-[0.98]`) dans `@layer components` de `src/index.css` et harmonisation de tous les boutons de validation / confirmation (`OrderSummary`, `ConfirmOrderModal`, `EditDrinkModal`, `EditCategoryModal`, `BulkAddDrinksModal`, `TicketView`, `BarSelector`, `MyBarsScreen`, `ReceiveBarPage`, `ShareBarModal`, `ShareAppModal`).
+  5) **Finition des modales et audit du code mort** : retrait des croix de fermeture redondantes (modale « Commande confirmée ! »), ajout de marges latérales responsives (`w-[calc(100vw-2rem)]`) pour éviter que les modales ne touchent les bords de l'écran sur mobile, et nettoyage complet des imports inutilisés et props dormantes (`0 erreur, 0 warning` ESLint sur `src/`, `65/65` tests unitaires Jest au vert, `yarn build` validé).
 
 ## Écarts et décisions en cours
+* Choix design et thèmes de l'Étape 10.1 (24/10/2026) :
+  - **Rotation à 4 thèmes** : `Clair` (`light`) → `GentBar` (`gentbar`, thème par défaut) → `Green` (`green`, Green Turf) → `Sombre` (`dark`, Obsidienne & Or), avec persistance dans `localStorage` et synchronisation de `<meta name="theme-color">`.
+  - **Boutons d'action positive (Option B)** : adoption d'un dégradé unifié `from-primary to-accent` centralisé dans `.btn-primary` (`src/index.css`) pour tous les boutons de validation et d'action positive, tandis que les actions secondaires conservent `bg-secondary` et les actions destructives `bg-destructive`.
+  - **Transition de thème (Solution 1 CSS)** : transition fluide CSS sur `background-color`, `border-color` et `color` dans `@layer base`, sans surcharge JS ni modification des composants React.
+  - **Épuration des modales** : suppression des croix de fermeture redondantes lorsqu'un bouton explicite (« Retour au menu », « Annuler ») est déjà présent, et maintien d'une marge minimale (`1rem` de chaque côté) sur mobile.
 * QR code de partage de l'application (21/10/2026) : sur demande explicite du propriétaire avant le passage à l'étape 9.8, création d'un système de partage universel de l'URL de l'application via QR code personnalisé intégrant l'icône officielle du manifest et respectant la charte graphique GentBar sans aucune bibliothèque tierce supplémentaire pour la génération du QR code.
 * Dépendance `jsqr` autorisée (Étape 9.7e) : sur accord explicite du propriétaire, installation de la bibliothèque légère `jsqr` (1.4.0, ~30 kB, zéro sous-dépendance) pour assurer 100% de compatibilité de décodage QR (flux caméra et photos) sur tous les navigateurs y compris Firefox mobile et anciens Safari sans `BarcodeDetector`.
 * Étape 8 avancée à la demande explicite du propriétaire avant les étapes 5 à 7.
@@ -190,6 +205,10 @@
   - Dans le menu burger ☰ (/app), cliquer sur « Partager l'application » : vérifier que la même modale s'ouvre.
   - Scanner le QR code avec un smartphone : vérifier que le scan est instantané et ouvre bien https://gentbar.netlify.app.
   - Tester le bouton « Copier » (toast de confirmation et presse-papier contenant https://gentbar.netlify.app) et le bouton « Partager » (partage natif du smartphone).
+* Thèmes unifiés Stitch et harmonisation UI (10.1) :
+  - Rotation des 4 thèmes depuis le menu burger ☰ (`Thème : Clair` ☀️ → `Thème : GentBar` 🍺 → `Thème : Green` 🍀 → `Thème : Sombre` 🌙) : vérifier le rendu visuel, la transition douce et la persistance après rechargement.
+  - Harmonisation `.btn-primary` : vérifier que tous les boutons de validation (« Voir X articles », « Valider la commande », « Voir le ticket », « Ajouter / Enregistrer », « Créer la carte ») suivent dynamiquement le dégradé `from-primary to-accent` du thème actif.
+  - Modale « Commande confirmée ! » : vérifier l'absence de la croix en haut à droite et la présence des marges latérales sur l'écran mobile.
 
 
 
