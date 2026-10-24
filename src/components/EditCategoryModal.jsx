@@ -60,7 +60,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-[92vw] max-w-[360px] bg-[#0e1b35] border border-[#23355b] rounded-3xl shadow-2xl shadow-black/80 p-5 text-slate-100 focus:outline-none [&>button.absolute]:hidden">
+        <DialogContent className="w-[92vw] max-w-[360px] bg-card border border-border rounded-3xl shadow-2xl p-5 text-card-foreground focus:outline-none [&>button.absolute]:hidden">
           {/* Bouton de fermeture 'x' en haut à droite Stitch */}
           <button
             type="button"
@@ -69,17 +69,17 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
               setShowDeleteConfirm(false);
             }}
             aria-label="Fermer"
-            className="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5 cursor-pointer"
+            className="absolute top-5 right-5 text-muted-foreground hover:text-card-foreground transition-colors p-1 rounded-lg hover:bg-secondary/50 cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[2.5]" />
           </button>
 
           {/* En-tête centré Stitch */}
           <header className="mb-5 text-center">
-            <DialogTitle className="text-lg font-bold text-white tracking-wide">
+            <DialogTitle className="text-lg font-bold text-card-foreground tracking-wide">
               {isEditMode ? 'Modifier la catégorie' : 'Ajouter une catégorie'}
             </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+            <DialogDescription className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
               {isEditMode
                 ? 'Modifiez le nom et l’icône de la catégorie.'
                 : 'Saisissez les informations de la nouvelle catégorie.'}
@@ -89,7 +89,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Champ 1 : Nom de la catégorie */}
             <div className="text-left">
-              <label htmlFor="category-name" className="block text-xs font-semibold text-white mb-2">
+              <label htmlFor="category-name" className="block text-xs font-semibold text-card-foreground mb-2">
                 Nom de la catégorie
               </label>
               <input
@@ -101,7 +101,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 onBlur={() => setFormData(prev => ({ ...prev, name: prev.name.trim() }))}
                 placeholder="Ex: Bières au fût"
                 required
-                className="w-full bg-[#07132b] border border-[#23355b] rounded-xl px-3.5 py-2.5 text-sm text-slate-300 font-medium placeholder-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-colors"
+                className="w-full bg-background border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground font-medium placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
               />
             </div>
 
@@ -109,11 +109,11 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
             <div className="pt-1 text-left">
               {/* Label & Aperçu de l'icône active alignés */}
               <div className="flex items-center justify-between mb-3">
-                <label className="text-xs font-semibold text-white">
+                <label className="text-xs font-semibold text-card-foreground">
                   Icône (emoji)
                 </label>
                 <div 
-                  className="w-12 h-10 bg-[#07132b] border border-[#23355b] rounded-xl flex items-center justify-center text-lg shadow-inner"
+                  className="w-12 h-10 bg-background border border-border rounded-xl flex items-center justify-center text-lg shadow-inner"
                   title="Icône actuelle"
                 >
                   {formData.icon}
@@ -137,8 +137,8 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                       onClick={() => setFormData((prev) => ({ ...prev, icon: emoji }))}
                       className={`h-10 w-full flex items-center justify-center text-base rounded-xl transition-all active:scale-95 cursor-pointer focus:outline-none ${
                         isSelected
-                          ? 'border-2 border-rose-600 bg-rose-600/15 shadow-sm'
-                          : 'bg-[#07132b] border border-[#23355b]/60 hover:border-[#344d7e] hover:bg-[#0c1d3d] text-slate-300'
+                          ? 'border-2 border-primary bg-primary/15 shadow-sm'
+                          : 'bg-background border border-border/60 hover:border-border hover:bg-secondary/60 text-foreground'
                       }`}
                       aria-label={`Choisir l'icône ${emoji}`}
                     >
@@ -159,13 +159,13 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                     onClose();
                     setShowDeleteConfirm(false);
                   }}
-                  className="w-full py-2.5 px-3 bg-[#132244] hover:bg-[#1a2e5c] text-white text-xs font-semibold rounded-xl border border-[#23355b] transition-all active:scale-[0.98] cursor-pointer focus:outline-none"
+                  className="w-full py-2.5 px-3 bg-secondary hover:bg-secondary/80 text-secondary-foreground text-xs font-semibold rounded-xl border border-border transition-all active:scale-[0.98] cursor-pointer focus:outline-none"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-3 bg-[#e11d48] hover:bg-[#be123c] text-white text-xs font-bold rounded-xl shadow-md shadow-rose-900/40 transition-all active:scale-[0.98] cursor-pointer border-0 focus:outline-none"
+                  className="w-full py-2.5 px-3 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer border-0 focus:outline-none"
                 >
                   {isEditMode ? 'Modifier' : 'Ajouter'}
                 </button>
@@ -176,7 +176,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="w-full py-3 px-4 bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs font-bold rounded-xl shadow-md shadow-red-950/40 transition-all active:scale-[0.98] cursor-pointer border-0 focus:outline-none"
+                  className="w-full py-3 px-4 bg-destructive hover:bg-destructive/90 text-destructive-foreground text-xs font-bold rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer border-0 focus:outline-none"
                 >
                   Supprimer la catégorie
                 </button>

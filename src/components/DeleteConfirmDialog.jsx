@@ -36,19 +36,19 @@ const DeleteConfirmDialog = ({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className="w-[92vw] max-w-[380px] bg-[#0e1b35] text-white rounded-2xl border border-[#23355b] p-6 shadow-2xl focus:outline-none">
+      <AlertDialogContent className="w-[92vw] max-w-[380px] bg-card text-card-foreground rounded-2xl border border-border p-6 shadow-2xl focus:outline-none">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-white text-lg font-bold">
+          <AlertDialogTitle className="text-card-foreground text-lg font-bold">
             {dialogTitle}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-slate-400 text-sm mt-2 leading-relaxed">
+          <AlertDialogDescription className="text-muted-foreground text-sm mt-2 leading-relaxed">
             {dialogDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mt-6 flex items-center justify-end gap-3">
           <AlertDialogCancel asChild>
             <button 
-              className="h-10 px-4 bg-[#152547] hover:bg-[#1a2d54] text-slate-200 hover:text-white font-semibold text-xs rounded-xl border border-[#23355b] transition-colors cursor-pointer" 
+              className="h-10 px-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:text-card-foreground font-semibold text-xs rounded-xl border border-border transition-colors cursor-pointer" 
               type="button"
             >
               {cancelText}
@@ -56,7 +56,7 @@ const DeleteConfirmDialog = ({
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <button
-              className="h-10 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-950/20 transition-colors cursor-pointer border-0"
+              className="h-10 px-4 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer border-0"
               type="button"
               onClick={onConfirm}
             >

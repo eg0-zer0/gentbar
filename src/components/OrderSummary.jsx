@@ -53,18 +53,18 @@ const OrderSummary = ({
       <div className="floating-cart flex justify-center items-center w-full pointer-events-none">
         <button
           type="button"
-          className="pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-4 sm:px-5 rounded-2xl bg-[#e4007c] hover:bg-[#d0006f] text-white shadow-[0_12px_28px_rgba(228,0,124,0.38)] transition-all cursor-pointer select-none active:scale-[0.98]"
+          className="pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-4 sm:px-5 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all cursor-pointer select-none active:scale-[0.98]"
           onClick={onConfirmOrder}
           aria-label={`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
         >
           <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            {/* Icône du sac avec pastille multi-bars en exposant (Option 3) */}
+            {/* Icône du sac avec pastille multi-bars en exposant */}
             <div className="relative shrink-0 flex items-center justify-center">
               <span className="text-xl select-none">🛍️</span>
               {grouped.isMultiBar && (
                 <span
                   title={`${grouped.barsCount} bars dans la commande`}
-                  className="absolute -top-1.5 -right-2 min-w-[18px] h-4.5 px-1 rounded-full bg-black/40 text-white font-bold text-[10px] leading-none flex items-center justify-center border border-white/30 shadow-xs"
+                  className="absolute -top-1.5 -right-2 min-w-[18px] h-4.5 px-1 rounded-full bg-background/40 text-primary-foreground font-bold text-[10px] leading-none flex items-center justify-center border border-primary-foreground/30 shadow-xs"
                 >
                   {grouped.barsCount}
                 </span>
@@ -75,7 +75,7 @@ const OrderSummary = ({
             </span>
           </div>
           <div className="shrink-0 ml-2.5 sm:ml-3">
-            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-black/25 text-white font-bold text-sm tracking-tight">
+            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-background/25 text-primary-foreground font-bold text-sm tracking-tight">
               {formatPrice(totalAmount)}
             </span>
           </div>
@@ -100,7 +100,7 @@ const OrderSummary = ({
   }
 
   return (
-    <Card className="bg-card border border-border-color flex flex-col max-w-full">
+    <Card className="bg-card border border-border flex flex-col max-w-full">
       {/* HEADER */}
       <CardHeader>
         <CardTitle className="text-foreground flex items-center justify-between">
@@ -143,7 +143,7 @@ const OrderSummary = ({
                         <span className="text-[10px] text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">supprimé</span>
                       )}
                     </span>
-                    <span className="text-primary font-bold">{formatPrice(group.subtotal)}</span>
+                    <span className="text-price font-bold">{formatPrice(group.subtotal)}</span>
                   </div>
                   <ul className="divide-y divide-border/40 px-3 py-1">
                     {group.items.map((order) => {
@@ -178,7 +178,7 @@ const OrderSummary = ({
                               onClick={() => setItemToDelete(order)}
                               aria-label={`Supprimer ${order.drinkName} du panier`}
                             >
-                              <Trash className="w-3 h-3 text-red-500" />
+                              <Trash className="w-3 h-3 text-destructive" />
                             </Button>
                           </div>
                         </li>
@@ -192,7 +192,7 @@ const OrderSummary = ({
             <div>
               {/* Navigation pagination si mono-bar et plus de 5 articles */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between text-sm text-muted-text mb-2">
+                <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                   <Button
                     className="btn-primary"
                     size="sm"
@@ -219,10 +219,10 @@ const OrderSummary = ({
                 {currentOrders.map((order) => {
                   const itemKey = getOrderItemKey(order);
                   return (
-                    <li className="flex justify-between items-center border-b border-border-color py-1" key={itemKey}>
+                    <li className="flex justify-between items-center border-b border-border py-1" key={itemKey}>
                       <div>
                         <p className="font-medium text-sm mb-0.5 text-card-foreground">{order.drinkName}</p>
-                        <p className="text-muted-text text-xs mb-0 text-card-foreground">{formatPrice(order.price)} / unité</p>
+                        <p className="text-muted-foreground text-xs mb-0">{formatPrice(order.price)} / unité</p>
                       </div>
                       <div className="flex items-center gap-1">
                         <Button
@@ -233,7 +233,7 @@ const OrderSummary = ({
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="w-5 text-center text-sm">{order.quantity}</span>
+                        <span className="w-5 text-center text-sm text-card-foreground">{order.quantity}</span>
                         <Button
                           className="btn-primary min-w-0 w-7 h-5 p-0 flex justify-center items-center"
                           size="sm"
@@ -248,7 +248,7 @@ const OrderSummary = ({
                           onClick={() => setItemToDelete(order)}
                           aria-label={`Supprimer ${order.drinkName} du panier`}
                         >
-                          <Trash className="w-3 h-3 text-red-500" />
+                          <Trash className="w-3 h-3 text-destructive" />
                         </Button>
                       </div>
                     </li>
@@ -302,23 +302,24 @@ const OrderSummary = ({
 
               <Button
                 className="btn-primary"
-                onClick={() => {
-                  setIsExpanded(false);
-                  onConfirmOrder();
-                }}
+                onClick={onConfirmOrder}
               >
-                Visualiser la commande
+                Confirmer la commande
               </Button>
             </div>
           </div>
 
-          <div className="mt-4">
-            <ShareButtons order={orders} menus={menus} isCurrentOrder={true} />
-          </div>
+          <ShareButtons
+            order={orders}
+            menus={menus}
+            isCurrentOrder={true}
+          />
         </CardContent>
       ) : (
-        <CardContent className="text-center text-muted-text py-4">
-          Cliquez sur "Voir" pour afficher le détail des commandes ({totalItems} article{totalItems > 1 ? 's' : ''})
+        <CardContent>
+          <p className="text-muted-foreground">
+            {totalItems} article{totalItems > 1 ? 's' : ''} dans votre commande • Total : {formatPrice(totalAmount)}
+          </p>
         </CardContent>
       )}
     </Card>

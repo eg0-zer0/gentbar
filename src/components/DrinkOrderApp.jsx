@@ -38,6 +38,13 @@ import '../App.css';
 const DrinkOrderApp = () => {
   const { viewMode, setViewMode } = useViewMode();
 
+  const searchGridColsClass =
+    viewMode === 'minimal'
+      ? 'grid grid-cols-4 gap-1.5 sm:gap-2'
+      : viewMode === 'compact'
+      ? 'grid grid-cols-3 gap-2 sm:gap-3'
+      : 'grid grid-cols-2 gap-2.5 sm:gap-4';
+
   // 1. Gestion des menus et catégories (multi-bars)
   const {
     menus,
@@ -296,7 +303,7 @@ const DrinkOrderApp = () => {
                     <p className="text-sm">Aucune boisson ne correspond à « <span className="font-medium text-foreground">{searchQuery}</span> ».</p>
                   </div>
                 ) : (
-                  <div className="category-grid" aria-label="Boissons trouvées">
+                  <div className={`category-grid ${searchGridColsClass}`} aria-label="Boissons trouvées">
                     {searchResults.map((drink) => (
                       <DrinkCard
                         key={drink.id}

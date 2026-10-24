@@ -99,7 +99,7 @@ export default function LandingPage() {
         <img
           src={`${process.env.PUBLIC_URL}/icons/icon-192x192.png`}
           alt="Logo GentBar"
-          className="w-24 h-24 mx-auto mb-4 drop-shadow-[0_4px_16px_rgba(225,29,72,0.4)]"
+          className="w-24 h-24 mx-auto mb-4 drop-shadow-lg"
         />
         {/* Titre strict sur une seule ligne */}
         <h1 className="text-2xl xs:text-[26px] sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight whitespace-nowrap flex items-center justify-center">
@@ -113,14 +113,14 @@ export default function LandingPage() {
         et profitez d&apos;une expérience fluide, même hors connexion.
       </p>
 
-      {/* 3. ACTIONS PRINCIPALES (Call To Action Stack) - Fidèle à Stitch */}
+      {/* 3. ACTIONS PRINCIPALES (Call To Action Stack) */}
       <section className="w-full flex flex-col gap-3 my-2 max-w-sm mx-auto">
         {/* 1. CTA Principal : Accéder à l'application */}
         <button
           type="button"
           onClick={() => navigate('/app')}
           style={{ borderRadius: '9999px' }}
-          className="w-full h-14 !rounded-full bg-gradient-to-r from-[#e11d48] to-[#ff4897] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(225,29,72,0.45)] hover:brightness-110 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+          className="w-full h-14 !rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-base flex items-center justify-center gap-2 shadow-lg hover:brightness-110 active:scale-[0.98] transition-all duration-150 cursor-pointer"
         >
           <span>Accéder à l&apos;application</span>
           <ArrowRight className="w-5 h-5" />
@@ -133,9 +133,9 @@ export default function LandingPage() {
             onClick={handleInstallClick}
             aria-label="Installer l'application GentBar"
             style={{ borderRadius: '9999px' }}
-            className="w-full h-12 !rounded-full bg-card border border-slate-700/60 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-secondary active:scale-[0.98] transition-all duration-150 cursor-pointer"
+            className="w-full h-12 !rounded-full bg-card border border-border text-card-foreground font-semibold text-sm flex items-center justify-center gap-2 hover:bg-secondary active:scale-[0.98] transition-all duration-150 cursor-pointer"
           >
-            <Smartphone className="w-4 h-4 text-[#ff4897]" />
+            <Smartphone className="w-4 h-4 text-accent" />
             <span>Installer l&apos;App (PWA)</span>
           </button>
         ) : (
@@ -156,9 +156,9 @@ export default function LandingPage() {
           onClick={() => setShowShareModal(true)}
           aria-label="Partager l'application"
           style={{ borderRadius: '9999px' }}
-          className="w-full h-11 !rounded-full bg-card/50 border border-slate-700/40 text-slate-300 font-medium text-sm flex items-center justify-center gap-2 hover:text-white hover:bg-card transition-colors active:scale-[0.98] cursor-pointer"
+          className="w-full h-11 !rounded-full bg-card/50 border border-border text-muted-foreground font-medium text-sm flex items-center justify-center gap-2 hover:text-card-foreground hover:bg-card transition-colors active:scale-[0.98] cursor-pointer"
         >
-          <QrCode className="w-4 h-4 text-slate-400" />
+          <QrCode className="w-4 h-4 text-muted-foreground" />
           <span>Partager l&apos;application</span>
         </button>
 
@@ -171,10 +171,10 @@ export default function LandingPage() {
           className={`w-full h-11 !rounded-full border text-sm font-medium flex items-center justify-center gap-2 transition-colors active:scale-[0.98] cursor-pointer ${
             updateStatus === 'up-to-date'
               ? 'bg-card/40 border-emerald-500/40 text-emerald-400'
-              : 'bg-card/30 border-slate-700/40 text-slate-300 hover:text-white hover:bg-card'
+              : 'bg-card/30 border-border text-muted-foreground hover:text-card-foreground hover:bg-card'
           }`}
         >
-          <RefreshCw className={`w-4 h-4 text-[#ff4897] ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 text-accent ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />
           <span>
             {updateStatus === 'checking'
               ? 'Vérification...'

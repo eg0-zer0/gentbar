@@ -2,51 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles globaux de base */
-html, body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Police monospace pour code */
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
-}
-
-/* Touch optimizations for mobile */
-@media (max-width: 1024px) {
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  button, a, [role="button"], input, select, textarea, .drink-card, .btn {
-    transition-property: background-color, border-color, color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
-    touch-action: manipulation;
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-/* Respect du réglage d'accessibilité mouvement réduit (A-18) */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* === Variables CSS globales par thème format HSL pour Tailwind === */
+/* === Variables CSS sémantiques globales par thème (format HSL pour Tailwind) === */
 @layer base {
   :root {
     /* Thème Clair */
@@ -69,6 +25,7 @@ code {
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 252 80% 67%;
+    --price: 38 92% 50%;
     --radius: 0.5rem;
   }
 
@@ -93,9 +50,10 @@ code {
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 252 80% 67%;
+    --price: 38 92% 50%;
   }
 
-  /* Thème Gentbar personnalisé - Charte Velvet Arena (Stitch) */
+  /* Thème Gentbar de référence - Charte Velvet Arena (Stitch) */
   html.gentbar {
     --background: 221 76% 10%;            /* #06122c : Fond sombre bleu nuit */
     --foreground: 225 100% 93%;           /* #d9e2ff : Texte clair haute lisibilité */
@@ -113,8 +71,47 @@ code {
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 50% 28%;                /* #23355b : Fin contour ardoise discret (sans bordure blanche) */
+    --border: 220 44% 25%;                /* #23355b : Contour ardoise discret */
     --input: 220 50% 20%;                 /* #1a2a48 */
     --ring: 347 77% 50%;                  /* Anneau de focus magenta */
+    --price: 38 92% 50%;                  /* #f59e0b : Ambre / Or pour les prix */
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body, #root {
+    margin: 0;
+    padding: 0;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  }
+
+  button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+}
+
+/* Respect du réglage d'accessibilité mouvement réduit (A-18) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

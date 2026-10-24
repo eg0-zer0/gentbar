@@ -31,17 +31,17 @@ const ConfirmOrderModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[94vw] max-w-lg max-h-[92vh] sm:max-h-[88vh] mx-auto rounded-2xl p-0 overflow-hidden bg-[#0e1b35] text-[#d9e2ff] border border-white/10 shadow-[0_12px_40px_rgba(2,13,39,0.85)] flex flex-col [&>button.absolute]:hidden">
+      <DialogContent className="w-[94vw] max-w-lg max-h-[92vh] sm:max-h-[88vh] mx-auto rounded-2xl p-0 overflow-hidden bg-card text-card-foreground border border-border shadow-2xl flex flex-col [&>button.absolute]:hidden">
         {/* 1. EN-TÊTE FIXE STITCH */}
-        <div className="shrink-0 pt-3 pb-2.5 px-4 sm:px-5 flex flex-col border-b border-white/10 bg-[#0e1b35]">
-          <div className="w-12 h-1 bg-slate-700/80 rounded-full mx-auto mb-2.5"></div>
+        <div className="shrink-0 pt-3 pb-2.5 px-4 sm:px-5 flex flex-col border-b border-border bg-card">
+          <div className="w-12 h-1 bg-muted rounded-full mx-auto mb-2.5"></div>
           <div className="w-full flex items-start justify-between">
             <div className="flex flex-col text-left">
-              <DialogTitle className="font-bold text-base sm:text-lg text-white leading-tight">
+              <DialogTitle className="font-bold text-base sm:text-lg text-card-foreground leading-tight">
                 Vérifiez votre commande
               </DialogTitle>
-              <DialogDescription className="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#f59e0b]"></span>
+              <DialogDescription className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-price"></span>
                 <span>{totalItems} article{totalItems > 1 ? 's' : ''} dans votre commande</span>
               </DialogDescription>
             </div>
@@ -50,7 +50,7 @@ const ConfirmOrderModal = ({
               type="button"
               onClick={onClose}
               aria-label="Fermer"
-              className="w-8 h-8 rounded-xl bg-[#16274a] text-slate-400 hover:text-white hover:bg-[#1e345e] transition-colors flex items-center justify-center active:scale-95 border border-white/10 cursor-pointer shrink-0 ml-2"
+              className="w-8 h-8 rounded-xl bg-secondary text-muted-foreground hover:text-card-foreground hover:bg-secondary/80 transition-colors flex items-center justify-center active:scale-95 border border-border cursor-pointer shrink-0 ml-2"
             >
               <X className="w-4 h-4" />
             </button>
@@ -62,62 +62,62 @@ const ConfirmOrderModal = ({
           {grouped.isMultiBar ? (
             <div className="space-y-2.5">
               {grouped.groups.map((group) => (
-                <div key={group.barId} className="rounded-xl border border-white/10 bg-[#06122c]/60 overflow-hidden">
-                  <div className="flex items-center justify-between px-3 py-1.5 bg-[#16274a]/80 border-b border-white/10 text-xs font-semibold text-white">
+                <div key={group.barId} className="rounded-xl border border-border bg-background/60 overflow-hidden">
+                  <div className="flex items-center justify-between px-3 py-1.5 bg-secondary/80 border-b border-border text-xs font-semibold text-card-foreground">
                     <span className="flex items-center gap-1.5">
                       <span>{group.barIcon}</span>
                       <span>{group.barName}</span>
                       {group.isDeletedBar && (
-                        <span className="text-[10px] text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">supprimé</span>
+                        <span className="text-[10px] text-destructive bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">supprimé</span>
                       )}
                     </span>
-                    <span className="text-[#f59e0b] font-bold">{formatPrice(group.subtotal)}</span>
+                    <span className="text-price font-bold">{formatPrice(group.subtotal)}</span>
                   </div>
-                  <div className="divide-y divide-white/5 p-1 space-y-1">
+                  <div className="divide-y divide-border/50 p-1 space-y-1">
                     {group.items.map((order) => {
                       const itemKey = getOrderItemKey(order);
                       const lineTotal = order.price * order.quantity;
                       return (
-                        <article key={itemKey} className="p-2 sm:p-2.5 rounded-lg bg-[#16274a]/40 border border-white/5 flex items-center justify-between gap-2">
+                        <article key={itemKey} className="p-2 sm:p-2.5 rounded-lg bg-secondary/40 border border-border/50 flex items-center justify-between gap-2">
                           {/* Nom et prix unitaire à gauche : large espace sans troncature agressive */}
                           <div className="flex-1 min-w-0 pr-1 text-left">
-                            <h3 className="text-xs sm:text-sm font-semibold text-white leading-tight break-words line-clamp-2">
+                            <h3 className="text-xs sm:text-sm font-semibold text-card-foreground leading-tight break-words line-clamp-2">
                               {order.drinkName}
                             </h3>
-                            <p className="text-[11px] text-slate-400 mt-0.5">
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
                               {formatPrice(order.price)} / unité
                             </p>
                           </div>
                           {/* Stepper compact + sous-total + corbeille */}
                           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                            <div className="flex items-center bg-[#06122c] border border-white/10 rounded-lg p-0.5 shadow-inner">
+                            <div className="flex items-center bg-background border border-border rounded-lg p-0.5 shadow-inner">
                               <button
                                 type="button"
                                 onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1, order.barId)}
-                                className="order-stepper-btn rounded-md bg-[#16274a] hover:bg-[#1e345e] text-slate-200 flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
+                                className="order-stepper-btn w-[26px] h-[26px] min-w-0 min-h-0 p-0 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
                                 aria-label="Diminuer"
                               >
                                 <Minus className="w-3 h-3" />
                               </button>
-                              <span className="w-5 text-center text-xs sm:text-sm font-bold text-white">{order.quantity}</span>
+                              <span className="w-5 text-center text-xs sm:text-sm font-bold text-foreground">{order.quantity}</span>
                               <button
                                 type="button"
                                 onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1, order.barId)}
-                                className="order-stepper-btn rounded-md bg-[#16274a] hover:bg-[#e11d48] hover:text-white text-slate-200 flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
+                                className="order-stepper-btn w-[26px] h-[26px] min-w-0 min-h-0 p-0 rounded-md bg-secondary hover:bg-primary hover:text-primary-foreground text-secondary-foreground flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
                                 aria-label="Augmenter"
                               >
                                 <Plus className="w-3 h-3" />
                               </button>
                             </div>
                             <div className="text-right min-w-[46px] sm:min-w-[52px]">
-                              <span className="text-xs sm:text-sm font-bold text-[#f59e0b] tracking-tight block">
+                              <span className="text-xs sm:text-sm font-bold text-price tracking-tight block">
                                 {formatPrice(lineTotal)}
                               </span>
                             </div>
                             <button
                               type="button"
                               onClick={() => setItemToDelete(order)}
-                              className="order-delete-btn rounded-md text-slate-400 hover:text-rose-400 hover:bg-white/5 transition-colors flex items-center justify-center active:scale-90 cursor-pointer"
+                              className="order-delete-btn w-[26px] h-[26px] min-w-0 min-h-0 p-0 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center active:scale-90 cursor-pointer"
                               aria-label={`Supprimer ${order.drinkName}`}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -136,46 +136,46 @@ const ConfirmOrderModal = ({
                 const itemKey = getOrderItemKey(order);
                 const lineTotal = order.price * order.quantity;
                 return (
-                  <article key={itemKey} className="p-2 sm:p-2.5 rounded-xl bg-[#16274a]/60 border border-white/10 flex items-center justify-between gap-2">
+                  <article key={itemKey} className="p-2 sm:p-2.5 rounded-xl bg-secondary/60 border border-border flex items-center justify-between gap-2">
                     {/* Nom et prix unitaire à gauche : large espace sans troncature agressive */}
                     <div className="flex-1 min-w-0 pr-1 text-left">
-                      <h3 className="text-xs sm:text-sm font-semibold text-white leading-tight break-words line-clamp-2">
+                      <h3 className="text-xs sm:text-sm font-semibold text-card-foreground leading-tight break-words line-clamp-2">
                         {order.drinkName}
                       </h3>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
+                      <p className="text-[11px] text-muted-foreground mt-0.5">
                         {formatPrice(order.price)} / unité
                       </p>
                     </div>
                     {/* Stepper compact + sous-total + corbeille */}
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                      <div className="flex items-center bg-[#06122c] border border-white/10 rounded-lg p-0.5 shadow-inner">
+                      <div className="flex items-center bg-background border border-border rounded-lg p-0.5 shadow-inner">
                         <button
                           type="button"
                           onClick={() => onUpdateQuantity(order.drinkId, order.quantity - 1, order.barId)}
-                          className="order-stepper-btn rounded-md bg-[#16274a] hover:bg-[#1e345e] text-slate-200 flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
+                          className="order-stepper-btn w-[26px] h-[26px] min-w-0 min-h-0 p-0 rounded-md bg-secondary hover:bg-secondary/80 text-secondary-foreground flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
                           aria-label="Diminuer"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-5 text-center text-xs sm:text-sm font-bold text-white">{order.quantity}</span>
+                        <span className="w-5 text-center text-xs sm:text-sm font-bold text-foreground">{order.quantity}</span>
                         <button
                           type="button"
                           onClick={() => onUpdateQuantity(order.drinkId, order.quantity + 1, order.barId)}
-                          className="order-stepper-btn rounded-md bg-[#16274a] hover:bg-[#e11d48] hover:text-white text-slate-200 flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
+                          className="order-stepper-btn w-[26px] h-[26px] min-w-0 min-h-0 p-0 rounded-md bg-secondary hover:bg-primary hover:text-primary-foreground text-secondary-foreground flex items-center justify-center font-bold text-xs transition-colors active:scale-90 cursor-pointer"
                           aria-label="Augmenter"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
                       <div className="text-right min-w-[46px] sm:min-w-[52px]">
-                        <span className="text-xs sm:text-sm font-bold text-[#f59e0b] tracking-tight block">
+                        <span className="text-xs sm:text-sm font-bold text-price tracking-tight block">
                           {formatPrice(lineTotal)}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => setItemToDelete(order)}
-                        className="order-delete-btn rounded-md text-slate-400 hover:text-rose-400 hover:bg-white/5 transition-colors flex items-center justify-center active:scale-90 cursor-pointer"
+                        className="order-delete-btn w-[26px] h-[26px] min-w-0 min-h-0 p-0 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex items-center justify-center active:scale-90 cursor-pointer"
                         aria-label={`Supprimer ${order.drinkName}`}
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -189,15 +189,15 @@ const ConfirmOrderModal = ({
         </div>
 
         {/* 3. PIED DE MODALE FIXE EN BAS : NOTE, TOTAL ENCAPSULÉ, ACTIONS (TOUJOURS VISIBLES) */}
-        <div className="shrink-0 p-3 sm:p-4 bg-[#0e1b35] border-t border-white/10 space-y-2">
+        <div className="shrink-0 p-3 sm:p-4 bg-card border-t border-border space-y-2">
           {/* Note pour le barman (compacte) */}
-          <div className="px-3 py-1.5 rounded-xl bg-[#16274a]/60 border border-white/10 space-y-1 text-left">
+          <div className="px-3 py-1.5 rounded-xl bg-secondary/60 border border-border space-y-1 text-left">
             <div className="flex items-center justify-between">
-              <label htmlFor="barman-note" className="text-xs font-medium text-slate-300 flex items-center gap-1.5 cursor-pointer">
-                <StickyNote className="w-3.5 h-3.5 text-[#f59e0b]" />
+              <label htmlFor="barman-note" className="text-xs font-medium text-card-foreground flex items-center gap-1.5 cursor-pointer">
+                <StickyNote className="w-3.5 h-3.5 text-price" />
                 <span>Note pour le barman (optionnel)</span>
               </label>
-              <span className="text-[10px] text-slate-400">{note.length}/100</span>
+              <span className="text-[10px] text-muted-foreground">{note.length}/100</span>
             </div>
             <input
               id="barman-note"
@@ -206,14 +206,14 @@ const ConfirmOrderModal = ({
               value={note}
               onChange={(e) => onNoteChange?.(e.target.value)}
               placeholder="Ex : Sans glaçons, Dans un verre..."
-              className="w-full bg-[#06122c] text-white placeholder-slate-500 text-xs px-3 py-1.5 rounded-lg border border-white/10 focus:border-[#ff4897] focus:ring-1 focus:ring-[#ff4897] outline-none transition-all"
+              className="w-full bg-background text-foreground placeholder:text-muted-foreground text-xs px-3 py-1.5 rounded-lg border border-border focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all"
             />
           </div>
 
           {/* Total à régler encapsulé */}
-          <div className="px-4 py-2.5 rounded-xl bg-[#06122c]/90 border border-white/10 flex items-center justify-between shadow-inner">
-            <span className="font-extrabold text-white text-sm sm:text-base">Total à régler</span>
-            <span className="font-extrabold text-[#f59e0b] text-xl sm:text-2xl tracking-tight drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)]">
+          <div className="px-4 py-2.5 rounded-xl bg-background/90 border border-border flex items-center justify-between shadow-inner">
+            <span className="font-extrabold text-card-foreground text-sm sm:text-base">Total à régler</span>
+            <span className="font-extrabold text-price text-xl sm:text-2xl tracking-tight">
               {formatPrice(totalAmount)}
             </span>
           </div>
@@ -223,7 +223,7 @@ const ConfirmOrderModal = ({
             <Button
               type="button"
               onClick={onConfirm}
-              className="w-full h-11 py-2 px-6 rounded-xl bg-gradient-to-r from-[#e11d48] to-[#ff4897] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(225,29,72,0.45)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer border-0"
+              className="w-full h-11 py-2 px-6 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer border-0"
             >
               <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Confirmer la commande</span>
@@ -233,14 +233,14 @@ const ConfirmOrderModal = ({
               order={orders}
               menus={menus}
               isCurrentOrder={true}
-              className="w-full h-9 py-1.5 px-6 rounded-xl bg-[#16274a]/60 hover:bg-[#16274a] border border-white/10 hover:border-white/20 text-slate-200 hover:text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full h-9 py-1.5 px-6 rounded-xl bg-secondary/60 hover:bg-secondary border border-border text-secondary-foreground hover:text-card-foreground font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
             />
 
             <div className="flex items-center justify-center pt-0.5">
               <button
                 type="button"
                 onClick={() => setShowClearConfirm(true)}
-                className="text-slate-400 hover:text-rose-400 text-xs font-medium py-0.5 px-3 rounded-lg hover:bg-white/5 transition-colors flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                className="text-muted-foreground hover:text-destructive text-xs font-medium py-0.5 px-3 rounded-lg hover:bg-destructive/10 transition-colors flex items-center gap-1.5 active:scale-95 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Vider le panier</span>

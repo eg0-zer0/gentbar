@@ -10,7 +10,6 @@ import {
   Camera,
   ImageIcon,
   AlertCircle,
-  Bot,
   Copy,
   ExternalLink,
   Loader2,
@@ -20,13 +19,9 @@ import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription
 } from './ui/dialog';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
 import { parseDrinkList, guessCategoryIcon, MAX_PASTE_CHARS } from '../lib/parseDrinkList';
 import { LIMITS } from '../lib/barShare';
 import { analyzeMenuPhotoWithGemini } from '../lib/geminiVision';
@@ -421,15 +416,15 @@ export const BulkAddDrinksModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[94vw] max-w-[420px] sm:max-w-[440px] max-h-[92vh] flex flex-col p-5 bg-[#101c38] text-slate-200 rounded-[22px] border border-[#23355b]/80 shadow-2xl shadow-black/80 overflow-hidden focus:outline-none [&>button.absolute]:hidden">
-        {/* En-tête Stitch avec icône document rose et croix de fermeture */}
+      <DialogContent className="w-[94vw] max-w-[420px] sm:max-w-[440px] max-h-[92vh] flex flex-col p-5 bg-card text-card-foreground rounded-[22px] border border-border shadow-2xl overflow-hidden focus:outline-none [&>button.absolute]:hidden">
+        {/* En-tête Stitch avec icône document primaire et croix de fermeture */}
         <header className="shrink-0 flex flex-col gap-1.5 pb-1">
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2.5">
-              <div className="text-[#e11d48] shrink-0 mt-0.5">
+              <div className="text-primary shrink-0 mt-0.5">
                 <FileText className="w-6 h-6 stroke-[1.8]" />
               </div>
-              <DialogTitle className="text-[17px] font-bold text-white tracking-tight leading-tight">
+              <DialogTitle className="text-[17px] font-bold text-card-foreground tracking-tight leading-tight">
                 {allowCategories
                   ? 'Créer une carte par texte collé'
                   : `Ajouter plusieurs boissons${targetCategoryName ? ` à « ${targetCategoryName} »` : ''}`}
@@ -440,34 +435,34 @@ export const BulkAddDrinksModal = ({
               type="button"
               onClick={onClose}
               aria-label="Fermer la modale"
-              className="text-slate-400 hover:text-white transition-colors p-1 -mr-1 -mt-1 rounded-lg cursor-pointer"
+              className="text-muted-foreground hover:text-card-foreground transition-colors p-1 -mr-1 -mt-1 rounded-lg cursor-pointer"
             >
               <X className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
-          <DialogDescription className="text-[12.5px] leading-relaxed text-[#94a3b8] font-normal">
+          <DialogDescription className="text-[12.5px] leading-relaxed text-muted-foreground font-normal">
             Collez une liste de boissons avec leurs prix. Une analyse automatique vous permet de tout vérifier et modifier avant d’enregistrer.
           </DialogDescription>
         </header>
 
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-0.5 scrollbar-thin">
           {/* 1. Action principale : Scanner une photo de carte avec l'IA */}
-          <section className="bg-[#16254a]/70 rounded-xl p-3.5 border border-[#2b4175]/60 flex flex-col gap-3 relative overflow-hidden">
+          <section className="bg-secondary/70 rounded-xl p-3.5 border border-border flex flex-col gap-3 relative overflow-hidden">
             <div className="flex items-start gap-2.5">
-              {/* Badge d'icône avec étoile magique rose */}
-              <div className="w-8 h-8 rounded-lg bg-[#2e1a34] border border-[#e11d48]/30 flex items-center justify-center text-[#f43f5e] shrink-0">
+              {/* Badge d'icône avec étoile magique primaire */}
+              <div className="w-8 h-8 rounded-lg bg-primary/15 border border-primary/30 flex items-center justify-center text-primary shrink-0">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[13.5px] font-semibold text-white tracking-tight leading-snug">
+                  <span className="text-[13.5px] font-semibold text-card-foreground tracking-tight leading-snug">
                     Scanner une photo de carte
                   </span>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
                     Instantané
                   </span>
                 </div>
-                <p className="text-[11.5px] leading-snug text-[#94a3b8] mt-1 font-normal">
+                <p className="text-[11.5px] leading-snug text-muted-foreground mt-1 font-normal">
                   Prenez une photo ou choisissez une image : l'IA extrait et range automatiquement toutes les boissons.
                 </p>
               </div>
@@ -479,7 +474,7 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   disabled
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-[#e11d48] to-[#f43f5e] opacity-80 text-white rounded-lg text-xs font-semibold shadow-sm cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-primary to-accent opacity-80 text-primary-foreground rounded-lg text-xs font-semibold shadow-sm cursor-not-allowed"
                 >
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Analyse IA en cours…</span>
@@ -489,7 +484,7 @@ export const BulkAddDrinksModal = ({
                   <button
                     type="button"
                     onClick={handleTriggerCamera}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-[#e11d48] to-[#f43f5e] hover:from-[#d0143f] hover:to-[#e11d48] active:scale-[0.98] text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer border-0"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-primary to-accent hover:brightness-110 active:scale-[0.98] text-primary-foreground rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer border-0"
                     title="Prendre une photo directement avec l'appareil photo"
                   >
                     <Camera className="w-4 h-4" />
@@ -499,10 +494,10 @@ export const BulkAddDrinksModal = ({
                   <button
                     type="button"
                     onClick={handleTriggerGallery}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-[#132244] hover:bg-[#1a2f5c] active:scale-[0.98] text-slate-100 border border-[#2b4175] rounded-lg text-xs font-semibold transition-all shadow-sm cursor-pointer"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-secondary hover:bg-secondary/80 active:scale-[0.98] text-secondary-foreground border border-border rounded-lg text-xs font-semibold transition-all shadow-sm cursor-pointer"
                     title="Choisir une image dans votre galerie de photos"
                   >
-                    <ImageIcon className="w-4 h-4 text-slate-300" />
+                    <ImageIcon className="w-4 h-4 text-muted-foreground" />
                     <span>Galerie</span>
                   </button>
                 </>
@@ -527,10 +522,10 @@ export const BulkAddDrinksModal = ({
 
           {/* 2. Repli en cas d'erreur ou d'épuisement de quota Gemini */}
           {aiScanError && (
-            <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs space-y-2">
+            <div className="p-3 bg-price/10 border border-price/30 rounded-xl text-xs space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2 text-amber-300 font-medium">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+                <div className="flex items-start gap-2 text-price font-medium">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-price" />
                   <div>
                     <span>L'analyse directe a rencontré un souci ({aiScanError}). Vous pouvez utiliser votre IA habituelle :</span>
                   </div>
@@ -538,7 +533,7 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   onClick={() => setAiScanError(null)}
-                  className="text-[11px] text-slate-400 hover:text-white shrink-0 cursor-pointer underline"
+                  className="text-[11px] text-muted-foreground hover:text-card-foreground shrink-0 cursor-pointer underline"
                 >
                   Fermer
                 </button>
@@ -548,10 +543,10 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   onClick={() => handleOpenAI('claude')}
-                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-white/10 border border-[#2b4175] rounded-lg cursor-pointer bg-[#132244] text-slate-200 flex items-center"
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-secondary/80 border border-border rounded-lg cursor-pointer bg-secondary text-secondary-foreground flex items-center"
                   title="Ouvrir Claude avec le prompt pré-rempli"
                 >
-                  <span className="text-amber-400 font-bold">●</span>
+                  <span className="text-price font-bold">●</span>
                   <span>Claude</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                 </button>
@@ -559,10 +554,10 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   onClick={() => handleOpenAI('mistral')}
-                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-white/10 border border-[#2b4175] rounded-lg cursor-pointer bg-[#132244] text-slate-200 flex items-center"
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-secondary/80 border border-border rounded-lg cursor-pointer bg-secondary text-secondary-foreground flex items-center"
                   title="Ouvrir Mistral avec le prompt pré-rempli"
                 >
-                  <span className="text-orange-400 font-bold">●</span>
+                  <span className="text-price font-bold">●</span>
                   <span>Mistral</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                 </button>
@@ -570,10 +565,10 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   onClick={() => handleOpenAI('chatgpt')}
-                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-white/10 border border-[#2b4175] rounded-lg cursor-pointer bg-[#132244] text-slate-200 flex items-center"
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-secondary/80 border border-border rounded-lg cursor-pointer bg-secondary text-secondary-foreground flex items-center"
                   title="Ouvrir ChatGPT avec le prompt pré-rempli"
                 >
-                  <span className="text-emerald-400 font-bold">●</span>
+                  <span className="text-emerald-500 font-bold">●</span>
                   <span>ChatGPT</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
                 </button>
@@ -581,7 +576,7 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   onClick={handleCopyPrompt}
-                  className="h-7 text-xs px-2 gap-1 text-slate-400 hover:text-white cursor-pointer flex items-center"
+                  className="h-7 text-xs px-2 gap-1 text-muted-foreground hover:text-card-foreground cursor-pointer flex items-center"
                   title="Copier le prompt dans le presse-papier"
                 >
                   <Copy className="w-3 h-3" />
@@ -594,11 +589,11 @@ export const BulkAddDrinksModal = ({
           {/* 3. Zone de texte collé */}
           <section className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs">
-              <label htmlFor="drinks-raw-text" className="font-semibold text-slate-200 tracking-tight">
+              <label htmlFor="drinks-raw-text" className="font-semibold text-card-foreground tracking-tight">
                 Ou collez votre liste directement ci-dessous
               </label>
               {rawText.length > 0 && (
-                <span className={`text-[11px] ${rawText.length > MAX_PASTE_CHARS ? 'text-rose-400 font-bold' : 'text-slate-400'}`}>
+                <span className={`text-[11px] ${rawText.length > MAX_PASTE_CHARS ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
                   {rawText.length.toLocaleString('fr-FR')} / {MAX_PASTE_CHARS.toLocaleString('fr-FR')} car.
                 </span>
               )}
@@ -612,13 +607,13 @@ export const BulkAddDrinksModal = ({
                 placeholder={`Exemple :\n${allowCategories ? 'BIÈRES AU FÛT\n' : ''}Jupiler 25cl 2,50\nCarlsberg 40cl 4,50\nDuvel  4,50 €`}
                 rows={5}
                 spellCheck={false}
-                className="w-full bg-[#0a1426] border border-[#23355b] rounded-xl py-3 px-3.5 text-xs text-slate-200 font-mono leading-relaxed placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#e11d48]/50 focus:border-[#e11d48]/60 resize-none transition"
+                className="w-full bg-background border border-border rounded-xl py-3 px-3.5 text-xs text-foreground font-mono leading-relaxed placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary/60 resize-none transition"
                 aria-label="Zone de texte pour coller la liste de boissons"
               />
             </div>
 
             {rawText.length > MAX_PASTE_CHARS && (
-              <p className="text-xs text-rose-400 flex items-center gap-1 font-medium">
+              <p className="text-xs text-destructive flex items-center gap-1 font-medium">
                 <AlertCircle className="w-3.5 h-3.5" />
                 Texte très long : seuls les 50 000 premiers caractères sont analysés.
               </p>
@@ -631,11 +626,11 @@ export const BulkAddDrinksModal = ({
                 id="split-lists"
                 checked={splitSlashes}
                 onChange={(e) => setSplitSlashes(e.target.checked)}
-                className="w-4 h-4 rounded border-[#2b4175] bg-[#0c1936] text-[#e11d48] accent-[#e11d48] focus:ring-0 focus:ring-offset-0 cursor-pointer flex-shrink-0"
+                className="w-4 h-4 rounded border-border bg-background text-primary accent-primary focus:ring-0 focus:ring-offset-0 cursor-pointer flex-shrink-0"
               />
               <label
                 htmlFor="split-lists"
-                className="text-xs text-slate-300 font-normal leading-snug cursor-pointer select-none"
+                className="text-xs text-muted-foreground font-normal leading-snug cursor-pointer select-none"
               >
                 Séparer les listes « A / B » ou « A, B, C » de même prix
               </label>
@@ -644,41 +639,41 @@ export const BulkAddDrinksModal = ({
 
           {/* Erreur de dépassement de limites */}
           {limitError && (
-            <div className="p-3 bg-rose-950/20 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+            <div className="p-3 bg-destructive/15 border border-destructive/30 rounded-xl text-xs text-destructive flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-destructive" />
               <span className="font-medium">{limitError}</span>
             </div>
           )}
 
           {/* Section Aperçu interactif */}
           {parsedCategories.length > 0 && (
-            <div className="space-y-3 pt-2 border-t border-[#23355b]/70">
+            <div className="space-y-3 pt-2 border-t border-border/70">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                <div className="font-semibold text-white flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#e11d48]" />
+                <div className="font-semibold text-card-foreground flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-primary" />
                   <span>Aperçu avant enregistrement</span>
-                  {isDebouncing && <span className="text-slate-400 text-[11px] animate-pulse">(analyse…)</span>}
+                  {isDebouncing && <span className="text-muted-foreground text-[11px] animate-pulse">(analyse…)</span>}
                 </div>
 
                 {/* Compteur récapitulatif & Actions d'erreurs */}
                 <div className="text-xs flex items-center gap-2 font-medium flex-wrap">
-                  <span className="text-white font-bold">
+                  <span className="text-card-foreground font-bold">
                     {stats.totalDrinks} boisson{stats.totalDrinks > 1 ? 's' : ''}
                   </span>
                   {stats.warningCount > 0 && (
-                    <span className="text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                    <span className="text-price bg-price/10 border border-price/20 px-2 py-0.5 rounded-full">
                       ⚠️ {stats.warningCount} à vérifier
                     </span>
                   )}
                   {stats.errorCount > 0 && (
                     <div className="flex items-center gap-1.5">
-                      <span className="text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full font-bold">
+                      <span className="text-destructive bg-destructive/10 border border-destructive/20 px-2 py-0.5 rounded-full font-bold">
                         ❌ {stats.errorCount} à corriger
                       </span>
                       <button
                         type="button"
                         onClick={handleDeleteAllErrors}
-                        className="h-6 px-2 text-[11px] font-semibold text-rose-300 border border-rose-500/40 bg-rose-500/15 hover:bg-rose-500/25 rounded-lg flex items-center gap-1 cursor-pointer"
+                        className="h-6 px-2 text-[11px] font-semibold text-destructive border border-destructive/40 bg-destructive/15 hover:bg-destructive/25 rounded-lg flex items-center gap-1 cursor-pointer"
                         title="Supprimer d'un coup toutes les lignes sans prix ou en erreur"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -694,20 +689,20 @@ export const BulkAddDrinksModal = ({
                 {parsedCategories.map((cat) => (
                   <div
                     key={cat.tempId}
-                    className="p-3 bg-[#0a1426] rounded-xl border border-[#23355b] space-y-2.5"
+                    className="p-3 bg-background rounded-xl border border-border space-y-2.5"
                   >
                     {/* En-tête de catégorie en mode allowCategories */}
                     {allowCategories && (
-                      <div className="flex items-center gap-2 pb-1.5 border-b border-[#23355b]/60">
+                      <div className="flex items-center gap-2 pb-1.5 border-b border-border/60">
                         <span className="text-lg select-none">{cat.icon}</span>
                         <input
                           type="text"
                           value={cat.name}
                           onChange={(e) => handleUpdateCategoryName(cat.tempId, e.target.value)}
-                          className="h-8 text-xs font-bold text-white bg-[#0e1b35] border border-[#23355b] rounded-lg px-2 flex-1 focus:outline-none focus:border-[#e11d48]"
+                          className="h-8 text-xs font-bold text-card-foreground bg-card border border-border rounded-lg px-2 flex-1 focus:outline-none focus:border-primary"
                           aria-label={`Nom de la catégorie ${cat.name}`}
                         />
-                        <span className="text-[11px] text-slate-400 shrink-0 font-medium">
+                        <span className="text-[11px] text-muted-foreground shrink-0 font-medium">
                           {cat.drinks.length} boisson{cat.drinks.length > 1 ? 's' : ''}
                         </span>
                       </div>
@@ -715,7 +710,7 @@ export const BulkAddDrinksModal = ({
 
                     {/* Lignes de boissons */}
                     {cat.drinks.length === 0 ? (
-                      <p className="text-xs text-slate-400 italic py-1">
+                      <p className="text-xs text-muted-foreground italic py-1">
                         Aucune boisson dans cette catégorie.
                       </p>
                     ) : (
@@ -725,22 +720,22 @@ export const BulkAddDrinksModal = ({
                             key={d.tempId}
                             className={`p-2 rounded-lg border text-xs flex flex-wrap items-center gap-2 transition ${
                               d.status === 'error'
-                                ? 'bg-rose-950/20 border-rose-500/40 text-rose-200'
+                                ? 'bg-destructive/15 border-destructive/40 text-destructive'
                                 : d.status === 'warning'
-                                  ? 'bg-amber-950/20 border-amber-500/30 text-amber-200'
-                                  : 'bg-[#101e3d]/60 border-[#23355b]/70 text-slate-200'
+                                  ? 'bg-price/15 border-price/30 text-price'
+                                  : 'bg-secondary/60 border-border/70 text-secondary-foreground'
                             }`}
                           >
                             {/* Statut icône */}
                             <div className="shrink-0" title={d.issues.join(' · ')}>
                               {d.status === 'ok' && (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                               )}
                               {d.status === 'warning' && (
-                                <AlertTriangle className="w-4 h-4 text-amber-400" />
+                                <AlertTriangle className="w-4 h-4 text-price" />
                               )}
                               {d.status === 'error' && (
-                                <XCircle className="w-4 h-4 text-rose-400" />
+                                <XCircle className="w-4 h-4 text-destructive" />
                               )}
                             </div>
 
@@ -753,7 +748,7 @@ export const BulkAddDrinksModal = ({
                                   handleUpdateDrinkName(cat.tempId, d.tempId, e.target.value)
                                 }
                                 placeholder="Nom de la boisson"
-                                className="w-full h-8 text-xs bg-[#08142c] border border-[#23355b] rounded-lg px-2 text-white focus:outline-none focus:border-[#e11d48]"
+                                className="w-full h-8 text-xs bg-background border border-border rounded-lg px-2 text-foreground focus:outline-none focus:border-primary"
                                 aria-label="Nom de la boisson"
                               />
                             </div>
@@ -771,10 +766,10 @@ export const BulkAddDrinksModal = ({
                                     handleUpdateDrinkPrice(cat.tempId, d.tempId, e.target.value)
                                   }
                                   placeholder="Prix"
-                                  className="w-full h-8 text-xs pr-6 font-mono text-right bg-[#08142c] border border-[#23355b] rounded-lg px-2 text-white focus:outline-none focus:border-[#e11d48]"
+                                  className="w-full h-8 text-xs pr-6 font-mono text-right bg-background border border-border rounded-lg px-2 text-foreground focus:outline-none focus:border-primary"
                                   aria-label="Prix en euros"
                                 />
-                                <span className="absolute right-2 top-2 text-xs text-slate-400 select-none pointer-events-none">
+                                <span className="absolute right-2 top-2 text-xs text-muted-foreground select-none pointer-events-none">
                                   €
                                 </span>
                               </div>
@@ -785,7 +780,7 @@ export const BulkAddDrinksModal = ({
                               <button
                                 type="button"
                                 onClick={() => handlePromoteToCategory(cat.tempId, d.tempId)}
-                                className="h-8 px-2 text-[11px] gap-1 shrink-0 text-rose-300 border border-rose-500/40 hover:bg-rose-500/10 rounded-lg flex items-center cursor-pointer"
+                                className="h-8 px-2 text-[11px] gap-1 shrink-0 text-destructive border border-destructive/40 hover:bg-destructive/10 rounded-lg flex items-center cursor-pointer"
                                 title="Créer une catégorie avec ce texte"
                               >
                                 <FolderPlus className="w-3.5 h-3.5" />
@@ -797,7 +792,7 @@ export const BulkAddDrinksModal = ({
                             <button
                               type="button"
                               onClick={() => handleDeleteDrink(cat.tempId, d.tempId)}
-                              className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-lg flex items-center justify-center shrink-0 cursor-pointer"
+                              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive rounded-lg flex items-center justify-center shrink-0 cursor-pointer"
                               title="Supprimer cette ligne"
                               aria-label="Supprimer la ligne"
                             >
@@ -806,14 +801,14 @@ export const BulkAddDrinksModal = ({
 
                             {/* Affichage des avertissements / erreurs spécifiques */}
                             {d.issues && d.issues.length > 0 && (
-                              <div className="w-full text-[11px] text-slate-400 pl-6 flex items-center gap-1.5 flex-wrap">
+                              <div className="w-full text-[11px] text-muted-foreground pl-6 flex items-center gap-1.5 flex-wrap">
                                 {d.issues.map((issue, idx) => (
                                   <span
                                     key={idx}
                                     className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                       d.status === 'error'
-                                        ? 'bg-rose-500/15 text-rose-300'
-                                        : 'bg-amber-500/15 text-amber-300'
+                                        ? 'bg-destructive/15 text-destructive'
+                                        : 'bg-price/15 text-price'
                                     }`}
                                   >
                                     {issue}
@@ -833,12 +828,12 @@ export const BulkAddDrinksModal = ({
         </div>
 
         {/* Séparateur horizontal Stitch */}
-        <hr className="border-t border-[#23355b]/70 my-0.5" />
+        <hr className="border-t border-border/70 my-0.5" />
 
         {/* Message d'état informatif */}
-        <p className="text-[12px] text-center text-[#8a9bb5] font-normal -mt-0.5">
+        <p className="text-[12px] text-center text-muted-foreground font-normal -mt-0.5">
           {stats.errorCount > 0 ? (
-            <span className="text-rose-400 font-medium flex items-center justify-center gap-1.5 flex-wrap">
+            <span className="text-destructive font-medium flex items-center justify-center gap-1.5 flex-wrap">
               <span>{stats.errorCount} ligne{stats.errorCount > 1 ? 's' : ''} en erreur.</span>
               <button
                 type="button"
@@ -849,7 +844,7 @@ export const BulkAddDrinksModal = ({
               </button>
             </span>
           ) : stats.totalDrinks > 0 ? (
-            <span className="text-emerald-400 font-medium">
+            <span className="text-emerald-500 font-medium">
               Prêt à ajouter {stats.totalDrinks} boisson{stats.totalDrinks > 1 ? 's' : ''}.
             </span>
           ) : (
@@ -862,7 +857,7 @@ export const BulkAddDrinksModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 px-4 bg-[#14223f] hover:bg-[#1a2c52] active:scale-[0.98] border border-[#2a3f6a] rounded-xl text-xs font-semibold text-slate-200 transition-all text-center cursor-pointer"
+            className="w-full py-2.5 px-4 bg-secondary hover:bg-secondary/80 active:scale-[0.98] border border-border rounded-xl text-xs font-semibold text-secondary-foreground transition-all text-center cursor-pointer"
           >
             Annuler
           </button>
@@ -872,8 +867,8 @@ export const BulkAddDrinksModal = ({
             disabled={stats.totalDrinks === 0 || stats.errorCount > 0 || !!limitError}
             className={`w-full py-2.5 px-3 rounded-xl text-xs transition-all text-center ${
               stats.totalDrinks === 0 || stats.errorCount > 0 || !!limitError
-                ? 'bg-[#7f1d3a]/60 text-[#c2708b] cursor-not-allowed font-medium'
-                : 'bg-gradient-to-r from-[#e11d48] to-[#f43f5e] hover:from-[#d0143f] hover:to-[#e11d48] active:scale-[0.98] text-white font-bold shadow-md shadow-rose-950/30 cursor-pointer'
+                ? 'bg-primary/40 text-primary-foreground/60 cursor-not-allowed font-medium'
+                : 'bg-gradient-to-r from-primary to-accent hover:brightness-110 active:scale-[0.98] text-primary-foreground font-bold shadow-md cursor-pointer'
             }`}
           >
             {allowCategories

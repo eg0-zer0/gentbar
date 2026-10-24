@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 import DrinkCard from './DrinkCard';
-import { Button } from './ui/button';
 import { ChevronDown, ChevronRight, Edit, Plus, FileText } from 'lucide-react';
 import BulkAddDrinksModal from './BulkAddDrinksModal';
+import { useViewMode } from '../contexts/ViewModeContext';
 
 import {
   DropdownMenu,
@@ -26,8 +26,19 @@ const CategorySection = ({
   drinkPopularity = {},
   orders = [],
   soundEnabled = true,
+  viewMode: viewModeProp
 }) => {
   const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const { viewMode: contextViewMode = 'large' } = useViewMode() || {};
+  const activeViewMode = viewModeProp || contextViewMode;
+
+  // Colonnes gouvernées exclusivement par la logique React (normal : 2, compact : 3, minimal : 4)
+  const gridColsClass =
+    activeViewMode === 'minimal'
+      ? 'grid grid-cols-4 gap-1.5 sm:gap-2'
+      : activeViewMode === 'compact'
+      ? 'grid grid-cols-3 gap-2 sm:gap-3'
+      : 'grid grid-cols-2 gap-2.5 sm:gap-4';
 
   // Choix des boissons à afficher : tri personnalisé ou d'origine
   const drinksToShow = sortedDrinks.length > 0 ? sortedDrinks : category.drinks;
@@ -40,10 +51,10 @@ const CategorySection = ({
 
   return (
     <section aria-label={`Catégorie ${category.name}`} className="mb-3.5 sm:mb-5">
-      {/* 1. ÉTAT PLIÉ (Pill Card compacte Stitch) */}
+      {/* 1. ÉTAT PLIÉ (Pill Card compacte) */}
       {category.isCollapsed ? (
         <div
-          className="rounded-xl bg-card border border-slate-700/50 p-3 flex items-center justify-between hover:bg-secondary/40 transition-colors cursor-pointer select-none"
+          className="rounded-xl bg-card border border-border p-3 flex items-center justify-between hover:bg-secondary/40 transition-colors cursor-pointer select-none"
           onClick={() => onToggleCategory(category.id)}
           role="button"
           aria-expanded={false}
@@ -57,17 +68,17 @@ const CategorySection = ({
         >
           {/* Chevron repliable strictement à gauche du nom de catégorie */}
           <div className="flex items-center gap-2 min-w-0 flex-1 text-left">
-            <ChevronRight className="w-5 h-5 text-[#f59e0b] shrink-0" />
-            <h2 className="text-sm sm:text-base font-semibold truncate text-white">
+            <ChevronRight className="w-5 h-5 text-price shrink-0" />
+            <h2 className="text-sm sm:text-base font-semibold truncate text-card-foreground">
               {category.name}
             </h2>
             {category.icon && <span aria-hidden="true" className="ml-1 text-base">{category.icon}</span>}
           </div>
-          {/* Actions à droite : uniquement le bouton + et le crayon d'édition (pas de flèche supplémentaire) */}
+          {/* Actions à droite : uniquement le bouton + et le crayon d'édition */}
           <div className="flex items-center gap-1.5 shrink-0 ml-2">
             <button
               type="button"
-              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-card-foreground hover:bg-secondary transition-colors cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 onAddDrinkToCategory(category.id);
@@ -80,36 +91,36 @@ const CategorySection = ({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-card-foreground hover:bg-secondary transition-colors cursor-pointer"
                   aria-label={`Options pour la catégorie ${category.name}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Edit size={17} strokeWidth={1.8} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-[#0e1b35] border border-[#23355b] shadow-2xl p-1.5 flex flex-col space-y-0.5 backdrop-blur-md text-slate-100">
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-popover border border-border shadow-2xl p-1.5 flex flex-col space-y-0.5 backdrop-blur-md text-popover-foreground">
                 <DropdownMenuItem
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-popover-foreground hover:bg-secondary focus:bg-secondary hover:text-card-foreground focus:text-card-foreground transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     setIsBulkOpen(true);
                   }}
                 >
-                  <FileText className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                  <FileText className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
                   <span className="leading-snug">Ajouter plusieurs boissons</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-popover-foreground hover:bg-secondary focus:bg-secondary hover:text-card-foreground focus:text-card-foreground transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     onEditCategory(category);
                   }}
                 >
-                  <Edit className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                  <Edit className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
                   <span>Modifier</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer focus:text-rose-400 focus:bg-rose-500/10"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer focus:text-destructive focus:bg-destructive/10"
                   onClick={(e) => {
                     e.preventDefault();
                     onDeleteCategory(category);
@@ -122,7 +133,7 @@ const CategorySection = ({
           </div>
         </div>
       ) : (
-        /* 2. ÉTAT DÉPLIÉ (En-tête ouvert + Grille 2 colonnes Stitch) */
+        /* 2. ÉTAT DÉPLIÉ (En-tête ouvert + Grille dynamique selon le mode de vue) */
         <div>
           <header
             className="flex items-center justify-between cursor-pointer select-none mb-2.5 py-1"
@@ -139,18 +150,18 @@ const CategorySection = ({
           >
             {/* Chevron repliable strictement à gauche du nom de catégorie */}
             <div className="flex items-center gap-2 min-w-0 flex-1 text-left">
-              <ChevronDown className="w-5 h-5 text-[#f59e0b] shrink-0" />
-              <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-1.5 truncate">
+              <ChevronDown className="w-5 h-5 text-price shrink-0" />
+              <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-1.5 truncate">
                 <span>{category.name}</span>
                 {category.icon && <span aria-hidden="true">{category.icon}</span>}
               </h2>
             </div>
 
-            {/* Actions à droite : uniquement bouton + et crayon d'édition (pas de flèche supplémentaire) */}
+            {/* Actions à droite : uniquement bouton + et crayon d'édition */}
             <div className="flex items-center gap-1.5 shrink-0 ml-2">
               <button
                 type="button"
-                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-card-foreground hover:bg-secondary transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   onAddDrinkToCategory(category.id);
@@ -164,36 +175,36 @@ const CategorySection = ({
                 <DropdownMenuTrigger asChild>
                   <button
                     type="button"
-                    className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
+                    className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-card border border-border text-muted-foreground hover:text-card-foreground hover:bg-secondary transition-colors cursor-pointer"
                     aria-label={`Options pour la catégorie ${category.name}`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Edit size={17} strokeWidth={1.8} />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-[#0e1b35] border border-[#23355b] shadow-2xl p-1.5 flex flex-col space-y-0.5 backdrop-blur-md text-slate-100">
+                <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-popover border border-border shadow-2xl p-1.5 flex flex-col space-y-0.5 backdrop-blur-md text-popover-foreground">
                   <DropdownMenuItem
-                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-popover-foreground hover:bg-secondary focus:bg-secondary hover:text-card-foreground focus:text-card-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       setIsBulkOpen(true);
                     }}
                   >
-                    <FileText className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                    <FileText className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
                     <span className="leading-snug">Ajouter plusieurs boissons</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-popover-foreground hover:bg-secondary focus:bg-secondary hover:text-card-foreground focus:text-card-foreground transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       onEditCategory(category);
                     }}
                   >
-                    <Edit className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                    <Edit className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
                     <span>Modifier</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer focus:text-rose-400 focus:bg-rose-500/10"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer focus:text-destructive focus:bg-destructive/10"
                     onClick={(e) => {
                       e.preventDefault();
                       onDeleteCategory(category);
@@ -206,8 +217,8 @@ const CategorySection = ({
             </div>
           </header>
 
-          {/* Grille 2 colonnes fidèle à Stitch */}
-          <div className="category-grid" aria-label={`Boissons de la catégorie ${category.name}`}>
+          {/* Grille gouvernée par viewMode (2 / 3 / 4 colonnes) */}
+          <div className={`category-grid ${gridColsClass}`} aria-label={`Boissons de la catégorie ${category.name}`}>
             {drinksToShow && drinksToShow.length > 0 ? (
               drinksToShow.map((drink) => (
                 <DrinkCard
@@ -221,7 +232,7 @@ const CategorySection = ({
                 />
               ))
             ) : (
-              <p className="col-span-2 text-muted-foreground text-sm py-4 italic text-center">
+              <p className="col-span-full text-muted-foreground text-sm py-4 italic text-center">
                 Aucune boisson dans cette catégorie.
               </p>
             )}

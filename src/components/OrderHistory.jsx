@@ -46,15 +46,15 @@ const OrderHistory = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[94vw] max-w-[420px] sm:max-w-[440px] max-h-[90vh] flex flex-col p-5 bg-[#0e1b35] text-white rounded-2xl border border-[#23355b] shadow-2xl focus:outline-none [&>button.absolute]:hidden">
+      <DialogContent className="w-[94vw] max-w-[420px] sm:max-w-[440px] max-h-[90vh] flex flex-col p-5 bg-card text-card-foreground rounded-2xl border border-border shadow-2xl focus:outline-none [&>button.absolute]:hidden">
         {/* En-tête Stitch avec icône Historique et croix de fermeture */}
-        <header className="shrink-0 flex items-start justify-between pb-3 border-b border-[#182747]">
+        <header className="shrink-0 flex items-start justify-between pb-3 border-b border-border">
           <div className="flex flex-col text-left">
-            <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
-              <History className="w-5 h-5 text-slate-300 shrink-0" />
+            <DialogTitle className="text-lg font-bold text-card-foreground flex items-center gap-2">
+              <History className="w-5 h-5 text-muted-foreground shrink-0" />
               <span>Historique des commandes</span>
             </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400 mt-1">
+            <DialogDescription className="text-xs text-muted-foreground mt-1">
               Consultez et partagez vos commandes passées.
             </DialogDescription>
           </div>
@@ -62,14 +62,14 @@ const OrderHistory = ({
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            className="text-slate-400 hover:text-white transition-colors p-1 -mr-1 -mt-1 rounded-lg hover:bg-white/5 cursor-pointer"
+            className="text-muted-foreground hover:text-card-foreground transition-colors p-1 -mr-1 -mt-1 rounded-lg hover:bg-secondary/50 cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[2.5]" />
           </button>
         </header>
 
         {orderHistory.length === 0 ? (
-          <p className="text-slate-400 text-center py-10 text-sm">
+          <p className="text-muted-foreground text-center py-10 text-sm">
             Aucun historique de commande pour l'instant.
           </p>
         ) : (
@@ -81,30 +81,30 @@ const OrderHistory = ({
               return (
                 <article
                   key={order.id}
-                  className="bg-[#0c1833] border border-[#1e2f55] rounded-2xl p-4 space-y-3 shadow-sm text-left"
+                  className="bg-background/60 border border-border rounded-2xl p-4 space-y-3 shadow-sm text-left"
                 >
                   {/* Ligne 1 : Date & Heure à gauche + Badge Total vert à droite */}
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Calendar className="w-4 h-4 text-slate-300 shrink-0" />
-                      <span className="text-sm font-semibold text-white tracking-wide">
+                      <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <span className="text-sm font-semibold text-card-foreground tracking-wide">
                         {formatDate(order.date)}
                       </span>
                     </div>
                     {/* Badge total vert Stitch */}
-                    <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#d1fae5] text-[#065f46] dark:bg-emerald-950/80 dark:text-emerald-300 dark:border dark:border-emerald-500/30 shrink-0">
+                    <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 shrink-0">
                       {formatPrice(order.total)}
                     </span>
                   </div>
 
                   {/* Ligne 2 : Mention du bar si mono-bar */}
                   {!grouped.isMultiBar && grouped.groups[0] && (
-                    <div className="text-xs text-slate-300 flex items-center gap-1.5 -mt-1">
-                      <span className="text-slate-500">•</span>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 -mt-1">
+                      <span className="text-muted-foreground/70">•</span>
                       <span>{grouped.groups[0].barIcon}</span>
-                      <span className="font-medium text-slate-300">{grouped.groups[0].barName}</span>
+                      <span className="font-medium text-card-foreground/85">{grouped.groups[0].barName}</span>
                       {grouped.groups[0].isDeletedBar && (
-                        <span className="text-[10px] text-rose-400 bg-rose-500/10 px-1.5 py-0.2 rounded border border-rose-500/20 font-medium">
+                        <span className="text-[10px] text-destructive bg-destructive/10 px-1.5 py-0.2 rounded border border-destructive/20 font-medium">
                           supprimé
                         </span>
                       )}
@@ -115,24 +115,24 @@ const OrderHistory = ({
                   {grouped.isMultiBar ? (
                     <div className="space-y-2 pt-1">
                       {grouped.groups.map((group) => (
-                        <div key={group.barId} className="rounded-xl border border-[#1e2f55] bg-[#09142b] overflow-hidden text-xs">
-                          {/* En-tête de bar multi-bars avec sous-total rose */}
-                          <div className="flex items-center justify-between px-3 py-1.5 bg-[#0e1c39] font-semibold border-b border-[#182747]">
+                        <div key={group.barId} className="rounded-xl border border-border bg-background overflow-hidden text-xs">
+                          {/* En-tête de bar multi-bars avec sous-total primaire */}
+                          <div className="flex items-center justify-between px-3 py-1.5 bg-secondary/50 font-semibold border-b border-border">
                             <span className="flex items-center gap-1.5">
                               <span>{group.barIcon}</span>
-                              <span className="text-white">{group.barName}</span>
+                              <span className="text-card-foreground">{group.barName}</span>
                               {group.isDeletedBar && (
-                                <span className="text-[10px] text-rose-400 bg-rose-500/10 px-1 py-0.2 rounded">supprimé</span>
+                                <span className="text-[10px] text-destructive bg-destructive/10 px-1 py-0.2 rounded">supprimé</span>
                               )}
                             </span>
-                            <span className="text-[#e11d48] font-bold">{formatPrice(group.subtotal)}</span>
+                            <span className="text-primary font-bold">{formatPrice(group.subtotal)}</span>
                           </div>
                           {/* Articles de ce bar */}
                           <div className="px-3 py-1.5 space-y-1">
                             {group.items.map((item, index) => (
                               <div key={getOrderItemKey(item) || index} className="flex justify-between items-center text-xs py-0.5">
-                                <span className="text-white font-medium">{item.quantity}× {item.drinkName || item.name}</span>
-                                <span className="text-slate-300">{formatPrice(item.quantity * item.price)}</span>
+                                <span className="text-card-foreground font-medium">{item.quantity}× {item.drinkName || item.name}</span>
+                                <span className="text-muted-foreground">{formatPrice(item.quantity * item.price)}</span>
                               </div>
                             ))}
                           </div>
@@ -146,10 +146,10 @@ const OrderHistory = ({
                           key={index}
                           className="flex justify-between items-center text-sm"
                         >
-                          <span className="text-white font-medium">
+                          <span className="text-card-foreground font-medium">
                             {item.quantity}x {item.drinkName || item.name}
                           </span>
-                          <span className="text-slate-300 font-medium">
+                          <span className="text-muted-foreground font-medium">
                             {formatPrice(item.quantity * item.price)}
                           </span>
                         </div>
@@ -159,22 +159,22 @@ const OrderHistory = ({
 
                   {/* Note de la commande (E-7) */}
                   {order.note && (
-                    <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-200 flex items-start gap-2">
-                      <StickyNote className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="p-2.5 rounded-xl bg-price/10 border border-price/25 text-xs text-foreground flex items-start gap-2">
+                      <StickyNote className="w-3.5 h-3.5 text-price shrink-0 mt-0.5" />
                       <div className="min-w-0 flex-1">
-                        <span className="font-semibold text-amber-300">Note : </span>
-                        <span className="italic break-words text-slate-200">{order.note}</span>
+                        <span className="font-semibold text-price">Note : </span>
+                        <span className="italic break-words text-card-foreground">{order.note}</span>
                       </div>
                     </div>
                   )}
 
                   {/* Ligne 4 : Séparateur et récapitulatif (X articles + Total) */}
-                  <div className="pt-2 border-t border-[#1e2f55] flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-1.5 text-slate-400">
+                  <div className="pt-2 border-t border-border flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
                       <FileText className="w-3.5 h-3.5" />
                       <span>{totalItemsCount} article{totalItemsCount > 1 ? 's' : ''}</span>
                     </div>
-                    <span className="font-bold text-sm text-white">
+                    <span className="font-bold text-sm text-card-foreground">
                       Total : {formatPrice(order.total)}
                     </span>
                   </div>
@@ -186,7 +186,7 @@ const OrderHistory = ({
                       {onReorder ? (
                         <button
                           type="button"
-                          className="w-full h-9 px-3 bg-[#172545] hover:bg-[#1e3056] border border-[#23355b] text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
+                          className="w-full h-9 px-3 bg-secondary hover:bg-secondary/80 border border-border text-secondary-foreground hover:text-card-foreground rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
                           onClick={() => onReorder(order)}
                           aria-label="Recommander cette commande"
                         >
@@ -198,7 +198,7 @@ const OrderHistory = ({
                       {onOpenTicket ? (
                         <button
                           type="button"
-                          className="w-full h-9 px-3 bg-[#172545] hover:bg-[#1e3056] border border-[#23355b] text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
+                          className="w-full h-9 px-3 bg-secondary hover:bg-secondary/80 border border-border text-secondary-foreground hover:text-card-foreground rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
                           onClick={() => onOpenTicket(order)}
                           aria-label="Voir le ticket de cette commande"
                         >
@@ -214,14 +214,14 @@ const OrderHistory = ({
                         order={order} 
                         menus={menus}
                         isCurrentOrder={false} 
-                        className="flex-1 h-9 px-3 bg-[#172545] hover:bg-[#1e3056] border border-[#23355b] text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        className="flex-1 h-9 px-3 bg-secondary hover:bg-secondary/80 border border-border text-secondary-foreground hover:text-card-foreground rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         size="sm"
                       />
                       <button
                         type="button"
                         aria-label="Supprimer cette commande"
                         onClick={() => setOrderToDelete(order)}
-                        className="w-10 h-9 rounded-xl bg-[#2e1526]/80 hover:bg-[#3d1a33] border border-rose-500/30 text-rose-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer shrink-0 active:scale-95"
+                        className="w-10 h-9 rounded-xl bg-destructive/15 hover:bg-destructive/25 border border-destructive/30 text-destructive flex items-center justify-center transition-colors cursor-pointer shrink-0 active:scale-95"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

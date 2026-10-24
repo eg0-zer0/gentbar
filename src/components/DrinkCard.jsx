@@ -66,9 +66,9 @@ const DrinkCard = ({
 
   // Niveau de popularité
   const getPopularityLevel = (score) => {
-    if (score >= 20) return { label: 'TOP', className: 'bg-red-500/20 text-red-400 border-red-500/30' };
-    if (score >= 10) return { label: 'HOT', className: 'bg-orange-500/20 text-orange-400 border-orange-500/30' };
-    if (score >= 5) return { label: 'POP', className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
+    if (score >= 20) return { label: 'TOP', className: 'bg-destructive/20 text-destructive border-destructive/30' };
+    if (score >= 10) return { label: 'HOT', className: 'bg-price/20 text-price border-price/30' };
+    if (score >= 5) return { label: 'POP', className: 'bg-price/15 text-price border-price/25' };
     return null;
   };
   const popularity = getPopularityLevel(popularityScore);
@@ -95,8 +95,20 @@ const DrinkCard = ({
     }
   };
 
-  // Tailles proportionnées selon le mode de vue
+  // Tailles proportionnées et zones tactiles selon le mode de vue
   const pencilIconSize = isMinimal ? 10 : isCompact ? 11 : 12;
+
+  const cardSizeClasses = isMinimal
+    ? 'min-h-[76px] p-1.5 rounded-lg'
+    : isCompact
+    ? 'min-h-[98px] p-2.5 rounded-xl'
+    : 'min-h-[124px] p-2.5 sm:p-3 rounded-xl';
+
+  const editBtnSizeClasses = isMinimal
+    ? 'w-4 h-4'
+    : isCompact
+    ? 'w-5 h-5'
+    : 'w-6 h-6';
 
   const badgeSizeClasses = isMinimal
     ? 'min-w-[18px] h-4.5 px-1 text-[10px]'
@@ -107,8 +119,8 @@ const DrinkCard = ({
   return (
     <div
       ref={cardRef}
-      className={`drink-card group relative rounded-xl bg-card border border-slate-700/50 p-2 sm:p-3 flex flex-col justify-between shadow-sm hover:border-slate-600 transition-all cursor-pointer select-none active:scale-[0.98] ${
-        isAdded ? 'ring-2 ring-[#ff4897]' : ''
+      className={`drink-card group relative ${cardSizeClasses} bg-card border border-border flex flex-col justify-between shadow-sm hover:border-ring/60 transition-all cursor-pointer select-none active:scale-[0.98] ${
+        isAdded ? 'ring-2 ring-accent' : ''
       } ${pulse ? 'animate-pulse' : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -116,9 +128,9 @@ const DrinkCard = ({
       role="button"
       aria-label={`Ajouter ${drink.name} à la commande`}
     >
-      {/* Badge quantité en haut à droite (Stitch : rond magenta vibrant) */}
+      {/* Badge quantité en haut à droite */}
       {quantityInOrder > 0 && (
-        <div className={`absolute -top-1.5 -right-1.5 ${badgeSizeClasses} rounded-full bg-[#ff4897] text-white font-bold flex items-center justify-center shadow-lg ring-2 ring-[#06122c] z-10`}>
+        <div className={`absolute -top-1.5 -right-1.5 ${badgeSizeClasses} rounded-full bg-accent text-accent-foreground font-bold flex items-center justify-center shadow-lg ring-2 ring-background z-10`}>
           {quantityInOrder}
         </div>
       )}
@@ -137,7 +149,7 @@ const DrinkCard = ({
             <span className="truncate">{categoryName}</span>
           </span>
         )}
-        <p className={`drink-name leading-tight text-white text-left ${
+        <p className={`drink-name leading-tight text-card-foreground text-left ${
           isMinimal
             ? 'text-[11px] font-medium line-clamp-2'
             : isCompact
@@ -151,7 +163,7 @@ const DrinkCard = ({
       {/* Partie basse : Prix (masqué en vue minimal) + Bouton modifier discret */}
       <div className={`flex items-center ${isMinimal ? 'justify-end mt-auto pt-1' : 'justify-between mt-auto pt-1.5'}`}>
         {!isMinimal && (
-          <span className="drink-price font-bold text-xs sm:text-sm text-[#f59e0b] tracking-tight">
+          <span className="drink-price font-bold text-xs sm:text-sm text-price tracking-tight">
             {formatPrice(drink.price)}
           </span>
         )}
@@ -162,7 +174,7 @@ const DrinkCard = ({
             e.stopPropagation();
             onEdit(drink, 'edit');
           }}
-          className="btn-edit text-slate-400 hover:text-white hover:bg-white/10 rounded flex items-center justify-center transition-colors cursor-pointer shrink-0"
+          className={`btn-edit ${editBtnSizeClasses} min-w-0 min-h-0 p-0 text-muted-foreground hover:text-card-foreground hover:bg-secondary/60 rounded flex items-center justify-center transition-colors cursor-pointer shrink-0`}
         >
           <Pencil size={pencilIconSize} className="stroke-[1.75]" />
         </button>

@@ -47,8 +47,8 @@ const Header = ({
   const nextViewIndex = (currentViewIndex + 1) % viewModes.length;
   const nextView = viewModes[nextViewIndex];
 
-  const itemClassName = "flex items-center space-x-3 px-4 py-2.5 text-xs font-medium tracking-tight text-slate-200 rounded-none cursor-pointer hover:bg-[#152549] hover:text-white focus:bg-[#152549] focus:text-white transition-colors outline-none group select-none";
-  const iconClassName = "w-4 h-4 text-slate-300 stroke-2 group-hover:text-white group-focus:text-white shrink-0";
+  const itemClassName = "flex items-center space-x-3 px-4 py-2.5 text-xs font-medium tracking-tight text-popover-foreground rounded-none cursor-pointer hover:bg-secondary hover:text-card-foreground focus:bg-secondary focus:text-card-foreground transition-colors outline-none group select-none";
+  const iconClassName = "w-4 h-4 text-muted-foreground stroke-2 group-hover:text-card-foreground group-focus:text-card-foreground shrink-0";
 
   const renderNextThemeIcon = () => {
     switch (nextTheme) {
@@ -102,13 +102,13 @@ const Header = ({
               variant="ghost"
               size="icon"
               aria-label="Menu principal"
-              className="h-9 w-9 p-0 rounded-lg text-slate-300 hover:text-white hover:bg-[#0e1b35] transition-colors focus:outline-none cursor-pointer"
+              className="h-9 w-9 p-0 rounded-lg text-muted-foreground hover:text-foreground hover:bg-card transition-colors focus:outline-none cursor-pointer"
             >
               <Menu className="w-5 h-5 stroke-[2.5]" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[220px] bg-[#0e1b35] border border-[#23355b] rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.7),0_0_0_1px_#23355b] p-0 overflow-hidden text-slate-200 z-50 divide-y divide-white/[0.06]"
+            className="w-[220px] bg-popover border border-border rounded-2xl shadow-2xl p-0 overflow-hidden text-popover-foreground z-50 divide-y divide-border/40"
             align="end"
             sideOffset={6}
             alignOffset={0}
@@ -198,8 +198,8 @@ const Header = ({
       {showShareModal && (
         <React.Suspense fallback={null}>
           <ShareAppModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
           />
         </React.Suspense>
       )}
