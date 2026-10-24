@@ -23,7 +23,7 @@
     --muted-foreground: 215 16% 47%;      /* #64748b (slate-500) : Métadonnées, icônes et placeholders */
     --accent: 330 81% 60%;                /* #ff4897 : Accent rose punch conservé */
     --accent-foreground: 0 0% 100%;       /* #ffffff */
-    --destructive: 0 72% 51%;            /* #dc2626 */
+    --destructive: 0 72% 51%;             /* #dc2626 */
     --destructive-foreground: 0 0% 100%;  /* #ffffff */
     --border: 214 32% 91%;                /* #e2e8f0 (slate-200) : Bordures de cartes et séparateurs */
     --input: 214 32% 91%;                 /* #e2e8f0 (slate-200) : Bordures des champs de saisie */
@@ -32,28 +32,30 @@
     --radius: 0.5rem;
   }
 
-  /* Thème Sombre */
-  html.dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 263 83% 58%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 252 80% 67%;
-    --price: 38 92% 50%;
+  /* Thème Sombre - Charte Obsidienne & Or (Stitch Dark Theme) */
+  html.dark,
+  html.gentbar-dark,
+  html[data-theme='dark'] {
+    --background: 240 7% 5.5%;            /* #0d0d0f : Noir carbone / fumé profond */
+    --foreground: 48 33% 96%;             /* #f4f4f5 / crème chaud : Texte principal haute lisibilité */
+    --card: 240 6% 10%;                   /* #18181b : Gris très sombre / anthracite */
+    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur / crème haute lisibilité pour les titres */
+    --popover: 240 6% 10%;                /* #18181b : Gris très sombre / anthracite */
+    --popover-foreground: 48 33% 96%;     /* #f4f4f5 : Blanc chaud */
+    --primary: 38 92% 50%;                /* #f59e0b (amber-500) : Ambre / or chaud pour le bouton principal */
+    --primary-foreground: 240 7% 5.5%;    /* #0d0d0f : Texte carbone profond sur bouton ambre */
+    --secondary: 240 8% 15%;              /* #24242a : Surface sombre surélevée */
+    --secondary-foreground: 48 96% 89%;   /* #fef3c7 : Crème doré clair sur surface secondaire */
+    --muted: 240 6% 13%;                  /* #1f1f23 : Surface sombre atténuée */
+    --muted-foreground: 36 12% 65%;       /* #b0a89a : Ardoise chaude pour textes secondaires */
+    --accent: 43 96% 56%;                 /* #fbbf24 (amber-400) : Or vibrant pour les pastilles de compteur */
+    --accent-foreground: 240 7% 5.5%;     /* #0d0d0f : Texte carbone sur pastille or */
+    --destructive: 0 72% 51%;             /* #dc2626 */
+    --destructive-foreground: 0 0% 100%;  /* #ffffff */
+    --border: 40 20% 21%;                 /* #3f382a : Contour discret teinté bronze / ambre sombre */
+    --input: 40 20% 21%;                  /* #3f382a : Contour bronze / ambre sombre pour les champs */
+    --ring: 38 92% 50%;                   /* #f59e0b : Anneau de focus ambre */
+    --price: 43 96% 56%;                  /* #fbbf24 (amber-400) : Or lumineux identique */
   }
 
   /* Thème Gentbar de référence - Charte Velvet Arena (Stitch) */
