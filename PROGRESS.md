@@ -2,7 +2,7 @@
 
 *Fichier de reprise : à lire en premier à chaque session, à mettre à jour après chaque sous-tâche. Statuts : `[ ]` à faire · `[x]` fait (avec commit) · `[~]` déjà corrigé avant.*
 
-**Branche de travail** : `roadmap` · **Prochaine étape** : Étape suivante sur demande · **Dernier commit** : 0d5065c
+**Branche de travail** : `roadmap` · **Prochaine étape** : Étape suivante sur demande · **Dernier commit** : b9221ca
 
 ---
 
