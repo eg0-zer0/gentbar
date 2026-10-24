@@ -17,8 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuTrigger
 } from './ui/dropdown-menu';
 
 const Header = ({ 
@@ -48,14 +47,17 @@ const Header = ({
   const nextViewIndex = (currentViewIndex + 1) % viewModes.length;
   const nextView = viewModes[nextViewIndex];
 
+  const itemClassName = "flex items-center space-x-3 px-4 py-2.5 text-xs font-medium tracking-tight text-slate-200 rounded-none cursor-pointer hover:bg-[#152549] hover:text-white focus:bg-[#152549] focus:text-white transition-colors outline-none group select-none";
+  const iconClassName = "w-4 h-4 text-slate-300 stroke-2 group-hover:text-white group-focus:text-white shrink-0";
+
   const renderNextThemeIcon = () => {
     switch (nextTheme) {
       case 'light':
-        return <Sun className="w-5 h-5" aria-label="Mode clair" />;
+        return <Sun className={iconClassName} aria-label="Mode clair" />;
       case 'dark':
-        return <Moon className="w-5 h-5" aria-label="Mode sombre" />;
+        return <Moon className={iconClassName} aria-label="Mode sombre" />;
       case 'gentbar':
-        return <Layout className="w-5 h-5" aria-label="Mode Gentbar" />;
+        return <Layout className={iconClassName} aria-label="Mode Gentbar" />;
       default:
         return null;
     }
@@ -96,51 +98,100 @@ const Header = ({
       <div className="shrink-0">
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label="Ouvrir menu" className="h-9 w-9">
-              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Menu principal"
+              className="h-9 w-9 p-0 rounded-lg text-slate-300 hover:text-white hover:bg-[#0e1b35] transition-colors focus:outline-none cursor-pointer"
+            >
+              <Menu className="w-5 h-5 stroke-[2.5]" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 dropdown-menu-content" align="end">
-            <DropdownMenuItem className="dropdown-menu-item" onClick={() => { navigate('/?manual=true', { state: { fromMenu: true } }); setMenuOpen(false); }}>
-              <Home className="mr-2 w-4 h-4 text-foreground" />
-              Accueil
-            </DropdownMenuItem>
-            <DropdownMenuItem className="dropdown-menu-item" onClick={() => { navigate('/bars'); setMenuOpen(false); }}>
-              <Store className="mr-2 w-4 h-4 text-foreground" />
-              Mes bars
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { cycleTheme(); setMenuOpen(false); }}>
-              {renderNextThemeIcon()}
-              <span className="ml-2">
-                Mode {nextTheme === 'gentbar' ? 'Gentbar' : nextTheme === 'light' ? 'clair' : 'sombre'}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { cycleViewMode(); setMenuOpen(false); }}>
-              <Layout className="mr-2 w-4 h-4" />
-              Mode vue : {nextView}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { onToggleSound(); setMenuOpen(false); }}>
-              {soundEnabled ? <Volume2 className="mr-2 w-4 h-4" /> : <VolumeX className="mr-2 w-4 h-4" />}
-              {soundEnabled ? 'Désactiver son' : 'Activer son'}
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {isInstallable && !isInstalled && (
-              <DropdownMenuItem onClick={() => { installApp(); setMenuOpen(false); }}>
-                <Download className="mr-2 w-4 h-4" />
-                Installer l'app
+          <DropdownMenuContent
+            className="w-[220px] bg-[#0e1b35] border border-[#23355b] rounded-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.7),0_0_0_1px_#23355b] p-0 overflow-hidden text-slate-200 z-50 divide-y divide-white/[0.06]"
+            align="end"
+            sideOffset={6}
+            alignOffset={0}
+          >
+            {/* Groupe 1: Navigation Principale */}
+            <div className="py-1">
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { navigate('/?manual=true', { state: { fromMenu: true } }); setMenuOpen(false); }}
+              >
+                <Home className={iconClassName} />
+                <span>Accueil</span>
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => { onShowHistory(); setMenuOpen(false); }}>
-              <History className="mr-2 w-4 h-4" />
-              Historique
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { setShowShareModal(true); setMenuOpen(false); }}>
-              <QrCode className="mr-2 w-4 h-4" />
-              Partager l'application
-            </DropdownMenuItem>
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { navigate('/bars'); setMenuOpen(false); }}
+              >
+                <Store className={iconClassName} />
+                <span>Mes bars</span>
+              </DropdownMenuItem>
+            </div>
+
+            {/* Groupe 2: Affichage & Vue */}
+            <div className="py-1">
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { cycleTheme(); setMenuOpen(false); }}
+              >
+                {renderNextThemeIcon()}
+                <span>
+                  Mode {nextTheme === 'gentbar' ? 'Gentbar' : nextTheme === 'light' ? 'clair' : 'sombre'}
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { cycleViewMode(); setMenuOpen(false); }}
+              >
+                <Layout className={iconClassName} />
+                <span>Mode vue : {nextView}</span>
+              </DropdownMenuItem>
+            </div>
+
+            {/* Groupe 3: Audio & Historique */}
+            <div className="py-1">
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { onToggleSound(); setMenuOpen(false); }}
+              >
+                {soundEnabled ? (
+                  <Volume2 className={iconClassName} />
+                ) : (
+                  <VolumeX className={iconClassName} />
+                )}
+                <span>{soundEnabled ? 'Désactiver son' : 'Activer son'}</span>
+              </DropdownMenuItem>
+              {isInstallable && !isInstalled && (
+                <DropdownMenuItem
+                  className={itemClassName}
+                  onClick={() => { installApp(); setMenuOpen(false); }}
+                >
+                  <Download className={iconClassName} />
+                  <span>Installer l'app</span>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { onShowHistory(); setMenuOpen(false); }}
+              >
+                <History className={iconClassName} />
+                <span>Historique</span>
+              </DropdownMenuItem>
+            </div>
+
+            {/* Groupe 4: Partage */}
+            <div className="py-1">
+              <DropdownMenuItem
+                className={itemClassName}
+                onClick={() => { setShowShareModal(true); setMenuOpen(false); }}
+              >
+                <QrCode className={iconClassName} />
+                <span>Partager l'application</span>
+              </DropdownMenuItem>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
