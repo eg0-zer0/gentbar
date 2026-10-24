@@ -124,7 +124,16 @@
       "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Transition en fondu doux lors du changement de thème (Solution 1 CSS) */
+  html,
+  body,
+  #root,
+  [class*="bg-"],
+  [class*="border-"],
+  [class*="text-"] {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.25s ease;
   }
 
   code {
