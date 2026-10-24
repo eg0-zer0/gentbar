@@ -65,59 +65,57 @@ const CategorySection = ({
           </div>
           {/* Actions à droite : uniquement le bouton + et le crayon d'édition (pas de flèche supplémentaire) */}
           <div className="flex items-center gap-1.5 shrink-0 ml-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 w-8 p-0 rounded-lg bg-secondary/80 text-white border border-slate-700/60 hover:bg-secondary"
+            <button
+              type="button"
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
               onClick={(e) => {
                 e.stopPropagation();
                 onAddDrinkToCategory(category.id);
               }}
               aria-label={`Ajouter une boisson à la catégorie ${category.name}`}
             >
-              <Plus size={15} />
-            </Button>
+              <Plus size={18} strokeWidth={2} />
+            </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 w-8 p-0 rounded-lg bg-secondary/80 text-muted-foreground hover:text-white border border-slate-700/60 hover:bg-secondary"
+                <button
+                  type="button"
+                  className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
                   aria-label={`Options pour la catégorie ${category.name}`}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Edit size={15} />
-                </Button>
+                  <Edit size={17} strokeWidth={1.8} />
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-popover text-popover-foreground border border-slate-700/60 shadow-xl rounded-xl">
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-[#0e1b35] border border-[#23355b] shadow-2xl p-1.5 flex flex-col space-y-0.5 backdrop-blur-md text-slate-100">
                 <DropdownMenuItem
-                  className="cursor-pointer"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     setIsBulkOpen(true);
                   }}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
-                  Ajouter plusieurs boissons
+                  <FileText className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                  <span className="leading-snug">Ajouter plusieurs boissons</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="cursor-pointer"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
                   onClick={(e) => {
                     e.preventDefault();
                     onEditCategory(category);
                   }}
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Modifier
+                  <Edit className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                  <span>Modifier</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer focus:text-rose-400 focus:bg-rose-500/10"
                   onClick={(e) => {
                     e.preventDefault();
                     onDeleteCategory(category);
                   }}
                 >
-                  Supprimer
+                  <span className="pl-0.5">Supprimer</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -150,60 +148,58 @@ const CategorySection = ({
 
             {/* Actions à droite : uniquement bouton + et crayon d'édition (pas de flèche supplémentaire) */}
             <div className="flex items-center gap-1.5 shrink-0 ml-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 w-8 p-0 rounded-lg bg-secondary/80 text-white border border-slate-700/60 hover:bg-secondary"
+              <button
+                type="button"
+                className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   onAddDrinkToCategory(category.id);
                 }}
                 aria-label={`Ajouter une boisson à la catégorie ${category.name}`}
               >
-                <Plus size={15} />
-              </Button>
+                <Plus size={18} strokeWidth={2} />
+              </button>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-8 w-8 p-0 rounded-lg bg-secondary/80 text-muted-foreground hover:text-white border border-slate-700/60 hover:bg-secondary"
+                  <button
+                    type="button"
+                    className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-xl bg-[#0e1b35] border border-[#23355b] text-slate-300 hover:text-white transition-colors cursor-pointer"
                     aria-label={`Options pour la catégorie ${category.name}`}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <Edit size={15} />
-                  </Button>
+                    <Edit size={17} strokeWidth={1.8} />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-popover text-popover-foreground border border-slate-700/60 shadow-xl rounded-xl">
+                <DropdownMenuContent align="end" className="w-56 rounded-2xl bg-[#0e1b35] border border-[#23355b] shadow-2xl p-1.5 flex flex-col space-y-0.5 backdrop-blur-md text-slate-100">
                   <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       setIsBulkOpen(true);
                     }}
                   >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Ajouter plusieurs boissons
+                    <FileText className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                    <span className="leading-snug">Ajouter plusieurs boissons</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="cursor-pointer"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-medium text-slate-100 hover:bg-[#16274a] transition-colors cursor-pointer"
                     onClick={(e) => {
                       e.preventDefault();
                       onEditCategory(category);
                     }}
                   >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifier
+                    <Edit className="mr-2 h-4 w-4 text-slate-300 shrink-0" />
+                    <span>Modifier</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="cursor-pointer text-destructive focus:text-destructive"
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer focus:text-rose-400 focus:bg-rose-500/10"
                     onClick={(e) => {
                       e.preventDefault();
                       onDeleteCategory(category);
                     }}
                   >
-                    Supprimer
+                    <span className="pl-0.5">Supprimer</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

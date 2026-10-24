@@ -22,10 +22,6 @@ const DeleteConfirmDialog = ({
   cancelText = "Annuler",
   description
 }) => {
-  // Classes dynamiques pour les thèmes
-  const bgClass = "bg-card";
-  const textPrimaryClass = "text-foreground";
-
   const dialogTitle =
     title ||
     (type === 'drink'
@@ -40,29 +36,29 @@ const DeleteConfirmDialog = ({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-      <AlertDialogContent className={`${bgClass} max-w-md mx-auto rounded-md p-6 shadow-lg`}>
+      <AlertDialogContent className="w-[92vw] max-w-[380px] bg-[#0e1b35] text-white rounded-2xl border border-[#23355b] p-6 shadow-2xl focus:outline-none">
         <AlertDialogHeader>
-          <AlertDialogTitle className={`${textPrimaryClass} text-lg font-semibold`}>
+          <AlertDialogTitle className="text-white text-lg font-bold">
             {dialogTitle}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-muted-text mt-2">
+          <AlertDialogDescription className="text-slate-400 text-sm mt-2 leading-relaxed">
             {dialogDescription}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="mt-6 flex justify-end gap-4">
+        <AlertDialogFooter className="mt-6 flex items-center justify-end gap-3">
           <AlertDialogCancel asChild>
-            <button className="btn btn-outline" type="button">
+            <button 
+              className="h-10 px-4 bg-[#152547] hover:bg-[#1a2d54] text-slate-200 hover:text-white font-semibold text-xs rounded-xl border border-[#23355b] transition-colors cursor-pointer" 
+              type="button"
+            >
               {cancelText}
             </button>
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <button
-              className="btn btn-destructive"
+              className="h-10 px-4 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-950/20 transition-colors cursor-pointer border-0"
               type="button"
-              onClick={() => {
-                onConfirm();
-                onClose();
-              }}
+              onClick={onConfirm}
             >
               {confirmText}
             </button>
