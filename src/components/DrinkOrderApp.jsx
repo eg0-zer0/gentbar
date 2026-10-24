@@ -217,7 +217,7 @@ const DrinkOrderApp = () => {
 
   // === RENDER ===
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-clip bg-background text-foreground transition-colors duration-300">
       <div className={`container mx-auto px-3 sm:px-4 pt-2 sm:pt-4 pb-8 max-w-7xl content-container ${!showConfirmModal ? 'pb-20' : ''}`}>
         <Header
           soundEnabled={soundEnabled}

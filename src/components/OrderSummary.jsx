@@ -50,10 +50,10 @@ const OrderSummary = ({
 
   if (isFloating) {
     return (
-      <div className="floating-cart flex justify-center items-center w-full">
+      <div className="floating-cart flex justify-center items-center w-full pointer-events-none">
         <button
           type="button"
-          className="flex items-center justify-between w-full max-w-md h-14 px-5 rounded-2xl bg-[#e4007c] hover:bg-[#d0006f] text-white shadow-[0_12px_28px_rgba(228,0,124,0.38)] transition-all cursor-pointer select-none active:scale-[0.98]"
+          className="pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-5 rounded-2xl bg-[#e4007c] hover:bg-[#d0006f] text-white shadow-[0_12px_28px_rgba(228,0,124,0.38)] transition-all cursor-pointer select-none active:scale-[0.98]"
           onClick={onConfirmOrder}
           aria-label={`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
         >

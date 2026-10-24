@@ -62,7 +62,7 @@ const Header = ({
   };
 
   return (
-    <header className="flex items-center justify-between px-2 py-2 sm:px-4 sm:py-3 bg-background text-foreground border-b border-border/40 shadow-xs rounded-lg mb-2">
+    <header className="sticky top-0 z-40 flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 bg-background/95 backdrop-blur-md text-foreground border-b border-border/40 shadow-xs rounded-b-xl mb-3">
       {/* Marque et bar actif */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <span className="font-bold text-base sm:text-lg tracking-tight select-none flex items-center gap-1.5 text-foreground shrink-0">

@@ -709,17 +709,20 @@ header {
 html.gentbar .floating-cart {
   position: fixed;
   bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
-  left: 1rem;
-  right: 1rem;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
   background: transparent !important;
   border-top: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  padding: 0 1rem !important;
+  margin: 0 !important;
   z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
   pointer-events: none;
+  box-sizing: border-box !important;
 }
 
 html.gentbar .floating-cart > * {
