@@ -69,7 +69,7 @@ const EditDrink = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[92vw] max-w-[360px] mx-auto bg-[#0e1b35] rounded-2xl border border-[#23355b] p-6 shadow-2xl relative [&>button.absolute]:hidden">
+      <DialogContent className="w-[92vw] max-w-[360px] bg-[#0e1b35] text-white rounded-2xl border border-[#23355b] p-6 shadow-2xl [&>button.absolute]:hidden">
         {/* Bouton de fermeture 'x' en haut à droite (Stitch) */}
         <button
           type="button"
