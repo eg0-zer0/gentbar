@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { usePWA } from '../hooks/usePWA';
-import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { QrCode } from 'lucide-react';
+import { QrCode, ArrowRight, Smartphone, RefreshCw, Check } from 'lucide-react';
 const ShareAppModal = React.lazy(() => import('./ShareAppModal'));
 import IosInstallPopup from './IosInstallPopup';
 import { useViewMode } from '../contexts/ViewModeContext';
@@ -96,86 +95,105 @@ export default function LandingPage() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6 py-12 transition-colors duration-300">
-      <div className="mb-6">
+      <div className="mb-4">
         <img
           src={`${process.env.PUBLIC_URL}/icons/icon-192x192.png`}
           alt="Logo GentBar"
-          className="w-24 h-24 mx-auto mb-4"
+          className="w-24 h-24 mx-auto mb-4 drop-shadow-[0_4px_16px_rgba(225,29,72,0.4)]"
         />
-        <h1 className="text-4xl font-bold text-foreground">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
           🍹 GentBar Order App
         </h1>
       </div>
-      <p className="text-muted-text text-lg max-w-md mb-10">
+
+      <p className="text-muted-foreground text-sm sm:text-base max-w-md mb-8 leading-relaxed">
         Gérez facilement vos commandes de boissons, consultez votre historique
         et profitez d&apos;une expérience fluide, même hors connexion.
       </p>
 
-      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+      {/* 3. ACTIONS PRINCIPALES (Call To Action Stack) - Fidèle à Stitch */}
+      <section className="w-full flex flex-col gap-3 my-2 max-w-sm mx-auto">
+        {/* 1. CTA Principal : Accéder à l'application */}
+        <button
+          type="button"
+          onClick={() => navigate('/app')}
+          className="w-full h-14 rounded-full bg-gradient-to-r from-[#e11d48] to-[#ff4897] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(225,29,72,0.45)] hover:brightness-110 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+        >
+          <span>Accéder à l&apos;application</span>
+          <ArrowRight className="w-5 h-5" />
+        </button>
+
+        {/* 2. CTA Secondaire : Installer la PWA */}
         {!isInstalled ? (
-          <Button
+          <button
+            type="button"
             onClick={handleInstallClick}
             aria-label="Installer l'application GentBar"
-            className="btn-outline"
+            className="w-full h-12 rounded-full bg-card border border-slate-700/60 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-secondary active:scale-[0.98] transition-all duration-150 cursor-pointer"
           >
-            Installer l&apos;App
-          </Button>
+            <Smartphone className="w-4 h-4 text-[#ff4897]" />
+            <span>Installer l&apos;App (PWA)</span>
+          </button>
         ) : (
-          <div className="inline-flex items-center text-xs text-muted-text py-2 px-3.5 rounded-md border border-border-color bg-card">
-            ✓ Application déjà installée
+          <div className="w-full h-12 rounded-full bg-card/60 border border-emerald-500/30 text-emerald-400 font-medium text-sm flex items-center justify-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span>Application déjà installée</span>
           </div>
         )}
 
         <IosInstallPopup open={showIosPopup} onClose={() => setShowIosPopup(false)} />
 
-        <Button
-          className="btn-primary"
-          onClick={() => navigate('/app')}
-        >
-          Accéder à l&apos;application
-        </Button>
-
-        <Button
-          className={updateStatus === 'up-to-date' ? 'btn-outline border-green-500 text-green-600 dark:text-green-400 font-medium' : 'btn-outline'}
-          onClick={handleCheckUpdate}
-          disabled={updateStatus === 'checking'}
-        >
-          {updateStatus === 'checking'
-            ? 'Vérification...'
-            : updateStatus === 'up-to-date'
-            ? '✓ Votre application est à jour'
-            : updateStatus === 'downloading'
-            ? 'Mise à jour en cours...'
-            : 'Vérifier les mises à jour'}
-        </Button>
-
-        <Button
+        {/* 3. CTA Tertiaire : Partager l'application */}
+        <button
           type="button"
-          className="btn-outline flex items-center gap-2"
           onClick={() => setShowShareModal(true)}
           aria-label="Partager l'application"
+          className="w-full h-11 rounded-full bg-card/50 border border-slate-700/40 text-slate-300 font-medium text-sm flex items-center justify-center gap-2 hover:text-white hover:bg-card transition-colors active:scale-[0.98] cursor-pointer"
         >
-          <QrCode className="w-4 h-4" />
+          <QrCode className="w-4 h-4 text-slate-400" />
           <span>Partager l&apos;application</span>
-        </Button>
-      </div>
+        </button>
+
+        {/* 4. Quatrième action : Statut / Vérifier les mises à jour */}
+        <button
+          type="button"
+          onClick={handleCheckUpdate}
+          disabled={updateStatus === 'checking'}
+          className={`w-full h-11 rounded-full border text-sm font-medium flex items-center justify-center gap-2 transition-colors active:scale-[0.98] cursor-pointer ${
+            updateStatus === 'up-to-date'
+              ? 'bg-card/40 border-emerald-500/40 text-emerald-400'
+              : 'bg-card/30 border-slate-700/40 text-slate-300 hover:text-white hover:bg-card'
+          }`}
+        >
+          <RefreshCw className={`w-4 h-4 text-[#ff4897] ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />
+          <span>
+            {updateStatus === 'checking'
+              ? 'Vérification...'
+              : updateStatus === 'up-to-date'
+              ? '✓ Votre application est à jour'
+              : updateStatus === 'downloading'
+              ? 'Mise à jour en cours...'
+              : 'Vérifier les mises à jour'}
+          </span>
+        </button>
+      </section>
 
       {!isInstalled && !isInstallable && (
-        <p className="text-muted-text text-sm mt-6 max-w-sm">
+        <p className="text-muted-foreground text-xs mt-6 max-w-sm">
           💡 Astuce : Vous pouvez aussi installer cette application depuis le
           menu de votre navigateur (⋮ ou Partager puis « Ajouter à l&apos;écran d&apos;accueil »).
         </p>
       )}
 
-      <footer className="mt-8 text-xs text-muted-text">
+      <footer className="mt-8 text-xs text-muted-foreground">
         Mode d&apos;affichage actuel : <strong>{viewMode}</strong>
       </footer>
       {showShareModal && (
         <React.Suspense fallback={null}>
           <ShareAppModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-      />
+            isOpen={showShareModal}
+            onClose={() => setShowShareModal(false)}
+          />
         </React.Suspense>
       )}
     </main>
