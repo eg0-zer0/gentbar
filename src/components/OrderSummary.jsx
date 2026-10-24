@@ -53,7 +53,7 @@ const OrderSummary = ({
       <div className="floating-cart flex justify-center items-center w-full pointer-events-none">
         <button
           type="button"
-          className="pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-4 sm:px-5 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all cursor-pointer select-none active:scale-[0.98]"
+          className="btn-primary pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-4 sm:px-5 rounded-2xl shadow-lg cursor-pointer select-none"
           onClick={onConfirmOrder}
           aria-label={`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
         >

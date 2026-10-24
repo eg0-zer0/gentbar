@@ -223,7 +223,7 @@ const ConfirmOrderModal = ({
             <Button
               type="button"
               onClick={onConfirm}
-              className="w-full h-11 py-2 px-6 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer border-0"
+              className="btn-primary w-full h-11 py-2 px-6 rounded-xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg cursor-pointer border-0"
             >
               <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               <span>Confirmer la commande</span>

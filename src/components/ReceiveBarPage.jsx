@@ -472,7 +472,7 @@ export const ReceiveBarPage = ({
           !loading && (
             <div className="space-y-6">
               {/* Option 0 : Scanner directement avec l'appareil photo */}
-              <div className="bg-card rounded-2xl border border-primary/30 p-5 shadow-sm space-y-3 bg-gradient-to-br from-primary/5 via-card to-card">
+              <div className="bg-card rounded-2xl border border-primary/30 p-5 shadow-sm space-y-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                     <Camera className="w-4 h-4" />

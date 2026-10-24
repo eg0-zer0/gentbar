@@ -165,7 +165,7 @@ const EditCategoryModal = ({ category, isOpen, onClose, onSave, onDelete }) => {
                 </button>
                 <button
                   type="submit"
-                  className="w-full py-2.5 px-3 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer border-0 focus:outline-none"
+                  className="btn-primary w-full py-2.5 px-3 text-xs font-bold rounded-xl shadow-md cursor-pointer border-0 focus:outline-none"
                 >
                   {isEditMode ? 'Modifier' : 'Ajouter'}
                 </button>

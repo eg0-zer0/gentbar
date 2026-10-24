@@ -3,33 +3,7 @@
    Aucune règle de layout par thème, aucun code couleur en dur
 ---------------------------------------------------------------------- */
 
-/* Boutons d'action sémantiques */
-.btn-primary,
-button.btn-primary {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: filter 0.2s ease, transform 0.15s ease;
-}
-
-.btn-primary:hover,
-button.btn-primary:hover {
-  filter: brightness(1.1);
-}
-
-.btn-primary:active,
-button.btn-primary:active {
-  transform: scale(0.98);
-}
-
-.btn-primary:focus-visible,
-button.btn-primary:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-}
-
+/* Boutons d'action sémantiques secondaires & destructifs (.btn-primary est défini dans @layer components de index.css) */
 .btn-outline,
 button.btn-outline {
   background-color: hsl(var(--secondary));

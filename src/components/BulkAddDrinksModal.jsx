@@ -474,7 +474,7 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   disabled
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-primary to-accent opacity-80 text-primary-foreground rounded-lg text-xs font-semibold shadow-sm cursor-not-allowed"
+                  className="btn-primary w-full flex items-center justify-center gap-1.5 py-2 px-3 opacity-80 rounded-lg text-xs shadow-sm cursor-not-allowed"
                 >
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Analyse IA en cours…</span>
@@ -484,7 +484,7 @@ export const BulkAddDrinksModal = ({
                   <button
                     type="button"
                     onClick={handleTriggerCamera}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-primary to-accent hover:brightness-110 active:scale-[0.98] text-primary-foreground rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer border-0"
+                    className="btn-primary flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs shadow-sm cursor-pointer border-0"
                     title="Prendre une photo directement avec l'appareil photo"
                   >
                     <Camera className="w-4 h-4" />
@@ -868,7 +868,7 @@ export const BulkAddDrinksModal = ({
             className={`w-full py-2.5 px-3 rounded-xl text-xs transition-all text-center ${
               stats.totalDrinks === 0 || stats.errorCount > 0 || !!limitError
                 ? 'bg-primary/40 text-primary-foreground/60 cursor-not-allowed font-medium'
-                : 'bg-gradient-to-r from-primary to-accent hover:brightness-110 active:scale-[0.98] text-primary-foreground font-bold shadow-md cursor-pointer'
+                : 'btn-primary font-bold shadow-md cursor-pointer'
             }`}
           >
             {allowCategories

@@ -120,7 +120,7 @@ export default function LandingPage() {
           type="button"
           onClick={() => navigate('/app')}
           style={{ borderRadius: '9999px' }}
-          className="w-full h-14 !rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-base flex items-center justify-center gap-2 shadow-lg hover:brightness-110 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+          className="btn-primary w-full h-14 !rounded-full font-bold text-base flex items-center justify-center gap-2 shadow-lg duration-150 cursor-pointer"
         >
           <span>Accéder à l&apos;application</span>
           <ArrowRight className="w-5 h-5" />

@@ -158,7 +158,7 @@ const EditDrink = ({
             {/* Bouton primaire : Ajouter / Modifier */}
             <button
               type="submit"
-              className="flex-1 h-11 bg-gradient-to-r from-primary to-accent hover:brightness-110 text-primary-foreground font-semibold text-[14px] rounded-xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer border-0"
+              className="btn-primary flex-1 h-11 text-[14px] rounded-xl shadow-md flex items-center justify-center cursor-pointer border-0"
             >
               {isEditMode ? 'Modifier' : 'Ajouter'}
             </button>

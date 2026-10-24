@@ -359,7 +359,7 @@ const TicketView = ({
           {/* Ligne 3 : Bouton [Fermer] pleine largeur Stitch */}
           <button
             type="button"
-            className="w-full py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-sm font-bold tracking-wide transition shadow-lg flex items-center justify-center active:scale-[0.98] cursor-pointer border-0"
+            className="btn-primary w-full py-3.5 rounded-xl text-sm font-bold tracking-wide shadow-lg flex items-center justify-center cursor-pointer border-0"
             onClick={onClose}
             disabled={isLocked}
             aria-label="Fermer le ticket"
