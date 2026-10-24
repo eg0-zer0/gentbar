@@ -395,6 +395,11 @@ html.gentbar.minimal .drink-card {
   border-radius: 0.5rem !important;
 }
 
+html.minimal .drink-card .drink-price,
+html.gentbar.minimal .drink-card .drink-price {
+  display: none !important;
+}
+
 html.gentbar .drink-card .drink-price {
   color: #f59e0b !important;
   font-weight: 700 !important;
