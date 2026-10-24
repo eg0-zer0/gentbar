@@ -15,12 +15,15 @@ import useTicketLock from '../hooks/useTicketLock';
 import { groupOrderItemsByBar, getOrderItemKey } from '../lib/menus';
 
 /**
- * Vue Ticket (Stitch) : Prise de commande au bar en mode compact et haute lisibilité.
- * - Groupement distinct par bar avec sous-totaux.
- * - Checkboxes carrées, multiplicateurs roses (2×, 1×), noms complets et prix unitaires.
- * - En-tête Stitch avec compteur de verres servis, bouton Tout cocher, cadenas et fermeture.
- * - Footer fixé avec TOTAL à gauche et actions empilées à droite (Partager, Recommander, Fermer).
- * - Mémorisation des cases cochées par commande et verrouillage anti-fausses touches.
+ * Vue Ticket (Stitch Officiel) : Prise de commande au bar en mode compact et haute lisibilité.
+ * - Code couleur Stitch : texte ambre (#f59e0b / text-amber-400) pour prix, totaux et multiplicateurs.
+ * - Groupement distinct par bar avec sous-totaux en ambre.
+ * - Cases à cocher carrées Stitch, état barré en gris ardoise quand servi.
+ * - En-tête Stitch : icône ambre, compteur 'X/Y servis' en ambre, Tout cocher, Cadenas, Fermer.
+ * - Bas de page Stitch fidèle : 
+ *     1) 'Total à régler' + montant en grand ambre (text-amber-400),
+ *     2) Grille 2 colonnes [Partager] [Recommander],
+ *     3) Bouton pleine largeur rose [Fermer].
  */
 const TicketView = ({
   order,
@@ -156,28 +159,28 @@ const TicketView = ({
       aria-modal="true"
       aria-label="Ticket de commande"
     >
-      {/* 1. EN-TÊTE FIXE STITCH */}
-      <header className="sticky top-0 z-40 bg-[#06122c]/95 backdrop-blur border-b border-[#142343] px-3.5 sm:px-4 py-3">
+      {/* 1. EN-TÊTE STITCH : Icône ambre, Ticket, X/Y servis en ambre, boutons d'action */}
+      <header className="sticky top-0 z-40 bg-[#06122c]/95 backdrop-blur border-b border-[#142343] px-4 pt-4 pb-3">
         <div className="max-w-[420px] mx-auto flex items-center justify-between gap-2">
-          {/* Titre et statut verres servis */}
-          <div className="flex items-center gap-2 min-w-0">
-            <Ticket className="w-5 h-5 text-[#e11d48] flex-shrink-0" />
-            <h1 className="text-lg font-bold text-white tracking-tight">
+          {/* Titre et statut verres servis (code couleur ambre) */}
+          <div className="flex items-center space-x-2.5 min-w-0">
+            <Ticket className="w-5 h-5 text-amber-500 fill-amber-500/20 flex-shrink-0" />
+            <h1 className="text-lg font-bold tracking-tight text-white">
               Ticket
             </h1>
-            <span className="text-xs font-semibold text-slate-300 ml-0.5 whitespace-nowrap">
-              <span className={isComplete ? 'text-emerald-400 font-bold' : 'text-[#e11d48] font-bold'}>
+            <span className="text-xs font-semibold text-slate-300 ml-1 whitespace-nowrap">
+              <span className={isComplete ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
                 {servedDrinksCount}/{totalDrinksCount}
               </span>
               {' '}servis
             </span>
           </div>
 
-          {/* Boutons d'action en-tête : Tout cocher, Cadenas, Fermer */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Actions : Tout cocher, Cadenas, Fermer */}
+          <div className="flex items-center space-x-2.5 flex-shrink-0">
             <button
               type="button"
-              className="px-3 py-1.5 bg-[#172545] hover:bg-[#1e3056] text-slate-200 text-xs font-semibold rounded-lg border border-[#23355b] transition-colors cursor-pointer active:scale-95"
+              className="px-3 py-1.5 bg-[#172545] hover:bg-[#1e3056] text-slate-200 text-xs font-medium rounded-lg border border-[#23355b] transition-colors cursor-pointer active:scale-95"
               onClick={handleToggleAll}
               disabled={isLocked}
               aria-label={checkedIds.size === items.length && items.length > 0 ? "Tout décocher" : "Tout cocher"}
@@ -191,7 +194,7 @@ const TicketView = ({
               className={`p-1.5 rounded-lg flex items-center justify-center transition-colors cursor-pointer ${
                 isLocked 
                   ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/50' 
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
               }`}
               onClick={handleToggleLock}
               aria-label={isLocked ? "Déverrouiller l'écran (ou double-tapez n'importe où)" : "Verrouiller l'écran"}
@@ -204,10 +207,10 @@ const TicketView = ({
               )}
             </button>
 
-            {/* Bouton de fermeture rapide */}
+            {/* Bouton Fermer croix */}
             <button
               type="button"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 flex items-center justify-center transition-colors cursor-pointer"
+              className="p-1 text-slate-400 hover:text-white rounded-lg flex items-center justify-center transition-colors cursor-pointer"
               onClick={onClose}
               disabled={isLocked}
               aria-label="Fermer le ticket"
@@ -218,8 +221,8 @@ const TicketView = ({
         </div>
       </header>
 
-      {/* 2. CORPS DU TICKET (Groupes de bars, cases à cocher Stitch, note) */}
-      <main className="flex-1 max-w-[420px] w-full mx-auto px-3.5 sm:px-4 py-3.5 space-y-3.5 pb-28">
+      {/* 2. CORPS DU TICKET (Groupes de bars, cases Stitch, textes ambre) */}
+      <main className="p-3.5 space-y-3.5 flex-1 overflow-y-auto max-w-[420px] w-full mx-auto pb-48">
         {/* Emplacement note libre (E-7) */}
         {order?.note ? (
           <div className="p-3 mb-1 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-xs sm:text-sm flex items-start gap-2.5 shadow-sm">
@@ -242,16 +245,16 @@ const TicketView = ({
                 key={group.barId} 
                 className="bg-[#0b162f] rounded-xl border border-[#1b2b4e] overflow-hidden shadow-sm"
               >
-                {/* En-tête de bar */}
-                <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#152341] bg-[#0c1833]">
-                  <div className="flex items-center gap-2">
+                {/* En-tête de bar Stitch : nom à gauche, sous-total en AMBRE à droite */}
+                <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#152341]">
+                  <div className="flex items-center space-x-2">
                     <span className="text-sm">{group.barIcon}</span>
                     <span className="text-sm font-semibold text-white tracking-wide">{group.barName}</span>
                     {group.isDeletedBar && (
                       <span className="text-[10px] text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded border border-rose-500/20">supprimé</span>
                     )}
                   </div>
-                  <span className="text-sm font-bold text-[#e11d48]">{formatPrice(group.subtotal)}</span>
+                  <span className="text-sm font-bold text-amber-400">{formatPrice(group.subtotal)}</span>
                 </div>
 
                 {/* Liste des boissons du bar */}
@@ -266,7 +269,7 @@ const TicketView = ({
                         key={key}
                         onClick={() => toggleItem(key)}
                         className={`px-3.5 py-3 flex items-center justify-between cursor-pointer select-none transition-colors ${
-                          isChecked ? 'bg-[#0e1c39]/40' : 'hover:bg-[#101e3d]/50'
+                          isChecked ? 'bg-[#0e1c39]/50' : 'hover:bg-[#101e3d]/50'
                         }`}
                         role="checkbox"
                         aria-checked={isChecked}
@@ -278,24 +281,26 @@ const TicketView = ({
                           }
                         }}
                       >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          {/* Case à cocher Stitch */}
+                        <div className="flex items-center space-x-3 min-w-0 flex-1">
+                          {/* Case à cocher Stitch : carrée bleu marine ou verte avec Check blanc */}
                           <div 
                             className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors shrink-0 ${
                               isChecked 
-                                ? 'bg-[#22c55e] border border-[#22c55e] text-white shadow-sm' 
+                                ? 'bg-[#22c55e] shadow-sm' 
                                 : 'border border-[#2e416a] bg-[#0c1936]'
                             }`}
                           >
-                            {isChecked && <Check className="w-3.5 h-3.5 stroke-[3] text-white" />}
+                            {isChecked && (
+                              <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                            )}
                           </div>
 
-                          {/* Quantité rose : 2× ou 1× */}
-                          <span className={`text-sm font-bold shrink-0 ${isChecked ? 'line-through text-slate-500' : 'text-[#e11d48]'}`}>
+                          {/* Multiplicateur : AMBRE (text-amber-400), barré quand coché */}
+                          <span className={`font-bold text-sm shrink-0 ${isChecked ? 'line-through text-slate-500' : 'text-amber-400'}`}>
                             {item.quantity}×
                           </span>
 
-                          {/* Nom complet de la boisson */}
+                          {/* Nom de la boisson */}
                           <span className={`text-sm font-medium leading-tight break-words ${isChecked ? 'line-through text-slate-400' : 'text-white'}`}>
                             {itemName}
                           </span>
@@ -315,54 +320,52 @@ const TicketView = ({
         )}
       </main>
 
-      {/* 3. BARRE INFÉRIEURE FIXE STITCH (TOTAL + PARTAGER / RECOMMANDER / FERMER) */}
-      <footer className="fixed bottom-0 left-0 right-0 z-30 bg-[#06122c]/95 backdrop-blur border-t border-[#142343] px-3.5 sm:px-4 py-3 shadow-[0_-8px_30px_rgba(2,13,39,0.85)]">
-        <div className="max-w-[420px] mx-auto flex items-center justify-between gap-3">
-          {/* TOTAL à gauche */}
-          <div className="flex items-baseline gap-2 shrink-0">
-            <span className="text-xs uppercase tracking-wider text-slate-400 font-bold">TOTAL</span>
-            <span className="text-2xl font-black text-white tracking-tight">
+      {/* 3. BAS DE PAGE FIXE STITCH FIDÈLE : Total à régler en ambre + grille [Partager][Recommander] + [Fermer] */}
+      <footer className="fixed bottom-0 left-0 right-0 z-30 bg-[#06122c] border-t border-[#142343] p-4 shadow-[0_-8px_30px_rgba(2,13,39,0.85)]" data-purpose="ticket-footer">
+        <div className="max-w-[420px] mx-auto space-y-3">
+          {/* Ligne 1 : 'Total à régler' à gauche + montant en grand AMBRE (text-amber-400) à droite */}
+          <div className="flex items-center justify-between py-1">
+            <span className="text-sm font-medium text-slate-400">Total à régler</span>
+            <span className="text-2xl font-bold text-amber-400 tracking-tight">
               {formatPrice(totalAmount)}
             </span>
           </div>
 
-          {/* Actions à droite : Partager en haut, Recommander + Fermer en bas */}
-          <div className="flex flex-col gap-2 shrink-0 min-w-[170px] sm:min-w-[190px]">
-            {/* Ligne 1 : Bouton Partager */}
+          {/* Ligne 2 : Grille 2 colonnes [Partager] [Recommander] */}
+          <div className={`grid ${onReorder ? 'grid-cols-2' : 'grid-cols-1'} gap-3`}>
             <ShareButtons 
               order={order} 
               menus={menus}
               isCurrentOrder={false} 
-              className="w-full h-8 px-3 bg-[#172545] hover:bg-[#1e3056] border-[#23355b] text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              className="w-full py-2.5 px-3 bg-[#172545] hover:bg-[#1e3056] border border-[#23355b] rounded-xl text-slate-200 text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer"
               size="sm"
               disabled={isLocked}
             />
 
-            {/* Ligne 2 : Recommander + Fermer */}
-            <div className="flex items-center gap-2">
-              {onReorder && (
-                <button
-                  type="button"
-                  className="flex-1 h-8 px-2.5 bg-[#172545] hover:bg-[#1e3056] border border-[#23355b] text-slate-200 hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
-                  onClick={() => onReorder(order)}
-                  disabled={isLocked}
-                  aria-label="Recommander cette commande"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 shrink-0" />
-                  <span>Recommander</span>
-                </button>
-              )}
+            {onReorder && (
               <button
                 type="button"
-                className={`h-8 px-3.5 bg-[#e11d48] hover:bg-[#f43f5e] text-white font-bold text-xs rounded-xl shadow-md shadow-rose-950/30 flex items-center justify-center transition-all cursor-pointer active:scale-95 ${onReorder ? 'min-w-[65px]' : 'w-full'}`}
-                onClick={onClose}
+                className="w-full py-2.5 px-3 bg-[#172545] hover:bg-[#1e3056] border border-[#23355b] text-slate-200 rounded-xl text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer active:scale-95"
+                onClick={() => onReorder(order)}
                 disabled={isLocked}
-                aria-label="Fermer la vue ticket"
+                aria-label="Recommander cette commande"
               >
-                Fermer
+                <RotateCcw className="w-4 h-4 stroke-[2.5]" />
+                <span>Recommander</span>
               </button>
-            </div>
+            )}
           </div>
+
+          {/* Ligne 3 : Bouton [Fermer] pleine largeur Stitch */}
+          <button
+            type="button"
+            className="w-full py-3.5 bg-[#e11d48] hover:bg-[#be0037] text-white rounded-xl text-sm font-bold tracking-wide transition shadow-lg shadow-rose-600/30 flex items-center justify-center active:scale-[0.98] cursor-pointer border-0"
+            onClick={onClose}
+            disabled={isLocked}
+            aria-label="Fermer le ticket"
+          >
+            Fermer
+          </button>
         </div>
       </footer>
 
@@ -386,9 +389,9 @@ const TicketView = ({
         />
       )}
 
-      {/* Badge flottant discret rappelant l'état verrouillé (E-9) */}
+      {/* Badge flottant discret placé au-dessus du bas de page à 3 étages (E-9) */}
       {isLocked && (
-        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+        <div className="fixed bottom-48 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
           <div className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-xl backdrop-blur-md border transition-all duration-200 ${
             showUnlockHint 
               ? 'bg-amber-600 text-white border-amber-500 scale-105 ring-2 ring-amber-400/50' 
