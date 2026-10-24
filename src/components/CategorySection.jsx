@@ -211,7 +211,7 @@ const CategorySection = ({
           </header>
 
           {/* Grille 2 colonnes fidèle à Stitch */}
-          <div className="category-grid grid grid-cols-2 gap-2.5 sm:gap-3" aria-label={`Boissons de la catégorie ${category.name}`}>
+          <div className="category-grid" aria-label={`Boissons de la catégorie ${category.name}`}>
             {drinksToShow && drinksToShow.length > 0 ? (
               drinksToShow.map((drink) => (
                 <DrinkCard

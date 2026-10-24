@@ -93,7 +93,7 @@ const DrinkCard = ({
   return (
     <div
       ref={cardRef}
-      className={`drink-card group relative rounded-xl bg-card border border-slate-700/50 p-3 sm:p-3.5 flex flex-col justify-between min-h-[124px] sm:min-h-[132px] shadow-sm hover:border-slate-600 transition-all cursor-pointer select-none active:scale-[0.98] ${
+      className={`drink-card group relative rounded-xl bg-card border border-slate-700/50 p-3 sm:p-3.5 flex flex-col justify-between shadow-sm hover:border-slate-600 transition-all cursor-pointer select-none active:scale-[0.98] ${
         isAdded ? 'ring-2 ring-[#ff4897]' : ''
       } ${pulse ? 'animate-pulse' : ''}`}
       onClick={handleClick}
@@ -129,7 +129,7 @@ const DrinkCard = ({
       </div>
 
       {/* Partie basse : Prix en ambre/or + Bouton modifier */}
-      <div className="flex items-end justify-between mt-auto pt-3">
+      <div className="flex items-end justify-between mt-auto pt-2">
         <span className="drink-price font-bold text-sm sm:text-base text-[#f59e0b] tracking-tight">
           {formatPrice(drink.price)}
         </span>
@@ -140,7 +140,7 @@ const DrinkCard = ({
             e.stopPropagation();
             onEdit(drink, 'edit');
           }}
-          className="w-8 h-8 rounded-lg bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-white flex items-center justify-center transition-colors"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-white flex items-center justify-center transition-colors shrink-0"
         >
           <Edit size={14} />
         </button>

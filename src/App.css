@@ -373,31 +373,26 @@ html.minimal .category-grid {
   grid-auto-flow: row;
 }
 
-/* Thème Gentbar - Grille 2 colonnes stricte sur mobile fidèle à Stitch */
-html.gentbar .category-grid,
-html.gentbar.large .category-grid,
-html.gentbar.compact .category-grid,
-html.gentbar.minimal .category-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 0.625rem !important;
-}
-
-@media (min-width: 640px) {
-  html.gentbar .category-grid,
-  html.gentbar.large .category-grid,
-  html.gentbar.compact .category-grid,
-  html.gentbar.minimal .category-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
-    gap: 0.75rem !important;
-  }
-}
-
+/* Thème Gentbar - Styles des tuiles Stitch Velvet Arena */
 html.gentbar .drink-card {
   background-color: #0e1b35 !important;
   border: 1px solid rgba(51, 65, 85, 0.5) !important;
   border-radius: 0.75rem !important;
-  min-height: 124px !important;
+}
+
+html.gentbar.large .drink-card {
+  min-height: 124px;
+}
+
+html.gentbar.compact .drink-card {
+  min-height: 98px;
+  padding: 0.625rem;
+}
+
+html.gentbar.minimal .drink-card {
+  min-height: 76px;
+  padding: 0.35rem;
+  border-radius: 0.5rem !important;
 }
 
 html.gentbar .drink-card .drink-price {
