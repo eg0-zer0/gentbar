@@ -6,7 +6,7 @@ import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Home, Sto
 
 import { Button } from './ui/button';
 
-import { useTheme } from '../contexts/ThemeContext';
+import { useTheme, THEME_MODES } from '../contexts/ThemeContext';
 
 import { useViewMode } from '../contexts/ViewModeContext';
 
@@ -19,6 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from './ui/dropdown-menu';
+
+const THEME_LABELS = {
+  light: 'Clair',
+  gentbar: 'GentBar',
+  green: 'Green',
+  dark: 'Sombre',
+};
 
 const Header = ({ 
   soundEnabled, 
@@ -36,8 +43,8 @@ const Header = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // Liste des thèmes et modes utilisés dans cycle
-  const themeModes = ['light', 'dark', 'gentbar'];
+  // Liste des thèmes dans l'ordre : 1. Clair -> 2. GentBar -> 3. Green -> 4. Sombre
+  const themeModes = THEME_MODES;
   const currentThemeIndex = themeModes.indexOf(theme);
   const nextThemeIndex = (currentThemeIndex + 1) % themeModes.length;
   const nextTheme = themeModes[nextThemeIndex];
@@ -53,11 +60,13 @@ const Header = ({
   const renderNextThemeIcon = () => {
     switch (nextTheme) {
       case 'light':
-        return <Sun className={iconClassName} aria-label="Mode clair" />;
-      case 'dark':
-        return <Moon className={iconClassName} aria-label="Mode sombre" />;
+        return <Sun className={iconClassName} aria-label="Mode Clair" />;
       case 'gentbar':
-        return <Layout className={iconClassName} aria-label="Mode Gentbar" />;
+        return <Layout className={iconClassName} aria-label="Mode GentBar" />;
+      case 'green':
+        return <Layout className={iconClassName} aria-label="Mode Green" />;
+      case 'dark':
+        return <Moon className={iconClassName} aria-label="Mode Sombre" />;
       default:
         return null;
     }
@@ -139,7 +148,7 @@ const Header = ({
               >
                 {renderNextThemeIcon()}
                 <span>
-                  Mode {nextTheme === 'gentbar' ? 'Gentbar' : nextTheme === 'light' ? 'clair' : 'sombre'}
+                  Mode {THEME_LABELS[nextTheme] || 'Clair'}
                 </span>
               </DropdownMenuItem>
               <DropdownMenuItem

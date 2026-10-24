@@ -8,7 +8,7 @@
   html.light,
   html.gentbar-light,
   html[data-theme='light'] {
-    /* Thème Clair - Charte Velvet Arena Light (Stitch) */
+    /* 1. Clair => Light Theme (Stitch) */
     --background: 210 40% 98%;            /* #f8fafc (slate-50) : Fond général clair */
     --foreground: 222 47% 11%;            /* #0f172a (slate-900) : Texte principal haute lisibilité */
     --card: 0 0% 100%;                    /* #ffffff : Surface blanche des cartes et en-têtes */
@@ -32,33 +32,33 @@
     --radius: 0.5rem;
   }
 
-  /* Thème Sombre - Charte Obsidienne & Or (Stitch Dark Theme) */
-  html.dark,
-  html.gentbar-dark,
-  html[data-theme='dark'] {
-    --background: 240 7% 5.5%;            /* #0d0d0f : Noir carbone / fumé profond */
-    --foreground: 48 33% 96%;             /* #f4f4f5 / crème chaud : Texte principal haute lisibilité */
-    --card: 240 6% 10%;                   /* #18181b : Gris très sombre / anthracite */
-    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur / crème haute lisibilité pour les titres */
-    --popover: 240 6% 10%;                /* #18181b : Gris très sombre / anthracite */
-    --popover-foreground: 48 33% 96%;     /* #f4f4f5 : Blanc chaud */
-    --primary: 38 92% 50%;                /* #f59e0b (amber-500) : Ambre / or chaud pour le bouton principal */
-    --primary-foreground: 240 7% 5.5%;    /* #0d0d0f : Texte carbone profond sur bouton ambre */
-    --secondary: 240 8% 15%;              /* #24242a : Surface sombre surélevée */
-    --secondary-foreground: 48 96% 89%;   /* #fef3c7 : Crème doré clair sur surface secondaire */
-    --muted: 240 6% 13%;                  /* #1f1f23 : Surface sombre atténuée */
-    --muted-foreground: 36 12% 65%;       /* #b0a89a : Ardoise chaude pour textes secondaires */
-    --accent: 43 96% 56%;                 /* #fbbf24 (amber-400) : Or vibrant pour les pastilles de compteur */
-    --accent-foreground: 240 7% 5.5%;     /* #0d0d0f : Texte carbone sur pastille or */
-    --destructive: 0 72% 51%;             /* #dc2626 */
-    --destructive-foreground: 0 0% 100%;  /* #ffffff */
-    --border: 40 20% 21%;                 /* #3f382a : Contour discret teinté bronze / ambre sombre */
-    --input: 40 20% 21%;                  /* #3f382a : Contour bronze / ambre sombre pour les champs */
-    --ring: 38 92% 50%;                   /* #f59e0b : Anneau de focus ambre */
-    --price: 43 96% 56%;                  /* #fbbf24 (amber-400) : Or lumineux identique */
+  /* 2. GentBar => GentBar Velvet Arena (Stitch) */
+  html.gentbar,
+  html[data-theme='gentbar'] {
+    --background: 221 76% 10%;            /* #06122c : Fond sombre bleu nuit */
+    --foreground: 225 100% 93%;           /* #d9e2ff : Texte clair haute lisibilité */
+    --card: 220 58% 13%;                  /* #0e1b35 : Conteneur bleu ardoise */
+    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur pour les titres */
+    --popover: 220 58% 13%;               /* #0e1b35 : Popovers et menus */
+    --popover-foreground: 225 100% 93%;
+    --primary: 347 77% 50%;               /* #e11d48 : Accent magenta principal */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 54% 19%;             /* #16274a : Bleu ardoise secondaire */
+    --secondary-foreground: 225 100% 93%;
+    --muted: 220 54% 19%;                 /* #16274a : Éléments neutres en retrait */
+    --muted-foreground: 215 20% 65%;      /* #94a3b8 : Métadonnées / sous-titres */
+    --accent: 330 81% 60%;                /* #ff4897 : Accent magenta lumineux */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 44% 25%;                /* #23355b : Contour ardoise discret */
+    --input: 220 50% 20%;                 /* #1a2a48 */
+    --ring: 347 77% 50%;                  /* Anneau de focus magenta */
+    --price: 38 92% 50%;                  /* #f59e0b : Ambre / Or pour les prix */
   }
 
-  /* Thème Green Turf - Charte Gazon Nocturne & Orange Balle de Match (Stitch) */
+  /* 3. Green => Green Turf (Stitch) */
+  html.green,
   html.gentbar-green,
   html[data-theme='green'] {
     --background: 155 55% 6%;             /* #071811 : Vert forêt / gazon nocturne très sombre */
@@ -83,28 +83,30 @@
     --price: 48 96% 53%;                  /* #facc15 (yellow-400) : Or / jaune éclatant pour les prix */
   }
 
-  /* Thème Gentbar de référence - Charte Velvet Arena (Stitch) */
-  html.gentbar {
-    --background: 221 76% 10%;            /* #06122c : Fond sombre bleu nuit */
-    --foreground: 225 100% 93%;           /* #d9e2ff : Texte clair haute lisibilité */
-    --card: 220 58% 13%;                  /* #0e1b35 : Conteneur bleu ardoise */
-    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur pour les titres */
-    --popover: 220 58% 13%;               /* #0e1b35 : Popovers et menus */
-    --popover-foreground: 225 100% 93%;
-    --primary: 347 77% 50%;               /* #e11d48 : Accent magenta principal */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 54% 19%;             /* #16274a : Bleu ardoise secondaire */
-    --secondary-foreground: 225 100% 93%;
-    --muted: 220 54% 19%;                 /* #16274a : Éléments neutres en retrait */
-    --muted-foreground: 215 20% 65%;      /* #94a3b8 : Métadonnées / sous-titres */
-    --accent: 330 81% 60%;                /* #ff4897 : Accent magenta lumineux */
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 220 44% 25%;                /* #23355b : Contour ardoise discret */
-    --input: 220 50% 20%;                 /* #1a2a48 */
-    --ring: 347 77% 50%;                  /* Anneau de focus magenta */
-    --price: 38 92% 50%;                  /* #f59e0b : Ambre / Or pour les prix */
+  /* 4. Sombre => Dark Theme Obsidienne & Or (Stitch) */
+  html.dark,
+  html.gentbar-dark,
+  html[data-theme='dark'] {
+    --background: 240 7% 5.5%;            /* #0d0d0f : Noir carbone / fumé profond */
+    --foreground: 48 33% 96%;             /* #f4f4f5 / crème chaud : Texte principal haute lisibilité */
+    --card: 240 6% 10%;                   /* #18181b : Gris très sombre / anthracite */
+    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur / crème haute lisibilité pour les titres */
+    --popover: 240 6% 10%;                /* #18181b : Gris très sombre / anthracite */
+    --popover-foreground: 48 33% 96%;     /* #f4f4f5 : Blanc chaud */
+    --primary: 38 92% 50%;                /* #f59e0b (amber-500) : Ambre / or chaud pour le bouton principal */
+    --primary-foreground: 240 7% 5.5%;    /* #0d0d0f : Texte carbone profond sur bouton ambre */
+    --secondary: 240 8% 15%;              /* #24242a : Surface sombre surélevée */
+    --secondary-foreground: 48 96% 89%;   /* #fef3c7 : Crème doré clair sur surface secondaire */
+    --muted: 240 6% 13%;                  /* #1f1f23 : Surface sombre atténuée */
+    --muted-foreground: 36 12% 65%;       /* #b0a89a : Ardoise chaude pour textes secondaires */
+    --accent: 43 96% 56%;                 /* #fbbf24 (amber-400) : Or vibrant pour les pastilles de compteur */
+    --accent-foreground: 240 7% 5.5%;     /* #0d0d0f : Texte carbone sur pastille or */
+    --destructive: 0 72% 51%;             /* #dc2626 */
+    --destructive-foreground: 0 0% 100%;  /* #ffffff */
+    --border: 40 20% 21%;                 /* #3f382a : Contour discret teinté bronze / ambre sombre */
+    --input: 40 20% 21%;                  /* #3f382a : Contour bronze / ambre sombre pour les champs */
+    --ring: 38 92% 50%;                   /* #f59e0b : Anneau de focus ambre */
+    --price: 43 96% 56%;                  /* #fbbf24 (amber-400) : Or lumineux identique */
   }
 
   *, *::before, *::after {

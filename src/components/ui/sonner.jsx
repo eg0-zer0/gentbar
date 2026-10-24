@@ -5,7 +5,7 @@ const Toaster = ({
   ...props
 }) => {
   const { theme } = useTheme();
-  const sonnerTheme = theme === 'gentbar' ? 'dark' : theme;
+  const sonnerTheme = theme === 'light' ? 'light' : 'dark';
 
   return (
     <Sonner
@@ -18,9 +18,9 @@ const Toaster = ({
         duration: 2000,
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-card group-[.toaster]:text-card-foreground group-[.toaster]:border-border-color group-[.toaster]:shadow-md group-[.toaster]:py-2 group-[.toaster]:px-3.5 group-[.toaster]:text-xs group-[.toaster]:rounded-lg",
+            "group toast group-[.toaster]:bg-card group-[.toaster]:text-card-foreground group-[.toaster]:border-border group-[.toaster]:shadow-md group-[.toaster]:py-2 group-[.toaster]:px-3.5 group-[.toaster]:text-xs group-[.toaster]:rounded-lg",
           title: "text-xs font-medium text-foreground",
-          description: "text-xs text-muted-text",
+          description: "text-xs text-muted-foreground",
           actionButton:
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground text-xs",
           cancelButton:
