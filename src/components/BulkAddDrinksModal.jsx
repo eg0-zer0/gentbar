@@ -13,7 +13,8 @@ import {
   Bot,
   Copy,
   ExternalLink,
-  Loader2
+  Loader2,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -420,74 +421,90 @@ export const BulkAddDrinksModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-card w-[95vw] max-w-2xl max-h-[92vh] flex flex-col p-4 sm:p-6 rounded-2xl shadow-2xl border border-border overflow-hidden">
-        <DialogHeader className="shrink-0 pb-2">
-          <DialogTitle className="text-lg sm:text-xl font-bold flex items-center gap-2 text-foreground">
-            <FileText className="w-5 h-5 text-primary shrink-0" />
-            <span>
-              {allowCategories
-                ? 'Créer une carte par texte collé'
-                : `Ajouter plusieurs boissons${targetCategoryName ? ` à « ${targetCategoryName} »` : ''}`}
-            </span>
-          </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground pt-0.5">
+      <DialogContent className="w-[94vw] max-w-[420px] sm:max-w-[440px] max-h-[92vh] flex flex-col p-5 bg-[#101c38] text-slate-200 rounded-[22px] border border-[#23355b]/80 shadow-2xl shadow-black/80 overflow-hidden focus:outline-none [&>button.absolute]:hidden">
+        {/* En-tête Stitch avec icône document rose et croix de fermeture */}
+        <header className="shrink-0 flex flex-col gap-1.5 pb-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <div className="text-[#e11d48] shrink-0 mt-0.5">
+                <FileText className="w-6 h-6 stroke-[1.8]" />
+              </div>
+              <DialogTitle className="text-[17px] font-bold text-white tracking-tight leading-tight">
+                {allowCategories
+                  ? 'Créer une carte par texte collé'
+                  : `Ajouter plusieurs boissons${targetCategoryName ? ` à « ${targetCategoryName} »` : ''}`}
+              </DialogTitle>
+            </div>
+            {/* Bouton de fermeture croix */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Fermer la modale"
+              className="text-slate-400 hover:text-white transition-colors p-1 -mr-1 -mt-1 rounded-lg cursor-pointer"
+            >
+              <X className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+          <DialogDescription className="text-[12.5px] leading-relaxed text-[#94a3b8] font-normal">
             Collez une liste de boissons avec leurs prix. Une analyse automatique vous permet de tout vérifier et modifier avant d’enregistrer.
           </DialogDescription>
-        </DialogHeader>
+        </header>
 
-        <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+        <div className="flex-1 overflow-y-auto space-y-3.5 pr-0.5 scrollbar-thin">
           {/* 1. Action principale : Scanner une photo de carte avec l'IA */}
-          <div className="p-3 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent rounded-xl border border-primary/30 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 text-primary">
+          <section className="bg-[#16254a]/70 rounded-xl p-3.5 border border-[#2b4175]/60 flex flex-col gap-3 relative overflow-hidden">
+            <div className="flex items-start gap-2.5">
+              {/* Badge d'icône avec étoile magique rose */}
+              <div className="w-8 h-8 rounded-lg bg-[#2e1a34] border border-[#e11d48]/30 flex items-center justify-center text-[#f43f5e] shrink-0">
                 <Sparkles className="w-4 h-4" />
               </div>
-              <div>
-                <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                  <span>Scanner une photo de carte</span>
-                  <span className="text-[10px] px-1.5 py-0.2 font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[13.5px] font-semibold text-white tracking-tight leading-snug">
+                    Scanner une photo de carte
+                  </span>
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
                     Instantané
                   </span>
                 </div>
-                <div className="text-[11px] text-muted-foreground">
+                <p className="text-[11.5px] leading-snug text-[#94a3b8] mt-1 font-normal">
                   Prenez une photo ou choisissez une image : l'IA extrait et range automatiquement toutes les boissons.
-                </div>
+                </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Boutons d'action pour photo et galerie */}
+            <div className="flex items-center gap-2 mt-0.5">
               {isAnalyzingPhoto ? (
-                <Button
+                <button
                   type="button"
                   disabled
-                  className="btn-primary h-8 text-xs font-semibold px-3 gap-1.5 cursor-not-allowed shadow-sm w-full sm:w-auto"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-[#e11d48] to-[#f43f5e] opacity-80 text-white rounded-lg text-xs font-semibold shadow-sm cursor-not-allowed"
                 >
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Analyse IA en cours…</span>
-                </Button>
+                </button>
               ) : (
                 <>
-                  <Button
+                  <button
                     type="button"
                     onClick={handleTriggerCamera}
-                    className="btn-primary h-8 text-xs font-semibold px-2.5 gap-1.5 flex-1 sm:flex-initial cursor-pointer shadow-sm"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-gradient-to-r from-[#e11d48] to-[#f43f5e] hover:from-[#d0143f] hover:to-[#e11d48] active:scale-[0.98] text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer border-0"
                     title="Prendre une photo directement avec l'appareil photo"
                   >
-                    <Camera className="w-3.5 h-3.5" />
+                    <Camera className="w-4 h-4" />
                     <span>Prendre photo</span>
-                  </Button>
+                  </button>
 
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
                     onClick={handleTriggerGallery}
-                    className="h-8 text-xs font-semibold px-2.5 gap-1.5 flex-1 sm:flex-initial cursor-pointer bg-background hover:bg-muted border-border/80"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-[#132244] hover:bg-[#1a2f5c] active:scale-[0.98] text-slate-100 border border-[#2b4175] rounded-lg text-xs font-semibold transition-all shadow-sm cursor-pointer"
                     title="Choisir une image dans votre galerie de photos"
                   >
-                    <ImageIcon className="w-3.5 h-3.5 text-muted-foreground" />
+                    <ImageIcon className="w-4 h-4 text-slate-300" />
                     <span>Galerie</span>
-                  </Button>
-
+                  </button>
                 </>
               )}
             </div>
@@ -506,14 +523,14 @@ export const BulkAddDrinksModal = ({
               className="hidden"
               onChange={handlePhotoSelected}
             />
-          </div>
+          </section>
 
-          {/* 2. Repli EXCLUSIF en cas d'erreur ou d'épuisement de quota Gemini */}
+          {/* 2. Repli en cas d'erreur ou d'épuisement de quota Gemini */}
           {aiScanError && (
             <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs space-y-2">
               <div className="flex items-start justify-between gap-2">
-                <div className="flex items-start gap-2 text-amber-700 dark:text-amber-300 font-medium">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 text-amber-300 font-medium">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
                   <div>
                     <span>L'analyse directe a rencontré un souci ({aiScanError}). Vous pouvez utiliser votre IA habituelle :</span>
                   </div>
@@ -521,183 +538,176 @@ export const BulkAddDrinksModal = ({
                 <button
                   type="button"
                   onClick={() => setAiScanError(null)}
-                  className="text-[11px] text-muted-foreground hover:text-foreground shrink-0 cursor-pointer underline"
+                  className="text-[11px] text-slate-400 hover:text-white shrink-0 cursor-pointer underline"
                 >
                   Fermer
                 </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant="outline"
                   onClick={() => handleOpenAI('claude')}
-                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-white/10 border border-[#2b4175] rounded-lg cursor-pointer bg-[#132244] text-slate-200 flex items-center"
                   title="Ouvrir Claude avec le prompt pré-rempli"
                 >
-                  <span className="text-amber-600 dark:text-amber-400 font-bold">●</span>
+                  <span className="text-amber-400 font-bold">●</span>
                   <span>Claude</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
-                </Button>
+                </button>
 
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant="outline"
                   onClick={() => handleOpenAI('mistral')}
-                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-white/10 border border-[#2b4175] rounded-lg cursor-pointer bg-[#132244] text-slate-200 flex items-center"
                   title="Ouvrir Mistral avec le prompt pré-rempli"
                 >
-                  <span className="text-orange-500 font-bold">●</span>
+                  <span className="text-orange-400 font-bold">●</span>
                   <span>Mistral</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
-                </Button>
+                </button>
 
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant="outline"
                   onClick={() => handleOpenAI('chatgpt')}
-                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-primary/10 border-border/80 cursor-pointer bg-background"
+                  className="h-7 text-xs px-2.5 gap-1.5 font-medium hover:bg-white/10 border border-[#2b4175] rounded-lg cursor-pointer bg-[#132244] text-slate-200 flex items-center"
                   title="Ouvrir ChatGPT avec le prompt pré-rempli"
                 >
-                  <span className="text-emerald-500 font-bold">●</span>
+                  <span className="text-emerald-400 font-bold">●</span>
                   <span>ChatGPT</span>
                   <ExternalLink className="w-2.5 h-2.5 opacity-60" />
-                </Button>
+                </button>
 
-                <Button
+                <button
                   type="button"
-                  size="sm"
-                  variant="ghost"
                   onClick={handleCopyPrompt}
-                  className="h-7 text-xs px-2 gap-1 text-muted-foreground hover:text-foreground cursor-pointer"
+                  className="h-7 text-xs px-2 gap-1 text-slate-400 hover:text-white cursor-pointer flex items-center"
                   title="Copier le prompt dans le presse-papier"
                 >
                   <Copy className="w-3 h-3" />
                   <span>Copier prompt</span>
-                </Button>
+                </button>
               </div>
             </div>
           )}
 
           {/* 3. Zone de texte collé */}
-          <div className="space-y-1.5">
+          <section className="flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs">
-              <Label htmlFor="bulk-text-input" className="font-semibold text-foreground">
+              <label htmlFor="drinks-raw-text" className="font-semibold text-slate-200 tracking-tight">
                 Ou collez votre liste directement ci-dessous
-              </Label>
+              </label>
               {rawText.length > 0 && (
-                <span className={`text-[11px] ${rawText.length > MAX_PASTE_CHARS ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
+                <span className={`text-[11px] ${rawText.length > MAX_PASTE_CHARS ? 'text-rose-400 font-bold' : 'text-slate-400'}`}>
                   {rawText.length.toLocaleString('fr-FR')} / {MAX_PASTE_CHARS.toLocaleString('fr-FR')} car.
                 </span>
               )}
             </div>
 
-            <textarea
-              id="bulk-text-input"
-              value={rawText}
-              onChange={(e) => setRawText(e.target.value)}
-              placeholder={`Exemple :\n${allowCategories ? 'BIÈRES AU FÛT\n' : ''}Jupiler 25cl 2,50\nCarlsberg 40cl 4,50\nDuvel — 4,50 €\n...`}
-              rows={4}
-              className="w-full rounded-xl border border-input bg-background p-3 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition resize-y font-mono"
-              aria-label="Zone de texte pour coller la liste de boissons"
-            />
+            <div className="relative w-full">
+              <textarea
+                id="drinks-raw-text"
+                value={rawText}
+                onChange={(e) => setRawText(e.target.value)}
+                placeholder={`Exemple :\n${allowCategories ? 'BIÈRES AU FÛT\n' : ''}Jupiler 25cl 2,50\nCarlsberg 40cl 4,50\nDuvel  4,50 €`}
+                rows={5}
+                spellCheck={false}
+                className="w-full bg-[#0a1426] border border-[#23355b] rounded-xl py-3 px-3.5 text-xs text-slate-200 font-mono leading-relaxed placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[#e11d48]/50 focus:border-[#e11d48]/60 resize-none transition"
+                aria-label="Zone de texte pour coller la liste de boissons"
+              />
+            </div>
 
             {rawText.length > MAX_PASTE_CHARS && (
-              <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+              <p className="text-xs text-rose-400 flex items-center gap-1 font-medium">
                 <AlertCircle className="w-3.5 h-3.5" />
                 Texte très long : seuls les 50 000 premiers caractères sont analysés.
               </p>
             )}
-          </div>
 
-          {/* Option : Séparer A / B et A, B, C */}
-          <div className="flex items-center gap-2 pt-0.5">
-            <input
-              type="checkbox"
-              id="split-slashes-checkbox"
-              checked={splitSlashes}
-              onChange={(e) => setSplitSlashes(e.target.checked)}
-              className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer"
-            />
-            <Label
-              htmlFor="split-slashes-checkbox"
-              className="text-xs text-foreground font-medium cursor-pointer select-none"
-            >
-              Séparer les listes « A / B » ou « A, B, C » de même prix
-            </Label>
-          </div>
+            {/* Option : Séparer A / B et A, B, C */}
+            <div className="flex items-center gap-2.5 pt-0.5">
+              <input
+                type="checkbox"
+                id="split-lists"
+                checked={splitSlashes}
+                onChange={(e) => setSplitSlashes(e.target.checked)}
+                className="w-4 h-4 rounded border-[#2b4175] bg-[#0c1936] text-[#e11d48] accent-[#e11d48] focus:ring-0 focus:ring-offset-0 cursor-pointer flex-shrink-0"
+              />
+              <label
+                htmlFor="split-lists"
+                className="text-xs text-slate-300 font-normal leading-snug cursor-pointer select-none"
+              >
+                Séparer les listes « A / B » ou « A, B, C » de même prix
+              </label>
+            </div>
+          </section>
 
           {/* Erreur de dépassement de limites */}
           {limitError && (
-            <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-xl text-xs text-destructive flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="p-3 bg-rose-950/20 border border-rose-500/30 rounded-xl text-xs text-rose-300 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
               <span className="font-medium">{limitError}</span>
             </div>
           )}
 
           {/* Section Aperçu interactif */}
           {parsedCategories.length > 0 && (
-            <div className="space-y-3 pt-2 border-t border-border/70">
+            <div className="space-y-3 pt-2 border-t border-[#23355b]/70">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                <div className="font-semibold text-foreground flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-primary" />
+                <div className="font-semibold text-white flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-[#e11d48]" />
                   <span>Aperçu avant enregistrement</span>
-                  {isDebouncing && <span className="text-muted-foreground text-[11px] animate-pulse">(analyse…)</span>}
+                  {isDebouncing && <span className="text-slate-400 text-[11px] animate-pulse">(analyse…)</span>}
                 </div>
 
                 {/* Compteur récapitulatif & Actions d'erreurs */}
                 <div className="text-xs flex items-center gap-2 font-medium flex-wrap">
-                  <span className="text-foreground font-bold">
+                  <span className="text-white font-bold">
                     {stats.totalDrinks} boisson{stats.totalDrinks > 1 ? 's' : ''}
                   </span>
                   {stats.warningCount > 0 && (
-                    <span className="text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                    <span className="text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
                       ⚠️ {stats.warningCount} à vérifier
                     </span>
                   )}
                   {stats.errorCount > 0 && (
                     <div className="flex items-center gap-1.5">
-                      <span className="text-destructive bg-destructive/10 px-2 py-0.5 rounded-full font-bold">
+                      <span className="text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-full font-bold">
                         ❌ {stats.errorCount} à corriger
                       </span>
-                      <Button
+                      <button
                         type="button"
-                        variant="outline"
-                        size="sm"
                         onClick={handleDeleteAllErrors}
-                        className="h-6 px-2 text-[11px] font-semibold text-destructive border-destructive/40 bg-destructive/10 hover:bg-destructive/20 gap-1 cursor-pointer"
+                        className="h-6 px-2 text-[11px] font-semibold text-rose-300 border border-rose-500/40 bg-rose-500/15 hover:bg-rose-500/25 rounded-lg flex items-center gap-1 cursor-pointer"
                         title="Supprimer d'un coup toutes les lignes sans prix ou en erreur"
                       >
                         <Trash2 className="w-3 h-3" />
                         <span>Supprimer erreurs ({stats.errorCount})</span>
-                      </Button>
+                      </button>
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Liste des catégories et boissons */}
-              <div className="space-y-4 max-h-[36vh] overflow-y-auto pr-1">
+              <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-1">
                 {parsedCategories.map((cat) => (
                   <div
                     key={cat.tempId}
-                    className="p-3 bg-background/70 rounded-xl border border-border/80 space-y-2.5"
+                    className="p-3 bg-[#0a1426] rounded-xl border border-[#23355b] space-y-2.5"
                   >
                     {/* En-tête de catégorie en mode allowCategories */}
                     {allowCategories && (
-                      <div className="flex items-center gap-2 pb-1.5 border-b border-border/60">
+                      <div className="flex items-center gap-2 pb-1.5 border-b border-[#23355b]/60">
                         <span className="text-lg select-none">{cat.icon}</span>
-                        <Input
+                        <input
                           type="text"
                           value={cat.name}
                           onChange={(e) => handleUpdateCategoryName(cat.tempId, e.target.value)}
-                          className="h-8 text-xs font-bold text-foreground bg-card"
+                          className="h-8 text-xs font-bold text-white bg-[#0e1b35] border border-[#23355b] rounded-lg px-2 flex-1 focus:outline-none focus:border-[#e11d48]"
                           aria-label={`Nom de la catégorie ${cat.name}`}
                         />
-                        <span className="text-[11px] text-muted-foreground shrink-0 font-medium">
+                        <span className="text-[11px] text-slate-400 shrink-0 font-medium">
                           {cat.drinks.length} boisson{cat.drinks.length > 1 ? 's' : ''}
                         </span>
                       </div>
@@ -705,7 +715,7 @@ export const BulkAddDrinksModal = ({
 
                     {/* Lignes de boissons */}
                     {cat.drinks.length === 0 ? (
-                      <p className="text-xs text-muted-foreground italic py-1">
+                      <p className="text-xs text-slate-400 italic py-1">
                         Aucune boisson dans cette catégorie.
                       </p>
                     ) : (
@@ -715,35 +725,35 @@ export const BulkAddDrinksModal = ({
                             key={d.tempId}
                             className={`p-2 rounded-lg border text-xs flex flex-wrap items-center gap-2 transition ${
                               d.status === 'error'
-                                ? 'bg-destructive/5 border-destructive/40'
+                                ? 'bg-rose-950/20 border-rose-500/40 text-rose-200'
                                 : d.status === 'warning'
-                                  ? 'bg-amber-500/5 border-amber-500/30'
-                                  : 'bg-card border-border/60'
+                                  ? 'bg-amber-950/20 border-amber-500/30 text-amber-200'
+                                  : 'bg-[#101e3d]/60 border-[#23355b]/70 text-slate-200'
                             }`}
                           >
                             {/* Statut icône */}
                             <div className="shrink-0" title={d.issues.join(' · ')}>
                               {d.status === 'ok' && (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                               )}
                               {d.status === 'warning' && (
-                                <AlertTriangle className="w-4 h-4 text-amber-500" />
+                                <AlertTriangle className="w-4 h-4 text-amber-400" />
                               )}
                               {d.status === 'error' && (
-                                <XCircle className="w-4 h-4 text-destructive" />
+                                <XCircle className="w-4 h-4 text-rose-400" />
                               )}
                             </div>
 
                             {/* Champ Nom modifiable */}
                             <div className="flex-1 min-w-[140px]">
-                              <Input
+                              <input
                                 type="text"
                                 value={d.name}
                                 onChange={(e) =>
                                   handleUpdateDrinkName(cat.tempId, d.tempId, e.target.value)
                                 }
                                 placeholder="Nom de la boisson"
-                                className="h-8 text-xs bg-background"
+                                className="w-full h-8 text-xs bg-[#08142c] border border-[#23355b] rounded-lg px-2 text-white focus:outline-none focus:border-[#e11d48]"
                                 aria-label="Nom de la boisson"
                               />
                             </div>
@@ -751,7 +761,7 @@ export const BulkAddDrinksModal = ({
                             {/* Champ Prix modifiable */}
                             <div className="w-24 shrink-0">
                               <div className="relative">
-                                <Input
+                                <input
                                   type="number"
                                   step="0.10"
                                   min="0"
@@ -761,53 +771,49 @@ export const BulkAddDrinksModal = ({
                                     handleUpdateDrinkPrice(cat.tempId, d.tempId, e.target.value)
                                   }
                                   placeholder="Prix"
-                                  className="h-8 text-xs pr-6 font-mono text-right bg-background"
+                                  className="w-full h-8 text-xs pr-6 font-mono text-right bg-[#08142c] border border-[#23355b] rounded-lg px-2 text-white focus:outline-none focus:border-[#e11d48]"
                                   aria-label="Prix en euros"
                                 />
-                                <span className="absolute right-2 top-2 text-xs text-muted-foreground select-none pointer-events-none">
+                                <span className="absolute right-2 top-2 text-xs text-slate-400 select-none pointer-events-none">
                                   €
                                 </span>
                               </div>
                             </div>
 
-                            {/* Bouton Utiliser comme catégorie (si en erreur en mode catégories) */}
+                            {/* Bouton Utiliser comme catégorie */}
                             {allowCategories && d.status === 'error' && (
-                              <Button
+                              <button
                                 type="button"
-                                size="sm"
-                                variant="outline"
                                 onClick={() => handlePromoteToCategory(cat.tempId, d.tempId)}
-                                className="h-8 px-2 text-[11px] gap-1 shrink-0 text-primary border-primary/40 hover:bg-primary/10"
+                                className="h-8 px-2 text-[11px] gap-1 shrink-0 text-rose-300 border border-rose-500/40 hover:bg-rose-500/10 rounded-lg flex items-center cursor-pointer"
                                 title="Créer une catégorie avec ce texte"
                               >
                                 <FolderPlus className="w-3.5 h-3.5" />
                                 <span>En faire une catégorie</span>
-                              </Button>
+                              </button>
                             )}
 
                             {/* Bouton Supprimer la ligne */}
-                            <Button
+                            <button
                               type="button"
-                              size="sm"
-                              variant="ghost"
                               onClick={() => handleDeleteDrink(cat.tempId, d.tempId)}
-                              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive shrink-0"
+                              className="h-8 w-8 p-0 text-slate-400 hover:text-rose-400 rounded-lg flex items-center justify-center shrink-0 cursor-pointer"
                               title="Supprimer cette ligne"
                               aria-label="Supprimer la ligne"
                             >
                               <Trash2 className="w-4 h-4" />
-                            </Button>
+                            </button>
 
                             {/* Affichage des avertissements / erreurs spécifiques */}
                             {d.issues && d.issues.length > 0 && (
-                              <div className="w-full text-[11px] text-muted-foreground pl-6 flex items-center gap-1.5 flex-wrap">
+                              <div className="w-full text-[11px] text-slate-400 pl-6 flex items-center gap-1.5 flex-wrap">
                                 {d.issues.map((issue, idx) => (
                                   <span
                                     key={idx}
                                     className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                       d.status === 'error'
-                                        ? 'bg-destructive/10 text-destructive'
-                                        : 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
+                                        ? 'bg-rose-500/15 text-rose-300'
+                                        : 'bg-amber-500/15 text-amber-300'
                                     }`}
                                   >
                                     {issue}
@@ -826,50 +832,55 @@ export const BulkAddDrinksModal = ({
           )}
         </div>
 
-        {/* Pied de dialogue et validation */}
-        <div className="pt-3 border-t border-border shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2.5">
-          <div className="text-xs text-muted-foreground">
-            {stats.errorCount > 0 ? (
-              <span className="text-destructive font-medium flex items-center gap-1.5 flex-wrap">
-                <span>{stats.errorCount} ligne{stats.errorCount > 1 ? 's' : ''} en erreur.</span>
-                <button
-                  type="button"
-                  onClick={handleDeleteAllErrors}
-                  className="underline font-semibold text-destructive hover:opacity-80 cursor-pointer"
-                >
-                  Tout retirer en 1 clic
-                </button>
-              </span>
-            ) : stats.totalDrinks > 0 ? (
-              <span className="text-emerald-700 dark:text-emerald-400 font-medium">
-                Prêt à ajouter {stats.totalDrinks} boisson{stats.totalDrinks > 1 ? 's' : ''}.
-              </span>
-            ) : (
-              <span>Collez une liste ci-dessus pour commencer.</span>
-            )}
-          </div>
+        {/* Séparateur horizontal Stitch */}
+        <hr className="border-t border-[#23355b]/70 my-0.5" />
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 sm:flex-none h-10 text-xs font-medium"
-            >
-              Annuler
-            </Button>
-            <Button
-              type="button"
-              onClick={handleValidate}
-              disabled={stats.totalDrinks === 0 || stats.errorCount > 0 || !!limitError}
-              className="btn-primary flex-1 sm:flex-none h-10 text-xs font-semibold px-4"
-            >
-              {allowCategories
-                ? `Créer la carte (${stats.totalDrinks} boisson${stats.totalDrinks > 1 ? 's' : ''})`
-                : `Ajouter ${stats.totalDrinks} boisson${stats.totalDrinks > 1 ? 's' : ''}`}
-            </Button>
-          </div>
-        </div>
+        {/* Message d'état informatif */}
+        <p className="text-[12px] text-center text-[#8a9bb5] font-normal -mt-0.5">
+          {stats.errorCount > 0 ? (
+            <span className="text-rose-400 font-medium flex items-center justify-center gap-1.5 flex-wrap">
+              <span>{stats.errorCount} ligne{stats.errorCount > 1 ? 's' : ''} en erreur.</span>
+              <button
+                type="button"
+                onClick={handleDeleteAllErrors}
+                className="underline font-semibold hover:opacity-80 cursor-pointer"
+              >
+                Tout retirer en 1 clic
+              </button>
+            </span>
+          ) : stats.totalDrinks > 0 ? (
+            <span className="text-emerald-400 font-medium">
+              Prêt à ajouter {stats.totalDrinks} boisson{stats.totalDrinks > 1 ? 's' : ''}.
+            </span>
+          ) : (
+            <span>Collez une liste ci-dessus pour commencer.</span>
+          )}
+        </p>
+
+        {/* Boutons d'action Stitch (Annuler / Créer la carte) */}
+        <footer className="grid grid-cols-2 gap-3 pt-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full py-2.5 px-4 bg-[#14223f] hover:bg-[#1a2c52] active:scale-[0.98] border border-[#2a3f6a] rounded-xl text-xs font-semibold text-slate-200 transition-all text-center cursor-pointer"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            onClick={handleValidate}
+            disabled={stats.totalDrinks === 0 || stats.errorCount > 0 || !!limitError}
+            className={`w-full py-2.5 px-3 rounded-xl text-xs transition-all text-center ${
+              stats.totalDrinks === 0 || stats.errorCount > 0 || !!limitError
+                ? 'bg-[#7f1d3a]/60 text-[#c2708b] cursor-not-allowed font-medium'
+                : 'bg-gradient-to-r from-[#e11d48] to-[#f43f5e] hover:from-[#d0143f] hover:to-[#e11d48] active:scale-[0.98] text-white font-bold shadow-md shadow-rose-950/30 cursor-pointer'
+            }`}
+          >
+            {allowCategories
+              ? `Créer la carte (${stats.totalDrinks} boisson${stats.totalDrinks > 1 ? 's' : ''})`
+              : `Ajouter ${stats.totalDrinks} boisson${stats.totalDrinks > 1 ? 's' : ''}`}
+          </button>
+        </footer>
       </DialogContent>
     </Dialog>
   );
