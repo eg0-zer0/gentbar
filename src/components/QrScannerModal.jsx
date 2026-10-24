@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, X, AlertCircle, RefreshCw, Upload, Loader2 } from 'lucide-react';
+import { Camera, AlertCircle, RefreshCw, Upload, Loader2 } from 'lucide-react';
 let jsQRInstance = null;
 let jsQRPromise = null;
 
@@ -48,15 +48,12 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
   const animFrameRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [hasCamera, setHasCamera] = useState(true);
   const [cameraError, setCameraError] = useState(null);
-  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
       stopCamera();
       setCameraError(null);
-      setScanning(false);
       return;
     }
 
@@ -84,12 +81,9 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
 
   const startCamera = async () => {
     setCameraError(null);
-    setScanning(true);
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setHasCamera(false);
       setCameraError('Votre navigateur ne prend pas en charge l’accès direct à la caméra (nécessite HTTPS sur mobile). Utilisez le bouton photo ci-dessous.');
-      setScanning(false);
       return;
     }
 
@@ -104,7 +98,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
         },
         audio: false
       });
-    } catch (firstErr) {
+    } catch {
       // 2. Repli souple (webcam PC ou toute caméra)
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -120,7 +114,6 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
         } else {
           setCameraError('Impossible d’ouvrir la caméra (nécessite HTTPS hors localhost). Utilisez le bouton photo ci-dessous.');
         }
-        setScanning(false);
         return;
       }
     }
@@ -156,7 +149,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
             if (barcodes && barcodes.length > 0 && barcodes[0].rawValue) {
               foundData = barcodes[0].rawValue;
             }
-          } catch (e) {
+          } catch {
             // Repli sur jsQR en cas d'erreur de trame
           }
         }
@@ -188,7 +181,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
           return;
         }
       }
-    } catch (e) {
+    } catch {
       // Ignorer les erreurs d'une trame isolée
     }
 
@@ -233,7 +226,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
             onClose();
             return;
           }
-        } catch (detectorErr) {
+        } catch {
           // Continuer vers le repli jsQR
         }
       }
@@ -246,7 +239,7 @@ export const QrScannerModal = ({ isOpen, onClose, onScanSuccess }) => {
         source = await createImageBitmap(file);
         naturalWidth = source.width;
         naturalHeight = source.height;
-      } catch (bmpErr) {
+      } catch {
         source = await loadHtmlImage(file);
         naturalWidth = source.width;
         naturalHeight = source.height;

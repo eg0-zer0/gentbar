@@ -28,7 +28,6 @@ const OrderHistory = ({
   onRemoveOrder,
   onOpenTicket,
   onReorder,
-  categories = [],
   menus = []
 }) => {
   const [orderToDelete, setOrderToDelete] = useState(null);
@@ -213,7 +212,6 @@ const OrderHistory = ({
                       <ShareButtons 
                         order={order} 
                         menus={menus}
-                        isCurrentOrder={false} 
                         className="flex-1 h-9 px-3 bg-secondary hover:bg-secondary/80 border border-border text-secondary-foreground hover:text-card-foreground rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         size="sm"
                       />

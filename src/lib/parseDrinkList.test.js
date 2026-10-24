@@ -1,4 +1,4 @@
-import { parseDrinkList, guessCategoryIcon, MAX_PASTE_CHARS } from './parseDrinkList';
+import { parseDrinkList, guessCategoryIcon } from './parseDrinkList';
 
 describe('parseDrinkList — Analyse tolérante de liste de boissons (Étape 9.8)', () => {
   test('entrée vide ou uniquement des espaces renvoie un résultat vide sans erreur', () => {

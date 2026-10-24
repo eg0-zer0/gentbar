@@ -27,7 +27,6 @@ import { groupOrderItemsByBar, getOrderItemKey } from '../lib/menus';
  */
 const TicketView = ({
   order,
-  categories = [],
   menus = [],
   onClose,
   onReorder
@@ -336,7 +335,6 @@ const TicketView = ({
             <ShareButtons 
               order={order} 
               menus={menus}
-              isCurrentOrder={false} 
               className="w-full py-2.5 px-3 bg-secondary hover:bg-secondary/80 border border-border rounded-xl text-secondary-foreground text-xs font-semibold flex items-center justify-center space-x-2 transition cursor-pointer"
               size="sm"
               disabled={isLocked}

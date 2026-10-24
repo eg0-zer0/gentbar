@@ -36,7 +36,7 @@ import { formatPrice } from '../lib/format';
 import '../App.css';
 
 const DrinkOrderApp = () => {
-  const { viewMode, setViewMode } = useViewMode();
+  const { viewMode } = useViewMode();
 
   const searchGridColsClass =
     viewMode === 'minimal'
@@ -231,8 +231,6 @@ const DrinkOrderApp = () => {
           <Header
             soundEnabled={soundEnabled}
             onToggleSound={() => setSoundEnabled(s => !s)}
-            viewMode={viewMode}
-            onChangeViewMode={setViewMode}
             onShowHistory={() => setShowHistory(true)}
             activeBarName={activeMenu?.name || 'Club de hockey'}
             activeBarIcon={activeMenu?.icon || '🏒'}
@@ -310,13 +308,11 @@ const DrinkOrderApp = () => {
                         drink={drink}
                         onAdd={addDrink}
                         onEdit={handleEditDrink}
-                        onDelete={handleDeleteDrink}
                         popularityScore={drinkPopularity[drink.id] ?? 0}
                         quantityInOrder={orders.find(o => o.drinkId === drink.id)?.quantity || 0}
                         soundEnabled={soundEnabled}
                         categoryName={drink.categoryName}
                         categoryIcon={drink.categoryIcon}
-                        className="drink-card"
                       />
                     ))}
                   </div>
@@ -364,7 +360,6 @@ const DrinkOrderApp = () => {
                     onAddDrinkToCategory={handleAddDrinkToCategory}
                     onAddDrinksToCategory={addDrinksToCategory}
                     onDeleteCategory={handleDeleteCategory}
-                    onDeleteDrink={handleDeleteDrink}
                     sortedDrinks={sortDrinks(c.drinks, sortBy)}
                     drinkPopularity={drinkPopularity}
                     orders={orders}
@@ -412,10 +407,8 @@ const DrinkOrderApp = () => {
 
         <OrderHistory
           orderHistory={orderHistory}
-          onOpen={() => setShowHistory(true)}
           onClose={() => setShowHistory(false)}
           isOpen={showHistory}
-          categories={categories}
           menus={menus}
           onRemoveOrder={removeOrder}
           onOpenTicket={(order) => handleOpenTicket(order, 'history')}
@@ -528,7 +521,6 @@ const DrinkOrderApp = () => {
         {ticketViewData && (
           <TicketView
             order={ticketViewData.order}
-            categories={categories}
             menus={menus}
             onClose={handleCloseTicket}
             onReorder={ticketViewData.order?.isCurrentOrder ? null : handleReorder}

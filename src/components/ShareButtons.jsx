@@ -80,7 +80,7 @@ export const formatOrderSummary = (orderData, menus = []) => {
   return summary;
 };
 
-const ShareButtons = ({ order, menus = [], isCurrentOrder = false, className = '', size, disabled = false }) => {
+const ShareButtons = ({ order, menus = [], className = '', size, disabled = false }) => {
   const [copied, setCopied] = useState(false);
 
   const getShareText = () => formatOrderSummary(order, menus);

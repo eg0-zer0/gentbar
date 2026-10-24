@@ -80,21 +80,6 @@ const OrderSummary = ({
             </span>
           </div>
         </button>
-        {/* Confirmation dialog for clearing cart in floating mode */}
-        {showClearConfirm && (
-          <DeleteConfirmDialog
-            isOpen={showClearConfirm}
-            onClose={() => setShowClearConfirm(false)}
-            onConfirm={() => {
-              onClearAll();
-              setShowClearConfirm(false);
-            }}
-            title="Vider le panier"
-            description="Êtes‑vous sûr de vouloir vider le panier ? Cette action est irréversible."
-            confirmText="Vider"
-            cancelText="Annuler"
-          />
-        )}
       </div>
     );
   }
@@ -312,7 +297,6 @@ const OrderSummary = ({
           <ShareButtons
             order={orders}
             menus={menus}
-            isCurrentOrder={true}
           />
         </CardContent>
       ) : (

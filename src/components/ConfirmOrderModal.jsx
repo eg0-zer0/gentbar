@@ -232,7 +232,6 @@ const ConfirmOrderModal = ({
             <ShareButtons
               order={orders}
               menus={menus}
-              isCurrentOrder={true}
               className="w-full h-9 py-1.5 px-6 rounded-xl bg-secondary/60 hover:bg-secondary border border-border text-secondary-foreground hover:text-card-foreground font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
             />
 

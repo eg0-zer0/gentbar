@@ -21,7 +21,6 @@ const CategorySection = ({
   onAddDrinkToCategory,
   onAddDrinksToCategory,
   onDeleteCategory,
-  onDeleteDrink,
   sortedDrinks = [],
   drinkPopularity = {},
   orders = [],

@@ -3,8 +3,6 @@ import {
   BASE_BAR_ID,
   GENTBAR_BAR_ID,
   createBar,
-  buildBaseBar,
-  buildGentBar,
   buildDefaultBaseBars,
   appendDeletedIds,
   syncOrdersWithBar

@@ -6,7 +6,6 @@ import {
   QrCode,
   FileUp,
   Link as LinkIcon,
-  CheckCircle2,
   AlertCircle,
   Sparkles,
   GitMerge,
@@ -26,7 +25,6 @@ import {
 } from '../lib/barShare';
 import { countBarDrinks } from '../lib/menus';
 import { mergeMenus, summarizeReport } from '../lib/menuMerge';
-import { formatPrice } from '../lib/format';
 import { useMenus } from '../hooks/useMenus';
 // QrScannerModal et jsqr chargés dynamiquement à la demande à l'ouverture du scanner
 
