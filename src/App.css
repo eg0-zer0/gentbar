@@ -158,7 +158,6 @@ body, #root {
   background-color: rgb(var(--card-background-rgb));
   box-shadow: 0 1px 3px rgb(var(--shadow-color-rgb) 0.1);
   border: 1px solid rgb(var(--border-color-rgb));
-  border-radius: 0.5rem;
 }
 
 /* ---------------------------------------------------------------------- */

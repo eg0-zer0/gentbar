@@ -94,15 +94,17 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-6 py-12 transition-colors duration-300">
-      <div className="mb-4">
+    <main className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground text-center px-4 sm:px-6 py-12 transition-colors duration-300">
+      <div className="mb-4 max-w-full">
         <img
           src={`${process.env.PUBLIC_URL}/icons/icon-192x192.png`}
           alt="Logo GentBar"
           className="w-24 h-24 mx-auto mb-4 drop-shadow-[0_4px_16px_rgba(225,29,72,0.4)]"
         />
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-          🍹 GentBar Order App
+        {/* Titre strict sur une seule ligne */}
+        <h1 className="text-2xl xs:text-[26px] sm:text-3xl md:text-4xl font-extrabold text-foreground tracking-tight whitespace-nowrap flex items-center justify-center">
+          <span className="mr-2">🍹</span>
+          <span>GentBar Order App</span>
         </h1>
       </div>
 
@@ -117,25 +119,30 @@ export default function LandingPage() {
         <button
           type="button"
           onClick={() => navigate('/app')}
-          className="w-full h-14 rounded-full bg-gradient-to-r from-[#e11d48] to-[#ff4897] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(225,29,72,0.45)] hover:brightness-110 active:scale-[0.98] transition-all duration-150 cursor-pointer"
+          style={{ borderRadius: '9999px' }}
+          className="w-full h-14 !rounded-full bg-gradient-to-r from-[#e11d48] to-[#ff4897] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_24px_rgba(225,29,72,0.45)] hover:brightness-110 active:scale-[0.98] transition-all duration-150 cursor-pointer"
         >
           <span>Accéder à l&apos;application</span>
           <ArrowRight className="w-5 h-5" />
         </button>
 
-        {/* 2. CTA Secondaire : Installer la PWA */}
+        {/* 2. CTA Secondaire : Installer la PWA (bords arrondis capsule garantis) */}
         {!isInstalled ? (
           <button
             type="button"
             onClick={handleInstallClick}
             aria-label="Installer l'application GentBar"
-            className="w-full h-12 rounded-full bg-card border border-slate-700/60 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-secondary active:scale-[0.98] transition-all duration-150 cursor-pointer"
+            style={{ borderRadius: '9999px' }}
+            className="w-full h-12 !rounded-full bg-card border border-slate-700/60 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:bg-secondary active:scale-[0.98] transition-all duration-150 cursor-pointer"
           >
             <Smartphone className="w-4 h-4 text-[#ff4897]" />
             <span>Installer l&apos;App (PWA)</span>
           </button>
         ) : (
-          <div className="w-full h-12 rounded-full bg-card/60 border border-emerald-500/30 text-emerald-400 font-medium text-sm flex items-center justify-center gap-2">
+          <div
+            style={{ borderRadius: '9999px' }}
+            className="w-full h-12 !rounded-full bg-card/60 border border-emerald-500/30 text-emerald-400 font-medium text-sm flex items-center justify-center gap-2"
+          >
             <Check className="w-4 h-4 text-emerald-400" />
             <span>Application déjà installée</span>
           </div>
@@ -148,7 +155,8 @@ export default function LandingPage() {
           type="button"
           onClick={() => setShowShareModal(true)}
           aria-label="Partager l'application"
-          className="w-full h-11 rounded-full bg-card/50 border border-slate-700/40 text-slate-300 font-medium text-sm flex items-center justify-center gap-2 hover:text-white hover:bg-card transition-colors active:scale-[0.98] cursor-pointer"
+          style={{ borderRadius: '9999px' }}
+          className="w-full h-11 !rounded-full bg-card/50 border border-slate-700/40 text-slate-300 font-medium text-sm flex items-center justify-center gap-2 hover:text-white hover:bg-card transition-colors active:scale-[0.98] cursor-pointer"
         >
           <QrCode className="w-4 h-4 text-slate-400" />
           <span>Partager l&apos;application</span>
@@ -159,7 +167,8 @@ export default function LandingPage() {
           type="button"
           onClick={handleCheckUpdate}
           disabled={updateStatus === 'checking'}
-          className={`w-full h-11 rounded-full border text-sm font-medium flex items-center justify-center gap-2 transition-colors active:scale-[0.98] cursor-pointer ${
+          style={{ borderRadius: '9999px' }}
+          className={`w-full h-11 !rounded-full border text-sm font-medium flex items-center justify-center gap-2 transition-colors active:scale-[0.98] cursor-pointer ${
             updateStatus === 'up-to-date'
               ? 'bg-card/40 border-emerald-500/40 text-emerald-400'
               : 'bg-card/30 border-slate-700/40 text-slate-300 hover:text-white hover:bg-card'
