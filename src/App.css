@@ -728,3 +728,77 @@ html.gentbar .floating-cart {
 html.gentbar .floating-cart > * {
   pointer-events: auto;
 }
+
+
+/* ---------------------------------------------------------------------- */
+/* Boutons spécifiques au thème GentBar (Charte Stitch Velvet Arena)      */
+/* ---------------------------------------------------------------------- */
+html.gentbar .btn-primary,
+html.gentbar button.btn-primary {
+  background: linear-gradient(135deg, #e11d48 0%, #ff4897 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35);
+  transition: all 0.2s ease;
+}
+
+html.gentbar .btn-primary:hover,
+html.gentbar button.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(225, 29, 72, 0.45);
+}
+
+html.gentbar .btn-primary:active,
+html.gentbar button.btn-primary:active {
+  transform: scale(0.98);
+}
+
+html.gentbar .btn-outline,
+html.gentbar button.btn-outline {
+  background-color: #16274a !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  color: #d9e2ff !important;
+  font-weight: 500;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+html.gentbar .btn-outline:hover,
+html.gentbar button.btn-outline:hover {
+  background-color: #1e345e !important;
+  border-color: rgba(255, 72, 151, 0.4) !important;
+  color: #ffffff !important;
+}
+
+html.gentbar .btn-secondary,
+html.gentbar button.btn-secondary {
+  background-color: #16274a !important;
+  border: 1px solid #23355b !important;
+  color: #d9e2ff !important;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+html.gentbar .btn-secondary:hover,
+html.gentbar button.btn-secondary:hover {
+  background-color: #1e345e !important;
+  border-color: rgba(255, 72, 151, 0.4) !important;
+  color: #ffffff !important;
+}
+
+html.gentbar .btn-destructive,
+html.gentbar button.btn-destructive {
+  background-color: rgba(225, 29, 72, 0.15) !important;
+  border: 1px solid rgba(225, 29, 72, 0.4) !important;
+  color: #ffb4ab !important;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+html.gentbar .btn-destructive:hover,
+html.gentbar button.btn-destructive:hover {
+  background-color: rgba(225, 29, 72, 0.35) !important;
+  color: #ffffff !important;
+}
