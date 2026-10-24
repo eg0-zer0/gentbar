@@ -50,19 +50,30 @@ const OrderSummary = ({
 
   if (isFloating) {
     return (
-      <div className="floating-cart flex justify-end items-center w-full">
-        <Button
-          className="btn-primary px-4 py-2 rounded font-semibold text-base shadow-lg flex items-center gap-2"
+      <div className="floating-cart flex justify-center items-center w-full">
+        <button
+          type="button"
+          className="flex items-center justify-between w-full max-w-md h-14 px-5 rounded-2xl bg-[#e4007c] hover:bg-[#d0006f] text-white shadow-[0_12px_28px_rgba(228,0,124,0.38)] transition-all cursor-pointer select-none active:scale-[0.98]"
           onClick={onConfirmOrder}
-          aria-label={`Voir la commande (${totalItems} article${totalItems > 1 ? 's' : ''})`}
+          aria-label={`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
         >
-          {grouped.isMultiBar && (
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">
-              {grouped.barsCount} bars
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-xl">🛍️</span>
+            {grouped.isMultiBar && (
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">
+                {grouped.barsCount} bars
+              </span>
+            )}
+            <span className="font-bold text-base whitespace-nowrap truncate">
+              {`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
             </span>
-          )}
-          <span>{`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}</span>
-        </Button>
+          </div>
+          <div className="shrink-0 ml-3">
+            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-black/25 text-white font-bold text-sm tracking-tight">
+              {formatPrice(totalAmount)}
+            </span>
+          </div>
+        </button>
         {/* Confirmation dialog for clearing cart in floating mode */}
         {showClearConfirm && (
           <DeleteConfirmDialog

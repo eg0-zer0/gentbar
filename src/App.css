@@ -52,20 +52,20 @@ html.dark {
 
 /* ---------------------------------------------------------------------- */
 html.gentbar {
-  --background-rgb: 25, 38, 56;                   /* Bleu nuit plus lumineux */
-  --foreground-rgb: 230, 230, 235;                /* Texte clair doux */
-  --primary-rgb: 90, 120, 140;                     /* Bleu-vert doux */
-  --primary-dark-rgb: 65, 90, 110;                 /* Bleu-vert foncé */
-  --card-background-rgb: 38, 50, 75;               /* Fond carte légèrement plus clair */
-  --button-background-rgb: 90, 120, 140;           /* Boutons bleu-vert */
-  --button-text-rgb: 255, 255, 255;                /* Texte boutons blanc (contraste ≥ 4,5:1) */
-  --border-color-rgb: 60, 75, 95;                  /* Bordures douces */
-  --muted-text-rgb: 150, 160, 180;                 /* Texte atténué */
-  --shadow-color-rgb: 0, 0, 0;                      /* Ombres noires */
-  --warning-bg-rgb: 245, 165, 60;                   /* Jaune-orange chaleureux */
-  --warning-text-rgb: 130, 75, 35;                  /* Texte alerte brun/orangé */
-  --success-bg-rgb: 55, 140, 85;                    /* Vert doux et profond */
-  --success-text-rgb: 215, 245, 220;                /* Vert clair doux */
+  --background-rgb: 6, 18, 44;                     /* #06122c Fond sombre bleu nuit */
+  --foreground-rgb: 217, 226, 255;                 /* #d9e2ff Texte clair haute visibilité */
+  --primary-rgb: 225, 29, 72;                      /* #e11d48 Accent magenta */
+  --primary-dark-rgb: 190, 18, 60;
+  --card-background-rgb: 14, 27, 53;               /* #0e1b35 Conteneur bleu ardoise */
+  --button-background-rgb: 225, 29, 72;            /* Boutons magenta */
+  --button-text-rgb: 255, 255, 255;
+  --border-color-rgb: 35, 53, 91;                  /* #23355b Bordure ardoise discrète */
+  --muted-text-rgb: 148, 163, 184;                 /* #94a3b8 Métadonnées */
+  --shadow-color-rgb: 2, 13, 39;
+  --warning-bg-rgb: 245, 165, 60;
+  --warning-text-rgb: 130, 75, 35;
+  --success-bg-rgb: 55, 140, 85;
+  --success-text-rgb: 215, 245, 220;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -374,6 +374,42 @@ html.minimal .category-grid {
   grid-auto-flow: row;
 }
 
+/* Thème Gentbar - Grille 2 colonnes stricte sur mobile fidèle à Stitch */
+html.gentbar .category-grid,
+html.gentbar.large .category-grid,
+html.gentbar.compact .category-grid,
+html.gentbar.minimal .category-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0.625rem !important;
+}
+
+@media (min-width: 640px) {
+  html.gentbar .category-grid,
+  html.gentbar.large .category-grid,
+  html.gentbar.compact .category-grid,
+  html.gentbar.minimal .category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 0.75rem !important;
+  }
+}
+
+html.gentbar .drink-card {
+  background-color: #0e1b35 !important;
+  border: 1px solid rgba(51, 65, 85, 0.5) !important;
+  border-radius: 0.75rem !important;
+  min-height: 124px !important;
+}
+
+html.gentbar .drink-card .drink-price {
+  color: #f59e0b !important;
+  font-weight: 700 !important;
+}
+
+html.gentbar .drink-card .drink-name {
+  color: #ffffff !important;
+}
+
 /* ---------------------------------------------------------------------- */
 
 /* Styles cartes boisson avec flexbox et disposition interne adaptée */
@@ -668,4 +704,25 @@ header {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Floating cart banner pour gentbar */
+html.gentbar .floating-cart {
+  position: fixed;
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  left: 1rem;
+  right: 1rem;
+  background: transparent !important;
+  border-top: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+html.gentbar .floating-cart > * {
+  pointer-events: auto;
 }

@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Badge } from './ui/badge';
-import { useViewMode } from '../contexts/ViewModeContext';
 import { Edit, TrendingUp } from 'lucide-react';
 import { formatPrice } from '../lib/format';
 
@@ -53,7 +51,6 @@ const DrinkCard = ({
 }) => {
   const [isAdded, setIsAdded] = useState(false);
   const [pulse, setPulse] = useState(false);
-  const { viewMode } = useViewMode();
   const cardRef = useRef(null);
 
   const handleClick = () => {
@@ -64,20 +61,19 @@ const DrinkCard = ({
 
   // Niveau de popularité
   const getPopularityLevel = (score) => {
-    if (score >= 20) return { label: 'TOP', className: 'badge-top' };
-    if (score >= 10) return { label: 'HOT', className: 'badge-hot' };
-    if (score >= 5) return { label: 'POP', className: 'badge-pop' };
+    if (score >= 20) return { label: 'TOP', className: 'bg-red-500/20 text-red-400 border-red-500/30' };
+    if (score >= 10) return { label: 'HOT', className: 'bg-orange-500/20 text-orange-400 border-orange-500/30' };
+    if (score >= 5) return { label: 'POP', className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' };
     return null;
   };
   const popularity = getPopularityLevel(popularityScore);
 
-
-  // Effet vert lors de l’ajout et badge quantité
   useEffect(() => {
     let timer;
-    if (isAdded) timer = setTimeout(() => setIsAdded(false), 1000);
+    if (isAdded) timer = setTimeout(() => setIsAdded(false), 600);
     return () => clearTimeout(timer);
   }, [isAdded]);
+
   useEffect(() => {
     let timer;
     if (quantityInOrder > 0) {
@@ -87,12 +83,6 @@ const DrinkCard = ({
     return () => clearTimeout(timer);
   }, [quantityInOrder]);
 
-  const addedHighlightClass = isAdded ? 'ring-2 ring-green-400' : '';
-  const pulseClass = pulse ? 'animate-pulse' : '';
-  const baseCardClass = 'drink-card rounded-md border border-border-color shadow-sm cursor-pointer select-none transition-colors duration-200 flex flex-col justify-center items-center relative';
-
-  const iconButtonClass = 'btn-icon absolute bottom-2 right-2';
-
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -100,137 +90,63 @@ const DrinkCard = ({
     }
   };
 
-// --- VUE LARGE ---
-if (viewMode === 'large') {
   return (
     <div
       ref={cardRef}
-      className={`${baseCardClass} ${addedHighlightClass} ${pulseClass} p-4 text-base`}
+      className={`drink-card group relative rounded-xl bg-card border border-slate-700/50 p-3 sm:p-3.5 flex flex-col justify-between min-h-[124px] sm:min-h-[132px] shadow-sm hover:border-slate-600 transition-all cursor-pointer select-none active:scale-[0.98] ${
+        isAdded ? 'ring-2 ring-[#ff4897]' : ''
+      } ${pulse ? 'animate-pulse' : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"
       aria-label={`Ajouter ${drink.name} à la commande`}
-      style={{ minHeight: 140 }}
     >
-      {/* Ligne 1 : Popularité */}
-      <div className="flex justify-center mb-1 w-full">
+      {/* Badge quantité en haut à droite (Stitch : rond magenta vibrant) */}
+      {quantityInOrder > 0 && (
+        <div className="absolute -top-1.5 -right-1.5 min-w-[24px] h-6 px-1.5 rounded-full bg-[#ff4897] text-white font-bold text-xs flex items-center justify-center shadow-lg ring-2 ring-[#06122c] z-10">
+          {quantityInOrder}
+        </div>
+      )}
+
+      {/* Partie haute : Nom de la boisson (+ badge popularité ou catégorie en recherche) */}
+      <div className="min-w-0 pr-2 text-left">
         {popularity && (
-          <Badge className={`${popularity.className} mx-auto`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded border mb-1 ${popularity.className}`}>
             {popularity.label}
-            <TrendingUp size={14} className="inline-block ml-1" />
-          </Badge>
+            <TrendingUp size={11} />
+          </span>
         )}
+        {categoryName && (
+          <span className="text-[10px] text-muted-foreground font-medium mb-1 flex items-center gap-1 truncate">
+            {categoryIcon && <span>{categoryIcon}</span>}
+            <span className="truncate">{categoryName}</span>
+          </span>
+        )}
+        <p className="drink-name font-semibold text-sm sm:text-base leading-tight text-white line-clamp-2 text-left">
+          {drink.name}
+        </p>
       </div>
-      {/* Catégorie d'origine (mode recherche) */}
-      {categoryName && (
-        <span className="text-[11px] text-muted-foreground font-normal mb-1 flex items-center justify-center gap-1 max-w-full truncate px-1">
-          {categoryIcon && <span aria-hidden="true">{categoryIcon}</span>}
-          <span className="truncate">{categoryName}</span>
+
+      {/* Partie basse : Prix en ambre/or + Bouton modifier */}
+      <div className="flex items-end justify-between mt-auto pt-3">
+        <span className="drink-price font-bold text-sm sm:text-base text-[#f59e0b] tracking-tight">
+          {formatPrice(drink.price)}
         </span>
-      )}
-      {/* Ligne 2 : Nom boisson, centrée */}
-      <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
-      {/* Ligne 3 : Prix, centré */}
-      <div className="drink-price text-muted-text mb-2 text-center">{formatPrice(drink.price)}</div>
-      {/* Bouton modifier, petit en bas à droite */}
-      <div className="drink-actions" style={{ position: 'absolute', bottom: 0, right: 0 }}>
         <button
-          className="btn-icon"
-          aria-label={`Modifier ${drink.name}`}
-          onClick={e => { e.stopPropagation(); onEdit(drink, 'edit'); }}
           type="button"
+          aria-label={`Modifier ${drink.name}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(drink, 'edit');
+          }}
+          className="w-8 h-8 rounded-lg bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-white flex items-center justify-center transition-colors"
         >
-          <Edit size={16} />
+          <Edit size={14} />
         </button>
       </div>
-      {/* Badge quantité commande en haut à droite */}
-      {quantityInOrder > 0 && (
-        <Badge className={`badge-secondary top-2 right-2 ${pulseClass}`}>{quantityInOrder}</Badge>
-      )}
     </div>
   );
-}
-
-// --- VUE COMPACTE ---
-if (viewMode === 'compact') {
-  return (
-    <div
-      ref={cardRef}
-      className={`${baseCardClass} ${addedHighlightClass} ${pulseClass} p-2 text-sm`}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-      role="button"
-      aria-label={`Ajouter ${drink.name} à la commande`}
-      style={{ minHeight: 98 }}
-    >
-      {/* Catégorie d'origine (mode recherche) */}
-      {categoryName && (
-        <span className="text-[10px] text-muted-foreground font-normal mb-0.5 flex items-center justify-center gap-1 max-w-full truncate px-1">
-          {categoryIcon && <span aria-hidden="true">{categoryIcon}</span>}
-          <span className="truncate">{categoryName}</span>
-        </span>
-      )}
-      {/* Nom boisson, centré */}
-      <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
-      {/* Bouton modifier, petit en bas à droite */}
-      <div className="drink-actions" style={{ position: 'absolute', bottom: 0, right: 0 }}>
-        <button
-          className="btn-icon"
-          aria-label={`Modifier ${drink.name}`}
-          onClick={e => { e.stopPropagation(); onEdit(drink, 'edit'); }}
-          type="button"
-        >
-          <Edit size={16} />
-        </button>
-      </div>
-      {/* Badge commande en haut à droite */}
-      {quantityInOrder > 0 && (
-        <Badge className={`badge-secondary top-2 right-2 ${pulseClass}`}>{quantityInOrder}</Badge>
-      )}
-    </div>
-  );
-}
-
-// --- VUE MINIMALE ---
-return (
-  <div
-    ref={cardRef}
-    className={`${baseCardClass} ${addedHighlightClass} ${pulseClass} p-1 text-xs`}
-    onClick={handleClick}
-    onKeyDown={handleKeyDown}
-    tabIndex={0}
-    role="button"
-    aria-label={`Ajouter ${drink.name} à la commande`}
-    style={{ minHeight: 78 }}
-  >
-    {/* Catégorie d'origine (mode recherche) */}
-    {categoryName && (
-      <span className="text-[9px] text-muted-foreground font-normal mb-0.5 flex items-center justify-center gap-1 max-w-full truncate px-1">
-        {categoryIcon && <span aria-hidden="true">{categoryIcon}</span>}
-        <span className="truncate">{categoryName}</span>
-      </span>
-    )}
-    {/* Nom boisson, centré */}
-    <div className="font-semibold drink-name text-center mb-1 line-clamp-2">{drink.name}</div>
-    {/* Bouton modifier en bas à droite */}
-    <div className="drink-actions" style={{ position: 'absolute', bottom: 0, right: 0 }}>
-      <button
-        className="btn-icon"
-        aria-label={`Modifier ${drink.name}`}
-        onClick={e => { e.stopPropagation(); onEdit(drink, 'edit'); }}
-        type="button"
-      >
-        <Edit size={12} />
-      </button>
-    </div>
-    {/* Badge commande en haut à droite */}
-    {quantityInOrder > 0 && (
-      <Badge className={`badge-secondary top-1 right-1 ${pulseClass}`}>{quantityInOrder}</Badge>
-    )}
-  </div>
-  );
-}
+};
 
 export default DrinkCard;

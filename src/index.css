@@ -96,26 +96,26 @@ code {
     --ring: 252 80% 67%;
   }
 
-  /* Thème Gentbar personnalisé */
+  /* Thème Gentbar personnalisé - Charte Velvet Arena (Stitch) */
   html.gentbar {
-    --background: 218 80% 15%;
-    --foreground: 0 0% 100%;
-    --card: 218 64% 18%;
-    --card-foreground: 0 0% 100%;
-    --popover: 218 80% 15%;
-    --popover-foreground: 328 100% 60%;
-    --primary: 204 22% 45%;
+    --background: 221 76% 10%;            /* #06122c : Fond sombre bleu nuit */
+    --foreground: 225 100% 93%;           /* #d9e2ff : Texte clair haute lisibilité */
+    --card: 220 58% 13%;                  /* #0e1b35 : Conteneur bleu ardoise */
+    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur pour les titres */
+    --popover: 220 58% 13%;               /* #0e1b35 : Popovers et menus */
+    --popover-foreground: 225 100% 93%;
+    --primary: 347 77% 50%;               /* #e11d48 : Accent magenta principal */
     --primary-foreground: 0 0% 100%;
-    --secondary: 218 80% 15%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 218 50% 25%;
-    --muted-foreground: 0 0% 85%;
-    --accent: 328 80% 46%;
+    --secondary: 220 54% 19%;             /* #16274a : Bleu ardoise secondaire */
+    --secondary-foreground: 225 100% 93%;
+    --muted: 220 54% 19%;                 /* #16274a : Éléments neutres en retrait */
+    --muted-foreground: 215 20% 65%;      /* #94a3b8 : Métadonnées / sous-titres */
+    --accent: 330 81% 60%;                /* #ff4897 : Accent magenta lumineux */
     --accent-foreground: 0 0% 100%;
-    --destructive: 9 100% 43%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 100%;
-    --input: 218 80% 15%;
-    --ring: 328 100% 45%;
+    --border: 220 50% 28%;                /* #23355b : Fin contour ardoise discret (sans bordure blanche) */
+    --input: 220 50% 20%;                 /* #1a2a48 */
+    --ring: 347 77% 50%;                  /* Anneau de focus magenta */
   }
 }
