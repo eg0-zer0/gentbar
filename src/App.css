@@ -439,6 +439,29 @@ html.gentbar.minimal .drink-card .btn-edit {
   height: 16px !important;
 }
 
+/* Steppers et suppression dans ConfirmOrderModal (neutralise le min-size 44px mobile) */
+.order-stepper-btn,
+button.order-stepper-btn {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 26px !important;
+  height: 26px !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.order-delete-btn,
+button.order-delete-btn {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 26px !important;
+  height: 26px !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* ---------------------------------------------------------------------- */
 
 /* Styles cartes boisson avec flexbox et disposition interne adaptée */
