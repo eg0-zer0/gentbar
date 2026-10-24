@@ -53,22 +53,28 @@ const OrderSummary = ({
       <div className="floating-cart flex justify-center items-center w-full pointer-events-none">
         <button
           type="button"
-          className="pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-5 rounded-2xl bg-[#e4007c] hover:bg-[#d0006f] text-white shadow-[0_12px_28px_rgba(228,0,124,0.38)] transition-all cursor-pointer select-none active:scale-[0.98]"
+          className="pointer-events-auto flex items-center justify-between w-full max-w-md h-14 px-4 sm:px-5 rounded-2xl bg-[#e4007c] hover:bg-[#d0006f] text-white shadow-[0_12px_28px_rgba(228,0,124,0.38)] transition-all cursor-pointer select-none active:scale-[0.98]"
           onClick={onConfirmOrder}
           aria-label={`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-xl">🛍️</span>
-            {grouped.isMultiBar && (
-              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">
-                {grouped.barsCount} bars
-              </span>
-            )}
-            <span className="font-bold text-base whitespace-nowrap truncate">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            {/* Icône du sac avec pastille multi-bars en exposant (Option 3) */}
+            <div className="relative shrink-0 flex items-center justify-center">
+              <span className="text-xl select-none">🛍️</span>
+              {grouped.isMultiBar && (
+                <span
+                  title={`${grouped.barsCount} bars dans la commande`}
+                  className="absolute -top-1.5 -right-2 min-w-[18px] h-4.5 px-1 rounded-full bg-black/40 text-white font-bold text-[10px] leading-none flex items-center justify-center border border-white/30 shadow-xs"
+                >
+                  {grouped.barsCount}
+                </span>
+              )}
+            </div>
+            <span className="font-bold text-sm sm:text-base whitespace-nowrap">
               {`Voir (${totalItems} article${totalItems > 1 ? 's' : ''})`}
             </span>
           </div>
-          <div className="shrink-0 ml-3">
+          <div className="shrink-0 ml-2.5 sm:ml-3">
             <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-black/25 text-white font-bold text-sm tracking-tight">
               {formatPrice(totalAmount)}
             </span>
