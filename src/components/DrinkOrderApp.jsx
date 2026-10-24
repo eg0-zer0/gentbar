@@ -465,7 +465,7 @@ const DrinkOrderApp = () => {
             if (!open) setOrderSuccessModal({ isOpen: false, order: null });
           }}
         >
-          <DialogContent className="max-w-sm mx-auto rounded-lg p-6 bg-card text-foreground border border-border shadow-xl text-center">
+          <DialogContent className="w-[90vw] max-w-sm mx-auto rounded-2xl p-6 bg-card text-foreground border border-border shadow-xl text-center [&>button.absolute]:hidden">
             <DialogHeader className="flex flex-col items-center">
               <div className="w-14 h-14 rounded-full bg-green-100 dark:bg-green-950/60 text-green-600 dark:text-green-400 flex items-center justify-center mb-3">
                 <CheckCircle2 className="w-8 h-8" />
