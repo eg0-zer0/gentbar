@@ -409,6 +409,36 @@ html.gentbar .drink-card .drink-name {
   color: #ffffff !important;
 }
 
+/* Bouton d'édition discret sur tuile (neutralise strictement le min-width/min-height 44px tactile global) */
+.drink-card .btn-edit,
+.drink-card button.btn-edit {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  line-height: 1;
+}
+
+html.large .drink-card .btn-edit,
+html.gentbar.large .drink-card .btn-edit {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+html.compact .drink-card .btn-edit,
+html.gentbar.compact .drink-card .btn-edit {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+html.minimal .drink-card .btn-edit,
+html.gentbar.minimal .drink-card .btn-edit {
+  width: 16px !important;
+  height: 16px !important;
+}
+
 /* ---------------------------------------------------------------------- */
 
 /* Styles cartes boisson avec flexbox et disposition interne adaptée */

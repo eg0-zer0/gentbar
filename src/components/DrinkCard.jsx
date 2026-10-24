@@ -96,23 +96,18 @@ const DrinkCard = ({
   };
 
   // Tailles proportionnées selon le mode de vue
-  const pencilIconSize = isMinimal ? 11 : isCompact ? 12 : 13;
-  const editButtonClasses = isMinimal
-    ? 'w-6 h-6 rounded-md bg-secondary/80 hover:bg-secondary text-slate-400 hover:text-white flex items-center justify-center transition-colors shrink-0 ml-auto'
-    : isCompact
-    ? 'w-6.5 h-6.5 sm:w-7 sm:h-7 rounded-lg bg-secondary/80 hover:bg-secondary text-slate-400 hover:text-white flex items-center justify-center transition-colors shrink-0'
-    : 'w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-secondary/80 hover:bg-secondary text-slate-400 hover:text-white flex items-center justify-center transition-colors shrink-0';
+  const pencilIconSize = isMinimal ? 10 : isCompact ? 11 : 12;
 
   const badgeSizeClasses = isMinimal
-    ? 'min-w-[20px] h-5 px-1 text-[10px]'
+    ? 'min-w-[18px] h-4.5 px-1 text-[10px]'
     : isCompact
-    ? 'min-w-[22px] h-5.5 px-1.5 text-[11px]'
+    ? 'min-w-[20px] h-5 px-1 text-[10px]'
     : 'min-w-[24px] h-6 px-1.5 text-xs';
 
   return (
     <div
       ref={cardRef}
-      className={`drink-card group relative rounded-xl bg-card border border-slate-700/50 p-2.5 sm:p-3.5 flex flex-col justify-between shadow-sm hover:border-slate-600 transition-all cursor-pointer select-none active:scale-[0.98] ${
+      className={`drink-card group relative rounded-xl bg-card border border-slate-700/50 p-2 sm:p-3 flex flex-col justify-between shadow-sm hover:border-slate-600 transition-all cursor-pointer select-none active:scale-[0.98] ${
         isAdded ? 'ring-2 ring-[#ff4897]' : ''
       } ${pulse ? 'animate-pulse' : ''}`}
       onClick={handleClick}
@@ -129,7 +124,7 @@ const DrinkCard = ({
       )}
 
       {/* Partie haute : Nom de la boisson (+ badge popularité ou catégorie en recherche) */}
-      <div className="min-w-0 pr-1 text-left">
+      <div className="min-w-0 pr-0.5 text-left">
         {!isMinimal && popularity && (
           <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded border mb-1 ${popularity.className}`}>
             {popularity.label}
@@ -137,14 +132,14 @@ const DrinkCard = ({
           </span>
         )}
         {categoryName && (
-          <span className="text-[10px] text-muted-foreground font-medium mb-1 flex items-center gap-1 truncate">
+          <span className="text-[10px] text-muted-foreground font-medium mb-0.5 flex items-center gap-1 truncate">
             {categoryIcon && <span>{categoryIcon}</span>}
             <span className="truncate">{categoryName}</span>
           </span>
         )}
         <p className={`drink-name leading-tight text-white text-left ${
           isMinimal
-            ? 'text-xs font-medium line-clamp-3'
+            ? 'text-[11px] font-medium line-clamp-2'
             : isCompact
             ? 'text-xs sm:text-sm font-semibold line-clamp-2'
             : 'text-sm sm:text-base font-semibold line-clamp-2'
@@ -153,10 +148,10 @@ const DrinkCard = ({
         </p>
       </div>
 
-      {/* Partie basse : Prix (masqué en vue minimal) + Bouton modifier (icône Pencil Stitch) */}
-      <div className={`flex items-end ${isMinimal ? 'justify-end pt-1' : 'justify-between mt-auto pt-2'}`}>
+      {/* Partie basse : Prix (masqué en vue minimal) + Bouton modifier discret */}
+      <div className={`flex items-center ${isMinimal ? 'justify-end mt-auto pt-1' : 'justify-between mt-auto pt-1.5'}`}>
         {!isMinimal && (
-          <span className="drink-price font-bold text-xs sm:text-base text-[#f59e0b] tracking-tight">
+          <span className="drink-price font-bold text-xs sm:text-sm text-[#f59e0b] tracking-tight">
             {formatPrice(drink.price)}
           </span>
         )}
@@ -167,7 +162,7 @@ const DrinkCard = ({
             e.stopPropagation();
             onEdit(drink, 'edit');
           }}
-          className={editButtonClasses}
+          className="btn-edit text-slate-400 hover:text-white hover:bg-white/10 rounded flex items-center justify-center transition-colors cursor-pointer shrink-0"
         >
           <Pencil size={pencilIconSize} className="stroke-[1.75]" />
         </button>
