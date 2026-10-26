@@ -5,9 +5,9 @@ const ThemeContext = createContext();
 // Ordre officiel de rotation des thèmes :
 // 1. Clair => light theme ('light')
 // 2. GentBar => GentBar ('gentbar')
-// 3. Green => Green Turf ('green')
+// 3. Saison => Thème Saisonnier ('saison')
 // 4. Sombre => Dark Theme ('dark')
-export const THEME_MODES = ['light', 'gentbar', 'green', 'dark'];
+export const THEME_MODES = ['light', 'gentbar', 'saison', 'dark'];
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
@@ -20,6 +20,7 @@ export const useTheme = () => {
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('theme-preference');
+    if (saved === 'green') return 'saison';
     return THEME_MODES.includes(saved) ? saved : 'light';
   });
 
@@ -30,9 +31,11 @@ export const ThemeProvider = ({ children }) => {
       'light',
       'gentbar',
       'green',
+      'saison',
       'dark',
       'gentbar-light',
       'gentbar-green',
+      'gentbar-saison',
       'gentbar-dark'
     );
     document.documentElement.classList.add(theme);

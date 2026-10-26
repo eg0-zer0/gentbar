@@ -95,7 +95,7 @@
 - [ ] 9.10 Récapitulatif classique (sélection de tickets) — optionnel
 
 ## Étape 10 — Nettoyage et tests finaux de l'application
-- [x] 10.1 Unification et simplification absolue des thèmes (zéro logique de thème dans les composants, source unique index.css via variables HSL, suppression du doublon RGB de App.css, suppression des préfixes dark: en dur, 4 thèmes Stitch : Clair, GentBar, Green, Sombre)
+- [x] 10.1 Unification et simplification absolue des thèmes (zéro logique de thème dans les composants, source unique index.css via variables HSL, suppression du doublon RGB de App.css, suppression des préfixes dark: en dur, 4 thèmes Stitch : Clair, GentBar, Saison, Sombre)
 - [ ] 10.2 Audit final Lighthouse & PWA (build de production, mesure performance réelle >90/100, accessibilité, PWA hors-ligne)
 
 ---
@@ -140,15 +140,15 @@
   2) **Déclaration des 4 thèmes Stitch dans `src/index.css` et rotation dans `ThemeContext.jsx`** :
      - **Clair** (`html.gentbar-light` / `data-theme="light"`) : fond crème doux, cartes blanches épurées, textes anthracite haute lisibilité, accents magenta / rose punch.
      - **GentBar** (`:root` / `html.gentbar` / `data-theme="gentbar"`) : charte signature *Velvet Arena* (fond prune nocturne profond, cartes velours, accents magenta électrique et prix ambre/or).
-     - **Green** (`html.gentbar-green` / `data-theme="green"`) : thème *Green Turf* (fond gazon nocturne très sombre, tuiles vert émeraude, accents orange vif balle de match et prix or éclatant).
+     - **Saison** (`html.gentbar-saison` / `data-theme="saison"`) : thème saisonnier évolutif — actuellement **Halloween** (fond noir-violet abyssal `#0c0a12`, cartes violet sombre `#1a1426`, accents orange citrouille `#ff7a00` → `#ea580c`, prix vert potion `#a3e635`, et pastille de quantité en forme de mini-citrouille avec tige verte via `::before` en pur CSS).
      - **Sombre** (`html.gentbar-dark` / `html.dark` / `data-theme="dark"`) : thème *Obsidienne & Or* (fond carbone fumé profond, cartes anthracite, bordures bronze discret et accents ambre/or).
-  3) **Menu burger et transition douce** : dans `Header.jsx`, affichage explicite `Thème : [Nom du thème]` avec icônes dédiées (`Sun` pour Clair, `Beer` pour GentBar, `Clover` pour Green, `Moon` pour Sombre). Ajout dans `@layer base` de `src/index.css` d'une transition en fondu doux (`background-color 0.3s ease, border-color 0.3s ease, color 0.25s ease`), automatiquement neutralisée par `@media (prefers-reduced-motion: reduce)`.
+  3) **Menu burger et transition douce** : dans `Header.jsx`, affichage explicite `Thème : [Nom du thème]` avec icônes dédiées (`Sun` pour Clair, `Beer` pour GentBar, `Sparkles` pour Saison, `Moon` pour Sombre). Ajout dans `@layer base` de `src/index.css` d'une transition en fondu doux (`background-color 0.3s ease, border-color 0.3s ease, color 0.25s ease`), automatiquement neutralisée par `@media (prefers-reduced-motion: reduce)`.
   4) **Centralisation des boutons d'action positive (Option B — `.btn-primary`)** : création de la classe utilitaire maîtresse `.btn-primary` (`@apply bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold transition-all hover:opacity-95 active:scale-[0.98]`) dans `@layer components` de `src/index.css` et harmonisation de tous les boutons de validation / confirmation (`OrderSummary`, `ConfirmOrderModal`, `EditDrinkModal`, `EditCategoryModal`, `BulkAddDrinksModal`, `TicketView`, `BarSelector`, `MyBarsScreen`, `ReceiveBarPage`, `ShareBarModal`, `ShareAppModal`).
   5) **Finition des modales et audit du code mort** : retrait des croix de fermeture redondantes (modale « Commande confirmée ! »), ajout de marges latérales responsives (`w-[calc(100vw-2rem)]`) pour éviter que les modales ne touchent les bords de l'écran sur mobile, et nettoyage complet des imports inutilisés et props dormantes (`0 erreur, 0 warning` ESLint sur `src/`, `65/65` tests unitaires Jest au vert, `yarn build` validé).
 
 ## Écarts et décisions en cours
 * Choix design et thèmes de l'Étape 10.1 (24/10/2026) :
-  - **Rotation à 4 thèmes** : `Clair` (`light`) → `GentBar` (`gentbar`, thème par défaut) → `Green` (`green`, Green Turf) → `Sombre` (`dark`, Obsidienne & Or), avec persistance dans `localStorage` et synchronisation de `<meta name="theme-color">`.
+  - **Rotation à 4 thèmes** : `Clair` (`light`) → `GentBar` (`gentbar`, thème par défaut) → `Saison` (`saison`, thème saisonnier évolutif, actuellement Halloween) → `Sombre` (`dark`, Obsidienne & Or), avec persistance dans `localStorage` et synchronisation de `<meta name="theme-color">`.
   - **Boutons d'action positive (Option B)** : adoption d'un dégradé unifié `from-primary to-accent` centralisé dans `.btn-primary` (`src/index.css`) pour tous les boutons de validation et d'action positive, tandis que les actions secondaires conservent `bg-secondary` et les actions destructives `bg-destructive`.
   - **Transition de thème (Solution 1 CSS)** : transition fluide CSS sur `background-color`, `border-color` et `color` dans `@layer base`, sans surcharge JS ni modification des composants React.
   - **Épuration des modales** : suppression des croix de fermeture redondantes lorsqu'un bouton explicite (« Retour au menu », « Annuler ») est déjà présent, et maintien d'une marge minimale (`1rem` de chaque côté) sur mobile.

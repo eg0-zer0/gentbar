@@ -57,30 +57,61 @@
     --price: 38 92% 50%;                  /* #f59e0b : Ambre / Or pour les prix */
   }
 
-  /* 3. Green => Green Turf (Stitch) */
-  html.green,
-  html.gentbar-green,
-  html[data-theme='green'] {
-    --background: 155 55% 6%;             /* #071811 : Vert forêt / gazon nocturne très sombre */
-    --foreground: 138 76% 97%;            /* #f0fdf4 : Blanc menthe / crème haute lisibilité */
-    --card: 156 45% 12%;                  /* #112d22 : Vert émeraude / ardoise foncé */
-    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur haute lisibilité pour les titres */
-    --popover: 157 48% 11%;               /* #0e281e : Vert émeraude profond pour menus et modales */
-    --popover-foreground: 138 76% 97%;    /* #f0fdf4 : Blanc menthe */
-    --primary: 25 95% 53%;                /* #f97316 (orange-500) : Orange vif balle de match */
+  /* 3. Saison => Thème Saisonnier (Halloween - Stitch) */
+  html.saison,
+  html.gentbar-saison,
+  html[data-theme='saison'] {
+    --background: 255 29% 5.5%;           /* #0c0a12 : Noir violet abyssal / nuit d'Halloween */
+    --foreground: 0 0% 100%;              /* #ffffff : Blanc pur haute lisibilité */
+    --card: 260 31% 11%;                  /* #1a1426 : Violet sombre / conteneur de carte */
+    --card-foreground: 0 0% 100%;         /* #ffffff : Blanc pur pour les titres */
+    --popover: 260 36% 10%;               /* #161022 : Violet très sombre pour menus et modales */
+    --popover-foreground: 0 0% 100%;      /* #ffffff : Blanc pur */
+    --primary: 29 100% 50%;               /* #ff7a00 : Orange citrouille vif (bouton principal) */
     --primary-foreground: 0 0% 100%;      /* #ffffff : Texte blanc sur bouton orange */
-    --secondary: 156 43% 16%;             /* #173b2d : Vert sombre surélevé pour champs et éléments secondaires */
-    --secondary-foreground: 138 76% 97%;  /* #f0fdf4 : Blanc menthe */
-    --muted: 157 48% 11%;                 /* #0e281e : Surface vert sombre atténuée */
-    --muted-foreground: 155 25% 65%;      /* #8fbcae : Vert d'eau grisé pour textes et métadonnées secondaires */
-    --accent: 25 95% 53%;                 /* #f97316 (orange-500) : Orange vif identique pour les pastilles */
-    --accent-foreground: 0 0% 100%;       /* #ffffff : Texte blanc sur pastille orange */
+    --secondary: 260 33% 16%;             /* #241b36 : Surface violette surélevée (boutons secondaires, badges) */
+    --secondary-foreground: 263 40% 85%;  /* #d4c8e8 : Lavande clair sur surface secondaire */
+    --muted: 260 36% 10%;                 /* #161022 : Surface violette atténuée (barre de recherche, en-têtes) */
+    --muted-foreground: 263 35% 78%;      /* #c4b5fd / #d4c8e8 : Violet tendre pour métadonnées et icônes */
+    --accent: 21 90% 48%;                 /* #ea580c : Orange brûlé citrouille (dégradé et pastilles) */
+    --accent-foreground: 280 55% 9%;      /* #1a0a22 : Texte sombre profond sur pastille citrouille */
     --destructive: 0 72% 51%;             /* #dc2626 */
     --destructive-foreground: 0 0% 100%;  /* #ffffff */
-    --border: 153 38% 20%;                /* #1f4534 : Contour fin vert émeraude subtil */
-    --input: 153 38% 20%;                 /* #1f4534 : Contour vert émeraude pour les champs */
-    --ring: 25 95% 53%;                   /* #f97316 : Anneau de focus orange */
-    --price: 48 96% 53%;                  /* #facc15 (yellow-400) : Or / jaune éclatant pour les prix */
+    --border: 260 31% 26%;                /* #3b2d56 : Contour violet mystique */
+    --input: 262 34% 20%;                 /* #2f2245 : Contour violet sombre pour les champs de saisie */
+    --ring: 25 95% 53%;                   /* #f97316 : Anneau de focus orange Halloween */
+    --price: 83 78% 55%;                  /* #a3e635 (lime-400) : Vert potion acide éclatant pour les prix */
+  }
+
+  /* Forme de la pastille (citrouille Halloween avec tige verte) uniquement pour le thème Saison */
+  html.saison .drink-card > div.bg-accent,
+  html.gentbar-saison .drink-card > div.bg-accent,
+  html[data-theme='saison'] .drink-card > div.bg-accent {
+    top: -0.625rem;
+    right: -0.5rem;
+    min-width: 1.75rem;
+    height: 1.5rem;
+    border-radius: 12px;
+    background-image: linear-gradient(to bottom, #ff7a00, #ea580c);
+    border: 1px solid rgba(255, 152, 56, 0.6);
+    color: #1a0a22;
+    font-weight: 900;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    filter: drop-shadow(0 2px 8px rgba(249, 115, 22, 0.7));
+  }
+
+  html.saison .drink-card > div.bg-accent::before,
+  html.gentbar-saison .drink-card > div.bg-accent::before,
+  html[data-theme='saison'] .drink-card > div.bg-accent::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 6px;
+    background-color: #4d7c0f;
+    border-radius: 2px 2px 0 0;
   }
 
   /* 4. Sombre => Dark Theme Obsidienne & Or (Stitch) */

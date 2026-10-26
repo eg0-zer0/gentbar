@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { usePWA } from '../hooks/usePWA';
 
-import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Beer, Clover, Home, Store, ChevronDown, QrCode } from 'lucide-react';
+import { Download, Menu, Volume2, VolumeX, Layout, History, Sun, Moon, Beer, Sparkles, Home, Store, ChevronDown, QrCode } from 'lucide-react';
 
 import { Button } from './ui/button';
 
@@ -23,7 +23,7 @@ import {
 const THEME_LABELS = {
   light: 'Clair',
   gentbar: 'GentBar',
-  green: 'Green',
+  saison: 'Saison',
   dark: 'Sombre',
 };
 
@@ -43,7 +43,7 @@ const Header = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // Liste des thèmes dans l'ordre : 1. Clair -> 2. GentBar -> 3. Green -> 4. Sombre
+  // Liste des thèmes dans l'ordre : 1. Clair -> 2. GentBar -> 3. Saison -> 4. Sombre
   const themeModes = THEME_MODES;
   const currentThemeIndex = themeModes.indexOf(theme);
   const nextThemeIndex = (currentThemeIndex + 1) % themeModes.length;
@@ -63,8 +63,8 @@ const Header = ({
         return <Sun className={iconClassName} aria-label="Thème Clair" />;
       case 'gentbar':
         return <Beer className={iconClassName} aria-label="Thème GentBar" />;
-      case 'green':
-        return <Clover className={iconClassName} aria-label="Thème Green" />;
+      case 'saison':
+        return <Sparkles className={iconClassName} aria-label="Thème Saison" />;
       case 'dark':
         return <Moon className={iconClassName} aria-label="Thème Sombre" />;
       default:
