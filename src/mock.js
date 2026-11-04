@@ -1,4 +1,4 @@
-export const MENU_VERSION = '2026-10-09-hockey';
+export const MENU_VERSION = '2026-11-04-gentbar';
 
 export const mockCategories = [
   {
@@ -215,6 +215,7 @@ export const mockGentBarCategories = [
       { id: 'gb-cocktails-aperolspritz', name: 'Aperol Spritz', price: 5.00 },
       { id: 'gb-cocktails-gintonic', name: 'Gin Tonic', price: 5.00 },
       { id: 'gb-cocktails-cubalibre', name: 'Cuba Libre', price: 5.00 },
+      { id: 'gb-cocktails-spritzgenepi', name: 'Spritz Génépi', price: 5.00 },
       { id: 'gb-cocktails-ricard', name: 'Ricard', price: 4.00 },
     ]
   },
@@ -227,6 +228,7 @@ export const mockGentBarCategories = [
     drinks: [
       { id: 'gb-bieres-desperados', name: 'Desperados', price: 2.50 },
       { id: 'gb-bieres-corona', name: 'Corona', price: 2.50 },
+      { id: 'gb-bieres-stfeunoel', name: 'St-Feu Noël', price: 3.50 },
     ]
   },
   {
@@ -238,6 +240,7 @@ export const mockGentBarCategories = [
     drinks: [
       { id: 'gb-vins-roseverre', name: 'Vin Rosé (verre)', price: 3.00 },
       { id: 'gb-vins-blancverre', name: 'Vin Blanc (verre)', price: 3.00 },
+      { id: 'gb-vins-vinchaud', name: 'Vin Chaud', price: 3.50 },
       { id: 'gb-vins-cavaverre', name: 'Cava (verre)', price: 3.00 },
       { id: 'gb-vins-cavabouteille', name: 'Cava (bouteille)', price: 15.00 },
     ]
@@ -253,6 +256,16 @@ export const mockGentBarCategories = [
       { id: 'gb-softs-cocazero', name: 'Coca Zéro', price: 2.50 },
       { id: 'gb-softs-eauplate', name: 'Eau Plate', price: 2.00 },
       { id: 'gb-softs-eaupetillante', name: 'Eau Pétillante', price: 2.00 },
+    ]
+  },
+  {
+    id: 'gb-snacking',
+    name: 'Snacking',
+    icon: '🌭',
+    color: 'bg-amber-100 text-amber-800',
+    isCollapsed: false,
+    drinks: [
+      { id: 'gb-snack-hotdog', name: 'Hot-Dog', price: 4.50 },
     ]
   }
 ];

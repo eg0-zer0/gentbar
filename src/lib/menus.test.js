@@ -252,7 +252,7 @@ describe('Modèle multi-bars et migration (Étapes 9.7b & 9.7d)', () => {
 
     const gentBar = buildGentBar(mockGentBarCategories, MENU_VERSION);
     expect(isBaseBar(gentBar)).toBe(true);
-    expect(countBarDrinks(gentBar)).toBe(14);
+    expect(countBarDrinks(gentBar)).toBe(18);
 
     const copied = duplicateBar(gentBar, { name: 'GentBar Soirée Privée', icon: '🎉' });
     expect(copied.origin).toBe('custom');
@@ -260,7 +260,7 @@ describe('Modèle multi-bars et migration (Étapes 9.7b & 9.7d)', () => {
     expect(copied.sourceId).not.toBe(gentBar.sourceId);
     expect(copied.name).toBe('GentBar Soirée Privée');
     expect(copied.icon).toBe('🎉');
-    expect(countBarDrinks(copied)).toBe(14);
+    expect(countBarDrinks(copied)).toBe(18);
 
     // Indépendance de la copie : modifier la copie ne touche pas gentBar
     const originalPrice = gentBar.categories[0].drinks[0].price;

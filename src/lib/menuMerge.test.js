@@ -313,7 +313,8 @@ describe('Moteur de fusion mergeMenus et utilitaires 9.7c', () => {
       'Cocktails',
       'Bières',
       'Vins',
-      'Softs'
+      'Softs',
+      'Snacking'
     ]);
 
     const manyIds = Array.from({ length: 505 }, (_, i) => `id-${i}`);
